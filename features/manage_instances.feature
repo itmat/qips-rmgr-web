@@ -7,9 +7,10 @@ Feature: Manage Instances
 	Given the following user records
 	| username | privledge |
 	| admin | admin |
+	| guest | restricted |
 	
 	Scenario Outline: Restrict Instance Maintenance
-	Given I am logged in as "<login>" with password "secret"
+	Given I am logged in as "<login>"
 	When I go to <page>
 	Then I should see <action>
 	
@@ -35,5 +36,8 @@ Feature: Manage Instances
 		
 	Scenario: Create an Instance
 		Given I am logged in as "admin"
+		And there are 0 instances left
 		When I go to the list of instances
+		And I follow "Create"
+		Then I should have 1 instances left
 		
