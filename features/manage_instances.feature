@@ -47,5 +47,5 @@ Feature: Manage Instances
 		And I select "admin-systems" from "new_keypair"
 		And I select "TPP" from "new_role"
 		And I press "Start"
-		Then I should see 2 instances
+		Then I should have 2 instances
 		

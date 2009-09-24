@@ -5,9 +5,10 @@ Feature: Manage Roles
 	
 	Background:
 	
-	Given I start the following instances
-		| ami_id | security_group | keypair | roles |
-		| ami-820fefeb | compute-prod | admin-systems | TPP |
+	Given I have the following roles
+		| name | recipes | platform |
+		| TPP | { "recipes": "TPP" } | aki |
+		| sequest | { "recipes": "Sequest" } | windows |
 	
 	Given the following user records
 		| username | privledge |
@@ -21,6 +22,41 @@ Feature: Manage Roles
 	
 	Examples:
 	 	| login | page | action |
-		| admin | the list of instances | be on the list of instances |
-		| guest | the list of instances | not be on the list of instances |
+		| admin | the list of instances | be on the list of roles |
+		| guest | the list of instances | not be on the list of roles |
 		| guest | the list of resources | see "You must be logged in as an administrator to access this page" |
+		
+	
+	Scenario: List Roles
+		Given I am logged in as "admin"
+		When I go to the list of roles
+		Then I should see "TPP"
+		And I should see "Sequest"
+		
+	Scenario: Create Role
+		Given I am logged in as "admin"
+		When I go to the new roles
+		And I fill in "name" with "TestTPP"
+		And I fill in "desc" with "trans-proteomic"
+		And I select "tpp::packages" from "recipes"
+		And I press "Add Recipe"
+		And I press "Create Role"
+		Then I should be on list of roles
+		And I should see "TestTPP"
+		
+	Scenario: Remove Role
+		Given I am logged in as "admin"
+		When I go to the list of roles
+		And I press "Remove Role"
+		Then I should have 1 role
+		
+	Scenario: Edit Role
+		Given I am logged in as "admin"
+		When I go to the list of roles
+		And I press "Edit Role"
+		Then I should be on edit role
+		When I select "r-project::packages" from "recipes"
+		And I press "Save"
+		Then I should be on list of roles
+		And I should see "r-project::packages"
+		
