@@ -6,11 +6,11 @@ Feature: Manage Farms
 	Background:
 	
 	Given I have the following farms
-		| name | description | ami-id | min | max |
-		| WWW | Web Server | ami-99c021f0 | 1 | 1 |
-		| MySQL | DB Server | ami-6b53b202 | 1 | 1 |
-		| Sequest | Sequest Server | ami-db57b6b2 | 0 | 19 |
-		| Compute | Linux Compute Node | ami-db57b6b2 | 0 | 9 |
+		| name | description | ami-id | min | max | enabled |
+		| WWW | Web Server | ami-99c021f0 | 1 | 1 | Y |
+		| MySQL | DB Server | ami-6b53b202 | 1 | 1 | Y |
+		| Sequest | Sequest Server | ami-db57b6b2 | 0 | 19 | Y |
+		| Compute | Linux Compute Node | ami-820fefeb | 0 | 9 | Y |
 	
 	Given I have the following instances in my farm
 		| instance-id | cpu | top | state | farm-id |
@@ -49,6 +49,7 @@ Feature: Manage Farms
 		And I fill in ami-id "ami-015db968"
 		And I fill in min "1"
 		And I fill in max "1"
+		And I fill in enabled "N"
 		And I select "compute" from "role_id"
 		And I press "Create Farm"
 		Then I should be on list of farms

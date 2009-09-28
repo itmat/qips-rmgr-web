@@ -7,9 +7,11 @@ Feature: Manage Roles
 	
 	Given I have the following roles
 		| name | recipes | platform |
-		| TPP | { "recipes": "TPP" } | aki |
-		| sequest | { "recipes": "Sequest" } | windows |
-	
+		| Compute | { "recipes": "TPP" } | aki |
+		| Sequest | { "recipes": "Sequest" } | windows |
+		| WWW | { "recipes": "WWW" } | aki |
+		| DB | { "recipes": "DB" } | aki |
+		
 	Given the following user records
 		| username | privledge |
 		| admin | admin |
@@ -30,19 +32,21 @@ Feature: Manage Roles
 	Scenario: List Roles
 		Given I am logged in as "admin"
 		When I go to the list of roles
-		Then I should see "TPP"
+		Then I should see "WWW"
+		And I should see "DB"
 		And I should see "Sequest"
-		
+		And I should see "Compute"
+				
 	Scenario: Create Role
 		Given I am logged in as "admin"
 		When I go to the new roles
-		And I fill in "name" with "TestTPP"
+		And I fill in "name" with "Test"
 		And I fill in "desc" with "trans-proteomic"
 		And I select "tpp::packages" from "recipes"
 		And I press "Add Recipe"
 		And I press "Create Role"
 		Then I should be on list of roles
-		And I should see "TestTPP"
+		And I should see "Test"
 		
 	Scenario: Remove Role
 		Given I am logged in as "admin"
