@@ -1,0 +1,30 @@
+<h1>Listing instances</h1>
+
+<table>
+  <tr>
+    <th>Instance</th>
+    <th>Cpu</th>
+    <th>Top</th>
+    <th>State</th>
+    <th>Ec2 state</th>
+    <th>Farm</th>
+  </tr>
+
+<% @instances.each do |instance| %>
+  <tr>
+    <td><%=h instance.instance_id %></td>
+    <td><%=h instance.cpu %></td>
+    <td><%=h instance.top %></td>
+    <td><%=h instance.state %></td>
+    <td><%=h instance.ec2_state %></td>
+    <td><%=h instance.farm_id %></td>
+    <td><%= link_to 'Show', instance %></td>
+    <td><%= link_to 'Edit', edit_instance_path(instance) %></td>
+    <td><%= link_to 'Destroy', instance, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New instance', new_instance_path %>

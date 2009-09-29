@@ -1,0 +1,32 @@
+<h1>Listing farms</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Ami</th>
+    <th>Enabled</th>
+    <th>Min</th>
+    <th>Max</th>
+    <th>Role</th>
+  </tr>
+
+<% @farms.each do |farm| %>
+  <tr>
+    <td><%=h farm.name %></td>
+    <td><%=h farm.description %></td>
+    <td><%=h farm.ami_id %></td>
+    <td><%=h farm.enabled %></td>
+    <td><%=h farm.min %></td>
+    <td><%=h farm.max %></td>
+    <td><%=h farm.role_id %></td>
+    <td><%= link_to 'Show', farm %></td>
+    <td><%= link_to 'Edit', edit_farm_path(farm) %></td>
+    <td><%= link_to 'Destroy', farm, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New farm', new_farm_path %>

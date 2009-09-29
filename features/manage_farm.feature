@@ -4,20 +4,26 @@ Feature: Manage Farms
 	I want to manage farms
 	
 	Background:
+	Given the following role records
+		| name | recipes | platform |
+		| Compute | { "recipes": "TPP" } | aki |
+		| Sequest | { "recipes": "Sequest" } | windows |
+		| WWW | { "recipes": "WWW" } | aki |
+		| DB | { "recipes": "DB" } | aki |
+
+	And the following farm records
+		| name | description | ami_id | min | max | role_id |
+		| WWW | Web Server | ami-99c021f0 | 1 | 1 | 3 |
+		| MySQL | DB Server | ami-6b53b202 | 1 | 1 | 4 |
+		| Sequest | Sequest Server | ami-db57b6b2 | 0 | 19 | 2 |
+ 		| Compute | Linux Compute Node | ami-820fefeb | 0 | 9 | 1 |
 	
-	Given I have the following farms
-		| name | description | ami-id | min | max | enabled |
-		| WWW | Web Server | ami-99c021f0 | 1 | 1 | Y |
-		| MySQL | DB Server | ami-6b53b202 | 1 | 1 | Y |
-		| Sequest | Sequest Server | ami-db57b6b2 | 0 | 19 | Y |
-		| Compute | Linux Compute Node | ami-820fefeb | 0 | 9 | Y |
-	
-	Given I have the following instances in my farm
-		| instance-id | cpu | top | state | farm-id |
+	And the following instance records
+		| instance_id | cpu | top | state | farm_id |
 		| i-1234abcd | 0.00 | sequest-server | Busy | 3 |
-	
-	Given the following user records
-		| username | privledge |
+
+	And the following user records
+		| username | privilege |
 		| admin | admin |
 		| guest | restricted |
 	
@@ -34,15 +40,16 @@ Feature: Manage Farms
 		
 		
 	Scenario: List Farms
-		Given I am logged in as "admin"
-		When I go to the list of farms
+		#Given I am logged in as "admin" with password "admin"
+		Given I am logged in
+		And I go to the list of farms
 		Then I should see "MySQL"
 		And I should see "WWW"
 		And I should see "Compute"
 		And I should see "Sequest"
 
 	Scenario: Create Farm
-		Given I am logged in as "admin"
+		Given I am logged in
 		When I go to the add farm page
 		And I fill in name "XYZ"
 		And I fill in description "Test Farm"
@@ -56,14 +63,14 @@ Feature: Manage Farms
 		And I should see "XYZ"
 		
 	Scenario: Delete Farm
-		Given I am logged in  as "admin"
+		Given I am logged in
 		When I go to the list of farms
 		And I press "Delete Farm"
 		Then I should be on list of farms
 		And I should have 3 farms
 		
 	Scenario: Update Farm
-		Given I am logged in as "admin"
+		Given I am logged in
 		When I go to the update mysql farm page
 		And I should see "MySQL"
 		And I fill in description "DB Server v2"
@@ -75,8 +82,8 @@ Feature: Manage Farms
 		Then I should be on list of farms
 		And I should see "DB Server v2"
 		
-	Scenario: View Farm
-		Given I am logged in as "admin"
+	Scenario: View Farm and its instances
+		Given I am logged in
 		When I go to the view sequest farm page
 		Then I should see "Sequest Server"
 		And I should see "Sequest"
@@ -85,3 +92,5 @@ Feature: Manage Farms
 		And I should see "0.00"
 		And I should see "sequest-server"
 		And I should see "Busy" 
+		
+		

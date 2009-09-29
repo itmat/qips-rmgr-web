@@ -11,6 +11,9 @@ module NavigationHelpers
     when /the homepage/
       '/'
     
+    when /list of farms/
+      farms_path
+    
     # Add more mappings here.
     # Here is a more fancy example:
     #

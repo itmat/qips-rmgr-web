@@ -1,0 +1,38 @@
+<p>
+  <b>Name:</b>
+  <%=h @farm.name %>
+</p>
+
+<p>
+  <b>Description:</b>
+  <%=h @farm.description %>
+</p>
+
+<p>
+  <b>Ami:</b>
+  <%=h @farm.ami_id %>
+</p>
+
+<p>
+  <b>Enabled:</b>
+  <%=h @farm.enabled %>
+</p>
+
+<p>
+  <b>Min:</b>
+  <%=h @farm.min %>
+</p>
+
+<p>
+  <b>Max:</b>
+  <%=h @farm.max %>
+</p>
+
+<p>
+  <b>Role:</b>
+  <%=h @farm.role_id %>
+</p>
+
+
+<%= link_to 'Edit', edit_farm_path(@farm) %> |
+<%= link_to 'Back', farms_path %>

@@ -4,7 +4,6 @@ Feature: Manage Roles
 	I want to manage roles
 	
 	Background:
-	
 	Given I have the following roles
 		| name | recipes | platform |
 		| Compute | { "recipes": "TPP" } | aki |
@@ -12,7 +11,7 @@ Feature: Manage Roles
 		| WWW | { "recipes": "WWW" } | aki |
 		| DB | { "recipes": "DB" } | aki |
 		
-	Given the following user records
+	And I have the following user records
 		| username | privledge |
 		| admin | admin |
 		| guest | restricted |
@@ -30,7 +29,7 @@ Feature: Manage Roles
 		
 	
 	Scenario: List Roles
-		Given I am logged in as "admin"
+		Given I am logged in
 		When I go to the list of roles
 		Then I should see "WWW"
 		And I should see "DB"
@@ -38,7 +37,7 @@ Feature: Manage Roles
 		And I should see "Compute"
 				
 	Scenario: Create Role
-		Given I am logged in as "admin"
+		Given I am logged in
 		When I go to the new roles
 		And I fill in "name" with "Test"
 		And I fill in "desc" with "trans-proteomic"
@@ -49,13 +48,13 @@ Feature: Manage Roles
 		And I should see "Test"
 		
 	Scenario: Remove Role
-		Given I am logged in as "admin"
+		Given I am logged in
 		When I go to the list of roles
 		And I press "Remove Role"
 		Then I should have 1 role
 		
 	Scenario: Edit Role
-		Given I am logged in as "admin"
+		Given I am logged in
 		When I go to the list of roles
 		And I press "Edit Role"
 		Then I should be on edit role

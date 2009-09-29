@@ -1,0 +1,17 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  instance_id: MyString
+  cpu: 9.99
+  top: MyString
+  state: MyString
+  ec2_state: MyString
+  farm_id: 1
+
+two:
+  instance_id: MyString
+  cpu: 9.99
+  top: MyString
+  state: MyString
+  ec2_state: MyString
+  farm_id: 1
