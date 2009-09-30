@@ -1,0 +1,35 @@
+<% form_for(@farm) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </p>
+  <p>
+    <%= f.label :description %><br />
+    <%= f.text_field :description %>
+  </p>
+  <p>
+    <%= f.label :ami_id %><br />
+    <%= f.text_field :ami_id %>
+  </p>
+  <p>
+    <%= f.label :enabled %><br />
+    <%= f.check_box :enabled %>
+  </p>
+  <p>
+    <%= f.label :min %><br />
+    <%= f.text_field :min %>
+  </p>
+  <p>
+    <%= f.label :max %><br />
+    <%= f.text_field :max %>
+  </p>
+  <p>
+    <%= f.label :role_id %><br />
+    <%= f.select :role_id, Role.all.collect {|r| [ r.name, r.id ] }, { :include_blank => false } %>
+  </p>
+  <p>
+    <%= f.submit 'Submit' %>
+  </p>
+<% end %>

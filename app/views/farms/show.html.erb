@@ -30,9 +30,22 @@
 
 <p>
   <b>Role:</b>
-  <%=h @farm.role_id %>
+  <%=h @farm.role.name %>
 </p>
 
+<h2>Instances: </h2>
+
+<Table>
+
+<tr><td>instance id</td><td>cpu</td><td>top</td><td>state</td><td>ec2 state</td></tr>
+
+<% @farm.instances.each do |i|	%>
+
+<tr><td><%= i.instance_id%></td><td><%= i.cpu%></td><td><%= i.top%></td><td><%= i.state%></td><td><%= i.ec2_state%></td></tr>
+
+<% end%>
+
+</table>
 
 <%= link_to 'Edit', edit_farm_path(@farm) %> |
 <%= link_to 'Back', farms_path %>

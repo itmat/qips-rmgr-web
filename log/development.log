@@ -126,3 +126,164 @@ Processing FarmsController#index (for ::1 at 2009-09-29 16:04:41) [GET]
 Rendering template within layouts/farms
 Rendering farms/index
 Completed in 34ms (View: 28, DB: 1) | 200 OK [http://localhost/farms]
+
+
+Processing FarmsController#new (for ::1 at 2009-09-30 14:24:28) [GET]
+Filter chain halted as [:authenticate] rendered_or_redirected.
+Completed in 4ms (View: 3, DB: 0) | 401 Unauthorized [http://localhost/farms/new]
+
+
+Processing FarmsController#new (for ::1 at 2009-09-30 14:24:32) [GET]
+Rendering template within layouts/farms
+Rendering farms/new
+Completed in 87ms (View: 80, DB: 0) | 200 OK [http://localhost/farms/new]
+
+
+Processing FarmsController#new (for ::1 at 2009-09-30 14:35:40) [GET]
+Rendering template within layouts/farms
+Rendering farms/new
+  [4;36;1mRole Load (0.2ms)[0m   [0;1mSELECT * FROM "roles" [0m
+Rendered farms/_form (21.6ms)
+Completed in 43ms (View: 36, DB: 0) | 200 OK [http://localhost/farms/new]
+
+
+Processing FarmsController#index (for ::1 at 2009-09-30 14:41:50) [GET]
+Filter chain halted as [:authenticate] rendered_or_redirected.
+Completed in 4ms (View: 3, DB: 0) | 401 Unauthorized [http://localhost/farms]
+
+
+Processing FarmsController#index (for ::1 at 2009-09-30 14:41:50) [GET]
+  [4;36;1mFarm Load (0.8ms)[0m   [0;1mSELECT * FROM "farms" [0m
+Rendering template within layouts/farms
+Rendering farms/index
+Completed in 72ms (View: 67, DB: 1) | 200 OK [http://localhost/farms]
+
+
+Processing FarmsController#index (for ::1 at 2009-09-30 15:27:08) [GET]
+  [4;36;1mFarm Load (0.8ms)[0m   [0;1mSELECT * FROM "farms" [0m
+Rendering template within layouts/farms
+Rendering farms/index
+Completed in 41ms (View: 27, DB: 1) | 200 OK [http://localhost/farms]
+
+
+Processing FarmsController#index (for ::1 at 2009-09-30 15:35:53) [GET]
+Filter chain halted as [:authenticate] rendered_or_redirected.
+Completed in 4ms (View: 3, DB: 0) | 401 Unauthorized [http://localhost/farms]
+
+
+Processing FarmsController#index (for ::1 at 2009-09-30 15:36:02) [GET]
+Filter chain halted as [:authenticate] rendered_or_redirected.
+Completed in 1ms (View: 1, DB: 0) | 401 Unauthorized [http://localhost/farms]
+
+
+Processing FarmsController#index (for ::1 at 2009-09-30 15:36:05) [GET]
+Filter chain halted as [:authenticate] rendered_or_redirected.
+Completed in 1ms (View: 1, DB: 0) | 401 Unauthorized [http://localhost/farms]
+
+
+Processing FarmsController#index (for ::1 at 2009-09-30 15:36:12) [GET]
+Filter chain halted as [:authenticate] rendered_or_redirected.
+Completed in 1ms (View: 1, DB: 0) | 401 Unauthorized [http://localhost/farms]
+
+
+Processing FarmsController#index (for ::1 at 2009-09-30 15:36:20) [GET]
+Filter chain halted as [:authenticate] rendered_or_redirected.
+Completed in 1ms (View: 1, DB: 0) | 401 Unauthorized [http://localhost/farms]
+
+
+Processing FarmsController#index (for ::1 at 2009-09-30 15:36:57) [GET]
+Filter chain halted as [:authenticate] rendered_or_redirected.
+Completed in 1ms (View: 1, DB: 0) | 401 Unauthorized [http://localhost/farms]
+  [4;36;1mSQL (1.0ms)[0m   [0;1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;35;1mSQL (0.2ms)[0m   [0mSELECT version FROM schema_migrations[0m
+Migrating to CreateFarms (20090929180916)
+Migrating to CreateRoles (20090929181104)
+Migrating to CreateInstances (20090929181338)
+Migrating to CreateUsers (20090929184112)
+Migrating to DropUsers (20090930194449)
+  [4;36;1mSQL (0.1ms)[0m   [0;1mselect sqlite_version(*)[0m
+  [4;35;1mSQL (0.8ms)[0m   [0mDROP TABLE "users"[0m
+  [4;36;1mSQL (0.2ms)[0m   [0;1mINSERT INTO schema_migrations (version) VALUES ('20090930194449')[0m
+  [4;35;1mSQL (0.3ms)[0m   [0m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;36;1mSQL (0.3ms)[0m   [0;1mSELECT version FROM schema_migrations[0m
+  [4;35;1mSQL (0.2ms)[0m   [0m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;36;1mSQL (0.1ms)[0m   [0;1mPRAGMA index_list("farms")[0m
+  [4;35;1mSQL (0.0ms)[0m   [0mPRAGMA index_list("instances")[0m
+  [4;36;1mSQL (0.0ms)[0m   [0;1mPRAGMA index_list("roles")[0m
+  [4;36;1mSQL (0.9ms)[0m   [0;1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;35;1mSQL (0.3ms)[0m   [0mSELECT version FROM schema_migrations[0m
+Migrating to CreateFarms (20090929180916)
+Migrating to CreateRoles (20090929181104)
+Migrating to CreateInstances (20090929181338)
+Migrating to CreateUsers (20090929184112)
+Migrating to DropUsers (20090930194449)
+  [4;36;1mSQL (0.1ms)[0m   [0;1mselect sqlite_version(*)[0m
+  [4;35;1mSQL (0.3ms)[0m   [0m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;36;1mSQL (0.3ms)[0m   [0;1mSELECT version FROM schema_migrations[0m
+  [4;35;1mSQL (0.3ms)[0m   [0m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;36;1mSQL (0.0ms)[0m   [0;1mPRAGMA index_list("farms")[0m
+  [4;35;1mSQL (0.0ms)[0m   [0mPRAGMA index_list("instances")[0m
+  [4;36;1mSQL (0.1ms)[0m   [0;1mPRAGMA index_list("roles")[0m
+  [4;36;1mSQL (0.4ms)[0m   [0;1mselect sqlite_version(*)[0m
+  [4;35;1mSQL (0.6ms)[0m   [0m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;36;1mSQL (0.3ms)[0m   [0;1mSELECT version FROM schema_migrations[0m
+  [4;35;1mSQL (0.2ms)[0m   [0m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;36;1mSQL (0.0ms)[0m   [0;1mPRAGMA index_list("farms")[0m
+  [4;35;1mSQL (0.1ms)[0m   [0mPRAGMA index_list("instances")[0m
+  [4;36;1mSQL (0.0ms)[0m   [0;1mPRAGMA index_list("roles")[0m
+  [4;35;1mSQL (0.1ms)[0m   [0mselect sqlite_version(*)[0m
+  [4;36;1mSQL (0.4ms)[0m   [0;1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;35;1mSQL (1.3ms)[0m   [0mCREATE TABLE "farms" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar(255), "description" varchar(255), "ami_id" varchar(255), "enabled" boolean, "min" integer, "max" integer, "role_id" integer, "created_at" datetime, "updated_at" datetime) [0m
+  [4;36;1mSQL (0.2ms)[0m   [0;1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;35;1mSQL (16.4ms)[0m   [0mCREATE TABLE "instances" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "instance_id" varchar(255), "cpu" decimal, "top" varchar(255), "state" varchar(255), "ec2_state" varchar(255), "farm_id" integer, "created_at" datetime, "updated_at" datetime) [0m
+  [4;36;1mSQL (0.2ms)[0m   [0;1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;35;1mSQL (1.1ms)[0m   [0mCREATE TABLE "roles" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar(255), "description" varchar(255), "recipes" varchar(255), "platform" varchar(255), "created_at" datetime, "updated_at" datetime) [0m
+  [4;36;1mSQL (0.2ms)[0m   [0;1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;35;1mSQL (1.3ms)[0m   [0mCREATE TABLE "schema_migrations" ("version" varchar(255) NOT NULL) [0m
+  [4;36;1mSQL (1.2ms)[0m   [0;1mCREATE UNIQUE INDEX "unique_schema_migrations" ON "schema_migrations" ("version")[0m
+  [4;35;1mSQL (0.3ms)[0m   [0m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+  [4;36;1mSQL (0.1ms)[0m   [0;1mSELECT version FROM "schema_migrations"[0m
+  [4;35;1mSQL (1.0ms)[0m   [0mINSERT INTO "schema_migrations" (version) VALUES ('20090930194449')[0m
+  [4;36;1mSQL (1.0ms)[0m   [0;1mINSERT INTO "schema_migrations" (version) VALUES ('20090929180916')[0m
+  [4;35;1mSQL (7.5ms)[0m   [0mINSERT INTO "schema_migrations" (version) VALUES ('20090929181104')[0m
+  [4;36;1mSQL (1.0ms)[0m   [0;1mINSERT INTO "schema_migrations" (version) VALUES ('20090929181338')[0m
+  [4;35;1mSQL (1.0ms)[0m   [0mINSERT INTO "schema_migrations" (version) VALUES ('20090929184112')[0m
