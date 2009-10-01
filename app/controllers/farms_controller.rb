@@ -86,6 +86,56 @@ class FarmsController < ApplicationController
     end
   end
   
+  #start some instances from a farm
+  # POST /farms/1/start
+  # post num_start
+  def start
+    @farm = Farm.find(params[:id])
+    num_start = params[:num_start].to_i ||= 1
+    @num_started = @farm.start(num_start)
+
+    if @num_started < num_start
+      flash[:notice] = "Could not start all requested instances due to farm policy. Started #{num_started} instances."
+    else
+      flash[:notice] = "Started #{num_started} instances."
+    end
+
+    format.html { redirect_to(@farm) }
+    format.xml  { head :ok }
+  
+  end
+  
+  
+  # reconcile a farm
+  # POST /farms/1/reconcile
+  def reconcile 
+    @farm = Farm.find(params[:id])
+    @report = @farm.reconcile
+    respond_to do |format|
+      format.html { render }
+      format.xml  { head :ok }
+    end
+
+  end
+  
+  # reconcile all farms
+  # POST /farms/reconcile_all
+  def reconcile_all
+    @farms = Farms.all
+    @reports = Array.new
+
+    @farms.each do |farm|
+      @reports << farm.reconcile
+
+    end
+    
+    respond_to do |format|
+      format.html { render }
+      format.xml  { head :ok }
+    end
+
+  end
+  
   protected
   
   def authenticate

@@ -82,4 +82,18 @@ class InstancesController < ApplicationController
       format.xml  { head :ok }
     end
   end
+  
+  # POST /instances/1/terminate
+  def terminate
+    @instance = Instance.find(params[:id])
+    @instance.terminate
+    @instance.destroy
+
+    respond_to do |format|
+      format.html { redirect_to(instances_url) }
+      format.xml  { head :ok }
+    end
+  end
+
+  
 end
