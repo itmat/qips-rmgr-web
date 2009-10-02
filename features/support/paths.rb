@@ -35,6 +35,17 @@ module NavigationHelpers
     when /view (.+) role page/
       role_path(Role.find_by_name($1))
     
+    when /list of recipes/
+      recipes_path
+      
+    when /new recipe page/
+      new_recipe_path
+      
+    when /edit (.+) recipe page/
+      edit_recipe_path(Recipe.find_by_name($1))
+
+    when /view (.+) recipe page/
+      recipe_path(Recipe.find_by_name($1))
       
     
     # Add more mappings here.

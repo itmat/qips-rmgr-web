@@ -1,4 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :recipes
+
   map.resources :users
 
   map.resources :instances
@@ -6,6 +8,8 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :roles
 
   map.resources :farms
+  
+  map.resources :recipes
 
   # The priority is based upon order of creation: first created -> highest priority.
 

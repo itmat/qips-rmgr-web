@@ -6,14 +6,11 @@ end
 
 Factory.define :farm do |f|
   f.enabled true
-  
 end
 
 Factory.define :instance do |f|
   f.ec2_state "running"
-
 end
-
 
 Factory.define :user do |f|
   f.sequence(:username) { |n| "guest#{n}" }
