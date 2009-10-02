@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091001175642) do
+ActiveRecord::Schema.define(:version => 20091002174617) do
 
   create_table "farms", :force => true do |t|
     t.string   "name"
@@ -40,6 +40,14 @@ ActiveRecord::Schema.define(:version => 20091001175642) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "recipes_roles", :id => false, :force => true do |t|
+    t.integer "role_id"
+    t.integer "recipe_id"
+  end
+
+  add_index "recipes_roles", ["recipe_id"], :name => "index_recipes_roles_on_recipe_id"
+  add_index "recipes_roles", ["role_id"], :name => "index_recipes_roles_on_role_id"
 
   create_table "roles", :force => true do |t|
     t.string   "name"

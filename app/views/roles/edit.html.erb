@@ -16,6 +16,13 @@
     <%= f.text_field :recipes %>
   </p>
   <p>
+    <%= f.label :platform %><br />
+    <%= f.text_field :platform %>
+  </p>
+  <p>
+	<%= select(:recipes_role, :recipe_id, Recipe.all.collect() {|r| [r.name, r.id]} , {}, {:multiple => true, :size => 5} ) %>
+  </p>
+  <p>
     <%= f.submit 'Update' %>
   </p>
 <% end %>
