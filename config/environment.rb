@@ -3,6 +3,23 @@
 # Specifies gem version of Rails to use when vendor/rails is not present
 RAILS_GEM_VERSION = '2.3.4' unless defined? RAILS_GEM_VERSION
 
+# this is the name of the status queue to alert rmgr:
+STATE_QUEUE = 'NODE_STATE'
+
+#RMGR workitem queues
+RMGR_IN_QUEUE = 'RMGR_RQ'
+RMGR_OUT_QUEUE = 'RMGR_RQ_FIN'
+
+VIS_PEEK = 0 # AWS peek visibility timeout in seconds
+VIS_DEFAULT =  1800 # visibility timeout if not specified
+SLEEP_TIME = 30 # sleep time in loop
+
+HOUR_MOD = 50 # num minutes nodes are idle before they are shut off
+
+#get AWS creds
+require File.join(File.dirname(__FILE__), 'aws')
+
+
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
 
