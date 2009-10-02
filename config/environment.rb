@@ -6,7 +6,7 @@ RAILS_GEM_VERSION = '2.3.4' unless defined? RAILS_GEM_VERSION
 # this is the name of the status queue to alert rmgr:
 STATE_QUEUE = 'NODE_STATE'
 
-#RMGR workitem queues
+#RMGR workitem queues. we may not use queues for workflows right now. 
 RMGR_IN_QUEUE = 'RMGR_RQ'
 RMGR_OUT_QUEUE = 'RMGR_RQ_FIN'
 
