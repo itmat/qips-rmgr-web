@@ -8,59 +8,48 @@ class Farm < ActiveRecord::Base
   #
     
   def start(num_requested=1)
-    #TODO  COPIED FROM DAEMON  
     
     # find instances with that image id
-    logger.info "Considering request to start #{num_request} #{@role.name} instances "
+    logger.info "Considering request to start #{num_request} #{role.name} instances "
 
-    total_running = Instance.all(:aws_image_id => conf, 
-                                 :conditions => ["(state = ? OR state = ? OR state = ? OR state = ?)", 'LAUNCHED', "IDLE", 'BUSY', 'RESERVED']).size
+    total_running = (instances.select{ |i| i.running? }).size
+    
+    node_array = instances.select{ |i| i.available? }
 
-    node_array = Instance.all(:aws_image_id => conf, 
-                              :conditions => ["(state = ? OR state = ?) ", 'LAUNCHED', "IDLE"]) 
-
-    if total_running >= instance_configs[conf]['max_running']
-           #Then simpy return the workitem, we reached our limit and they'll just have to wait!
-           DaemonKit.logger.info "Instance limit for #{role_request} reached. Will not start any more instances."
-           #lets reserve all nodes so they don't get shutdown in the meantime.
-           node_array.each do |node|
-             node.state = 'RESERVED'
-             node.save
-           end
-           q_fin.push(WorkItemHelper.encode_workitem(wi))
-           m.delete
+    num_to_start = 0
+ 
+    if total_running >= @max_running
+      logger.info "Instance limit for #{num_requested} reached. Will not start any more instances."
+      #lets reserve all nodes so they don't get shutdown in the meantime.
+      node_array.each do |node|
+        node.state = 'RESERVED'
+        node.save
+      end
+           
     else
-           # reserve those nodes that are running, and then start / create the balance
-           node_array.each do |node|
-             node.state = 'RESERVED'
-             node.save
-             num_request = num_request - 1
-             break if num_request == 0 
-           end
+      # reserve those nodes that are running, and then start / create the balance
+      node_array.each do |node|
+         node.state = 'RESERVED'
+         node.save
+         num_requested = num_requested - 1
+         break if num_request == 0 
+       end
 
-           #now lets start the rest of the nodes needed, assuming we don't go past the max limit!
+      #now lets start the rest of the nodes needed, assuming we don't go past the max limit!
 
-           #first lets get a count of how many nodes are LAUNCHED, IDLE, BUSY, or RESERVED
-           total_left =  instance_configs[conf]['max_running'] - total_running
-           num_to_start = total_left < num_request ? total_left : num_request
+      #first lets get a count of how many nodes are LAUNCHED, IDLE, BUSY, or RESERVED
+      total_left =  @max_running - total_running
+      num_to_start = total_left < num_requested ? total_left : num_requested
 
-           DaemonKit.logger.info "Starting #{num_to_start} more instances for #{role_request} jobs."
-           Thread.new(wi.pid) do
-             msg_copy = m
-             ins = InstanceStarter.new(ec2)
-             ins.start_instances(conf,instance_configs[conf]['aws_groups'],instance_configs[conf]['aws_key'], instance_configs[conf]['role'], num_to_start)
-             DaemonKit.logger.info "Finished starting instances for job #{wi.pid}."
-             q_fin.push(msg_copy.to_s)
-             msg_copy.delete
-           end
-
+      logger.info "Starting #{num_to_start} more instances for #{role.name} jobs."
+      #eventually we will try and thread the startup process, but for now we'll just start it
+      Instance.start_and_create_instances(@ami_id,@groups,@key, role.name, num_to_start)
+      logger.info "Finished starting instances for #{role.name}job."
+  
     end
     
+    return num_to_start
     
-    
-    # based on upper limits need to insert logic here to figure out how many we need to start
-    
-    #finally start appropriate amount of instances. and return that amount
     
   end
 
@@ -71,18 +60,95 @@ class Farm < ActiveRecord::Base
   #
   
   def reconcile
-    #TODO
     
     #First sync instances 
-    
+    Instance.sync_with_ec2
     
     #then make sure this farm is operating withing limits... start and stop based on limits
-    
+    #now lets go through our configs and sync what is running with what is configured to run
+
+    num_stop = 0
+    num_start = 0
+
+    logger.info "Starting / Stopping instances based on config..."
+
+    ia = instances.select{ |i| i.running?} 
+    if ia.size < @min_running
+      num_start = @min_running.to_i - ia.size
+      # need to start some of them
+      logger.info "Attempting to start #{num_start} #{@ami_id} instances..."
+      Instance.start_and_create_instances(@ami_id,@groups,@key, role.name, num_start)
+
+    elsif ia.size > @max_running
+      # need to stop some of the instances, if they are either 'IDLE' or 'LAUNCHED' state
+      num_stop = ia.size - @max_running.to_i
+      count = 0
+      ia.each do |ri|
+        break if count >= num_stop
+        if ri.available? 
+          #shut it down!
+          logger.info "Shutting down instance #{@ami_id} -- #{ri.instance_id}..."
+          ri.terminate
+          count += 1
+        end  
+      end
+    end
     
     # shutdown what we can from idle
     
+    num_stop += scale_down
+    
+    return {:message => 'Finished reconciling', :num_shutdown => num_stop, :num_started => num_start}
     
   end
+
+  #####################################
+  #
+  #   scales down when there are idle instances
+  #   returns number that we shutdown
+  #
+
+  def scale_down
+    
+    num_stopped = 0
+    # lets figure out what we can shut down.
+    logger.info "Looking for unused instances..."
+    instances.each do |i|
+      #this is actually pretty complicated.  we have to figure out the exact range for each instance, based on the instance launch time
+      lt = i.launch_time
+      lt_diff = 60 - lt.min
+      lower_range = HOUR_MOD - lt_diff #careful, it could be negative!
+      lower_range = lower_range + 60 if lower_range < 0 # adjust for negative!
+
+      upper_range = lower_range + (60 - HOUR_MOD) #upper range for mins, could be > 59!
+      upper_range = upper_range - 60 if upper_range > 59 #correct for over 59
+
+      now_min = DateTime.now.min
+ 
+      ###  DEBUG shutdown logic
+      # puts "Instance: #{i.aws_instance_id}"
+      # puts "Now: #{now_min}"
+      # puts "Upper: #{upper_range}"
+      # puts "Lower: #{lower_range}"
+
+      if (now_min > lower_range && now_min < upper_range) || ((upper_range < lower_range) && (now_min < upper_range || now_min > lower_range))
+        #so lets shutdown, but only if it won't bring us below the min_running threshold
+
+        #first find out how many instances are running of this type
+        total_running = (instances.select{ |j| j.running? }).size
+        unless ((total_running - 1) <  @min_running ||  (! i.available?) )
+          # for now we shutdown via aws but this will change as we figure out a better way
+          logger.info "Shutting down #{i.ami_id} -- #{i.instance_id} due to IDLE timeout."
+          i.terminate
+          num_stopped += 1
+        end
+      end
+    end
+
+    return num_stopped
+
+  end
+
 
 
 end

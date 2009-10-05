@@ -34,6 +34,29 @@ class Instance < ActiveRecord::Base
       
       
     end
+
+    ###########
+    # 
+    #   returns true if the instance has a state that is considered running (not shutting down)
+    #
+
+    def running?
+    
+      (state == 'launched' || state == 'idle' || state == 'busy' || state == 'reserved')
+    end
+    
+
+    ###########
+    # 
+    #   returns true if the instance has a state that is considered available for jobs
+    #
+
+    def available?
+      (state == 'launched' || state == 'idle')
+      
+    end
+
+
     
     #######
     #  creates an instance from a typical aws hash.  finds the farm as well. 
@@ -42,7 +65,7 @@ class Instance < ActiveRecord::Base
     def self.create_from_aws_hash(i)
       
       
-      farm = Farm.find(:first, :conditions => :ami_id => :aws_image_id)
+      farm = Farm.find(:first, :conditions => {:ami_id => i[:aws_image_id]})
 
       if farm.nil?
         logger.error "Could not find a farm for #{i[:aws_image_id]}"
@@ -54,7 +77,7 @@ class Instance < ActiveRecord::Base
       
     end
     
-
+    
     ###########  starts instance and saves in local list 
     #
     #  Here is the main method that starts things
@@ -62,7 +85,7 @@ class Instance < ActiveRecord::Base
     #  
     #
 
-    def start_and_create_instances(ami, groups, key, role, num=1)      
+    def self.start_and_create_instances(ami, groups, key, role, num=1)      
       begin
         new_instances = @ec2.run_instances(ami,num,num,groups,key, role, 'public')
         new_instances.each do |i|
@@ -120,7 +143,7 @@ class Instance < ActiveRecord::Base
             
     
     #######################################################
-    #   COPIED FROM DAEMON TODO
+    #   COPIED FROM DAEMON TODO BASED ON SQS UPDATES -- DEPCRECATED?
     #   Update_state grabs a handful of json update msgs from sqs queue
     #   It then updates all the local records from the messages
     #
