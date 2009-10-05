@@ -47,5 +47,17 @@
 
 </table>
 
+
+<% form_tag "/farms/start/#{@farm.id}" do -%>
+	<%= label_tag 'num_start' %>
+	<%= text_field_tag 'num_start' %>
+    <div><%= submit_tag 'Start' %></div>
+<% end -%>
+
+
+
+
+
+
 <%= link_to 'Edit', edit_farm_path(@farm) %> |
 <%= link_to 'Back', farms_path %>
