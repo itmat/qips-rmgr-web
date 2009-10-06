@@ -28,7 +28,7 @@
 	<% end %>
   </p>
   <p>
-	<%= select_tag "role[recipe_ids][]", options_from_collection_for_select(@all_recipes, "id", "name"), :multiple=>true %>
+	<%= select_tag "role[recipe_ids][]", options_for_select(Recipe.all.map{ |recipe| [recipe.name, recipe.id] }), :multiple=>true %>
   </p>
   <p>
     <%= f.submit 'Update' %>
