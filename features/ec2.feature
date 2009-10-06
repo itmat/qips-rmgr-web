@@ -5,12 +5,17 @@ Feature: Manage Farms EC2
 	I want to test ec2 functionality on farms
 	
 	Background:
-	Given the following role records
-		| name | recipes | platform |
-		| Compute | { "recipes": "TPP" } | aki |
-		| Sequest | { "recipes": "Sequest" } | windows |
-		| WWW | { "recipes": "WWW" } | aki |
-		| DB | { "recipes": "DB" } | aki |
+	Given the following recipes
+		| name | description |
+		| Sudo | Configures the sudo file for ITMAT admins |
+		| Cron | Configures the crontab file for the root user |
+		
+	And the following role records
+		| name |  platform |
+		| Compute |  aki |
+		| Sequest |  windows |
+		| WWW |  aki |
+		| DB |  aki |
 
 	And the following farm records
 		| name | description | ami_id | min | max | role_id |
@@ -25,43 +30,43 @@ Feature: Manage Farms EC2
 		#  Starts 4 instances of the first farm in ec2
 		Given I am logged in as "admin"
 		When I go to the view TEST farm page
-		And I fill in "Num to Start" with "4"
-		And press "Start"
+		And I fill in "num_start" with "4"
+		And I press "Start"
 		And I wait for 10 seconds
 		# note that that the max is 3 instances, so there should only be 3 instances
-		Then there should be 3 instances 
+		Then I should have 3 instances with ami_id "ami-c544a5ac"
 		
 	Scenario:  Reconcile a farm
 		# ok now that we started 2 instances in the previous scenario, 
 		# we want to make sure that reconcile will add those two into a fresh cache
 		Given I am logged in as "admin"
-		When I view TEST farm
+		When I go to the  view TEST farm page
 		And I press "Reconcile"
 		# Add 2 that were previously started, delete the original dummy one. 3-1 = 2
-		Then there should be 2 instances
+		Then I should have 2 instances with ami_id "ami-c544a5ac"
 		
 	Scenario: Terminate Instances
 		# this serves to test the terminate instance functionality
 		Given I am logged in as "admin"
-		When I view TEST farm
+		When I go to the view TEST farm page
 		And I press "Reconcile"
-		Then there should be 2 instances
+		Then I should have 2 instances with ami_id "ami-c544a5ac"
 		When I go to the list of instances
 		And I press "Terminate"
 		Then I should be on the list of instances
 		When I press "Terminate"
-		Then there should be 0 instances
+		Then I should have 0 instances with ami_id "ami-c544a5ac"
 		
 	Scenario: Test min limitation. Also confirms delete instance.  
 		# lets reconcile a farm that has persistent instances
 		Given I am logged in as "admin"
-		When I view TEST_PERSIST farm
+		When I go to the view TEST_PERSIST farm page
 		And I press "Reconcile"
 		And I wait for 10 seconds
-		Then there should be 1 instance
+		Then I should have 1 instance with ami_id "ami-db57b6b2"
 		When I go to the list of instances
 		And I press "Terminate"
 		And I wait for 10 seconds
-		Then there should be 0 instances
+		Then I should have 0 instances with ami_id "ami-db57b6b2"
 		
 

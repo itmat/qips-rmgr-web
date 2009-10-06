@@ -1,6 +1,7 @@
 require 'factory_girl'
 
 Factory.define :role do |f|
+  f.recipes Recipe.find(:all)
   f.sequence(:description) { |n| "test description #{n}"} 
 end
 

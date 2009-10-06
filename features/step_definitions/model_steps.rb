@@ -18,6 +18,14 @@ Then /^I should have ([0-9])+ recipes?$/ do |count|
     Recipe.count.should == count.to_i
 end
 
+Then /^I should have ([0-9])+ instances? with ami_id "(.+)"$/ do |count, ami_id|
+    farm = Farm.find_by_ami_id(ami_id)
+    (farm.instances.select{|i| i.running?}).size.should == count.to_i
+    
+end
+
 Then /^I should not be on (.+)$/ do |page_name|
   URI.parse(current_url).path.should != path_to(page_name)
 end
+
+
