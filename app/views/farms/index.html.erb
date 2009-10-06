@@ -8,7 +8,9 @@
     <th>Enabled</th>
     <th>Min</th>
     <th>Max</th>
-    <th>Role</th>
+	<th>Key</th>
+	<th>Groups</th>
+    <th>Roles</th>
   </tr>
 
 <% @farms.each do |farm| %>
@@ -19,7 +21,9 @@
     <td><%=h farm.enabled %></td>
     <td><%=h farm.min %></td>
     <td><%=h farm.max %></td>
-    <td><%=h farm.role_id %></td>
+	<td><%=h farm.key %></td>
+	<td><%=h farm.groups %></td>
+    <td><%=h farm.role.name %></td>
     <td><%= link_to 'Show', farm %></td>
     <td><%= link_to 'Edit', edit_farm_path(farm) %></td>
     <td><%= link_to 'Destroy', farm, :confirm => 'Are you sure?', :method => :delete %></td>

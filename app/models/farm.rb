@@ -2,6 +2,10 @@ class Farm < ActiveRecord::Base
   has_many :instances
   belongs_to :role
 
+  #before save removes any whitespace from the string.  this is so split will give us a clean array
+  before_save :strip_groups
+
+
   #### start N instances from farm. mind upper limits
   #
   #   returns actual number started  
@@ -10,7 +14,7 @@ class Farm < ActiveRecord::Base
   def start(num_requested=1)
     
     # find instances with that image id
-    logger.info "Considering request to start #{num_request} #{role.name} instances "
+    logger.info "Considering request to start #{num_requested} #{role.name} instances "
 
     total_running = (instances.select{ |i| i.running? }).size
     
@@ -18,7 +22,7 @@ class Farm < ActiveRecord::Base
 
     num_to_start = 0
  
-    if total_running >= @max_running
+    if total_running >= max
       logger.info "Instance limit for #{num_requested} reached. Will not start any more instances."
       #lets reserve all nodes so they don't get shutdown in the meantime.
       node_array.each do |node|
@@ -32,18 +36,18 @@ class Farm < ActiveRecord::Base
          node.state = 'RESERVED'
          node.save
          num_requested = num_requested - 1
-         break if num_request == 0 
+         break if num_requested == 0 
        end
 
       #now lets start the rest of the nodes needed, assuming we don't go past the max limit!
 
       #first lets get a count of how many nodes are LAUNCHED, IDLE, BUSY, or RESERVED
-      total_left =  @max_running - total_running
+      total_left =  max - total_running
       num_to_start = total_left < num_requested ? total_left : num_requested
 
       logger.info "Starting #{num_to_start} more instances for #{role.name} jobs."
       #eventually we will try and thread the startup process, but for now we'll just start it
-      Instance.start_and_create_instances(@ami_id,@groups,@key, role.name, num_to_start)
+      Instance.start_and_create_instances(ami_id,groups.split(','),key, role.name, num_to_start)
       logger.info "Finished starting instances for #{role.name}job."
   
     end
@@ -73,21 +77,21 @@ class Farm < ActiveRecord::Base
     logger.info "Starting / Stopping instances based on config..."
 
     ia = instances.select{ |i| i.running?} 
-    if ia.size < @min_running
-      num_start = @min_running.to_i - ia.size
+    if ia.size < min
+      num_start = min.to_i - ia.size
       # need to start some of them
-      logger.info "Attempting to start #{num_start} #{@ami_id} instances..."
-      Instance.start_and_create_instances(@ami_id,@groups,@key, role.name, num_start)
+      logger.info "Attempting to start #{num_start} #{ami_id} instances..."
+      Instance.start_and_create_instances(ami_id,groups.split(','),key, role.name, num_start)
 
-    elsif ia.size > @max_running
+    elsif ia.size > max
       # need to stop some of the instances, if they are either 'IDLE' or 'LAUNCHED' state
-      num_stop = ia.size - @max_running.to_i
+      num_stop = ia.size - max.to_i
       count = 0
       ia.each do |ri|
         break if count >= num_stop
         if ri.available? 
           #shut it down!
-          logger.info "Shutting down instance #{@ami_id} -- #{ri.instance_id}..."
+          logger.info "Shutting down instance #{ami_id} -- #{ri.instance_id}..."
           ri.terminate
           count += 1
         end  
@@ -98,7 +102,7 @@ class Farm < ActiveRecord::Base
     
     num_stop += scale_down
     
-    return {:message => 'Finished reconciling', :num_shutdown => num_stop, :num_started => num_start}
+    return {:farm_name => name, :message => 'Finished reconciling', :num_shutdown => num_stop, :num_started => num_start}
     
   end
 
@@ -136,7 +140,7 @@ class Farm < ActiveRecord::Base
 
         #first find out how many instances are running of this type
         total_running = (instances.select{ |j| j.running? }).size
-        unless ((total_running - 1) <  @min_running ||  (! i.available?) )
+        unless ((total_running - 1) <  min ||  (! i.available?) )
           # for now we shutdown via aws but this will change as we figure out a better way
           logger.info "Shutting down #{i.ami_id} -- #{i.instance_id} due to IDLE timeout."
           i.terminate
@@ -149,6 +153,9 @@ class Farm < ActiveRecord::Base
 
   end
 
-
+  #before save removes any whitespace from the string.  this is so split will give us a clean array
+  def strip_groups
+    groups.gsub!(/\s/,'') unless groups.nil?
+  end
 
 end

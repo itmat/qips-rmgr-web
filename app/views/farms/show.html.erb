@@ -29,6 +29,16 @@
 </p>
 
 <p>
+  <b>Key:</b>
+  <%=h @farm.key %>
+</p>
+
+<p>
+  <b>Groups:</b>
+  <%=h @farm.groups %>
+</p>
+
+<p>
   <b>Role:</b>
   <%=h @farm.role.name %>
 </p>
@@ -47,6 +57,7 @@
 
 </table>
 
+<hr>
 
 <% form_tag "/farms/start/#{@farm.id}" do -%>
 	<%= label_tag 'num_start' %>
@@ -54,7 +65,11 @@
     <div><%= submit_tag 'Start' %></div>
 <% end -%>
 
+<hr>
 
+<% form_tag "/farms/reconcile/#{@farm.id}" do -%>
+    <div><%= submit_tag 'Reconcile!' %></div>
+<% end -%>
 
 
 
