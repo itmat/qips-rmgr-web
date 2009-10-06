@@ -20,8 +20,14 @@
     <%= f.text_field :platform %>
   </p>
   <p>
-	<%= select(:recipes_role, :recipe_id, Recipe.all.collect() {|r| [r.name, r.id]} , {}, {:multiple => true, :size => 5} ) %>
+	<% for recipe in Recipe.find(:all) %>
+	<div>
+		<%= check_box_tag "role[recipe_ids][]", recipe.id, @role.recipes.include?(recipe) %>
+		<%= recipe.name %>
+	</div>
+	<% end %>
   </p>
+
   <p>
     <%= f.submit 'Update' %>
   </p>

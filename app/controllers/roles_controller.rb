@@ -57,6 +57,8 @@ class RolesController < ApplicationController
   # PUT /roles/1
   # PUT /roles/1.xml
   def update
+    params[:role][:recipe_ids] ||= []
+    
     @role = Role.find(params[:id])
 
     respond_to do |format|
