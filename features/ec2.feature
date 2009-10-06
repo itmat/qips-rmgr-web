@@ -1,4 +1,4 @@
-
+@ec2
 Feature: Manage Farms EC2
 	In order to test ec2 with our app
 	As an admin
@@ -53,7 +53,6 @@ Feature: Manage Farms EC2
 		And I wait for 10 seconds
 		Then I should have 0 running instances with ami_id "ami-c544a5ac"
 		
-		@ec2
 	Scenario: Test min limitation. Also confirms delete instance.  
 		# lets reconcile a farm that has persistent instances
 		Given I am logged in as "admin"

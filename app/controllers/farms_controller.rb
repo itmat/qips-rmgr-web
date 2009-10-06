@@ -24,6 +24,7 @@ class FarmsController < ApplicationController
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @farm }
+      format.json  { render :json => @farm }
     end
   end
 
