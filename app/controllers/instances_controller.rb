@@ -95,5 +95,4 @@ class InstancesController < ApplicationController
     end
   end
 
-  
 end

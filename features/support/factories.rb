@@ -5,6 +5,9 @@ Factory.define :role do |f|
   f.sequence(:description) { |n| "test description #{n}"} 
 end
 
+Factory.define :recipe do |f|
+end
+
 Factory.define :farm do |f|
   f.enabled true
 end

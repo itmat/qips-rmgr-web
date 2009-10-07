@@ -1,39 +1,6 @@
 <h1>Editing role</h1>
 
-<% form_for(@role) do |f| %>
-  <%= f.error_messages %>
-
-  <p>
-    <%= f.label :name %><br />
-    <%= f.text_field :name %>
-  </p>
-  <p>
-    <%= f.label :description %><br />
-    <%= f.text_field :description %>
-  </p>
-  <p>
-    <%= f.label :recipes %><br />
-    <%= f.text_field :recipes %>
-  </p>
-  <p>
-    <%= f.label :platform %><br />
-    <%= f.text_field :platform %>
-  </p>
-  <p>
-	<% for recipe in Recipe.find(:all) %>
-	<div>
-		<%= check_box_tag "role[recipe_ids][]", recipe.id, @role.recipes.include?(recipe) %>
-		<%= recipe.name %>
-	</div>
-	<% end %>
-  </p>
-  <p>
-	<%= select_tag "role[recipe_ids][]", options_for_select(Recipe.all.map{ |recipe| [recipe.name, recipe.id] }), :multiple=>true %>
-  </p>
-  <p>
-    <%= f.submit 'Update' %>
-  </p>
-<% end %>
+<%= render :partial => "form" %>
 
 <%= link_to 'Show', @role %> |
 <%= link_to 'Back', roles_path %>

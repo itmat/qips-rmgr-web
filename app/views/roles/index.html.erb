@@ -12,7 +12,7 @@
   <tr>
     <td><%=h role.name %></td>
     <td><%=h role.description %></td>
-    <td><%=h role.recipes %></td>
+    <td><%=h role.recipes.map{ |r| r.name + ' | ' } %></td>
 	<td><%=h role.platform %></td>
     <td><%= link_to 'Show', role %></td>
     <td><%= link_to 'Edit', edit_role_path(role) %></td>

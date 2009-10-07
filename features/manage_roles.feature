@@ -4,12 +4,17 @@ Feature: Manage Roles
 	I want to manage roles
 	
 	Background:
-	Given I have the following roles
-		| name | recipes | platform |
-		| Compute | { "recipes": "TPP" } | aki |
-		| Sequest | { "recipes": "Sequest" } | windows |
-		| WWW | { "recipes": "WWW" } | aki |
-		| DB | { "recipes": "DB" } | aki |
+	Given the following recipe records
+		| name | description |
+		| tpp::packages | Configures the TPP program |
+		| r-project::packages | Configures the R-Project program |
+	
+	And the following role records
+		| name | platform |
+		| Compute | aki |
+		| Sequest | windows |
+		| WWW | aki |
+		| DB | aki |
 	
 	Scenario Outline: Restrict Role Maintenance
 	Given I am logged in as "<login>"
@@ -32,28 +37,26 @@ Feature: Manage Roles
 		And I should see "Compute"
 				
 	Scenario: Create Role
-		Given I am logged in "admin"
+		Given I am logged in as "admin"
 		When I go to the new role page
 		And I fill in "name" with "Test"
 		And I fill in "description" with "trans-proteomic"
-		And I select "tpp::packages" from "recipes"
-		And I press "Add Recipe"
+		And I select "tpp::packages" from "role_recipe_ids_"
 		And I press "Submit"
-		Then I should be on list of roles
-		And I should see "Test"
+		And I go to the list of roles
+		Then I should see "Test"
 		
 	Scenario: Remove Role
-		Given I am logged in "admin"
+		Given I am logged in as "admin"
 		When I go to the list of roles
-		And I press "Destroy"
-		Then I should have 1 role
+		And I follow "Destroy"
+		Then I should have 3 roles
 		
 	Scenario: Edit Role
-		Given I am logged in
+		Given I am logged in as "admin"
 		When I go to the edit WWW role page
-		And I select "r-project::packages" from "recipes"
-		And I press "Add Recipe"
+		And I select "r-project::packages" from "role_recipe_ids_"
 		And I press "Submit"
-		Then I should be on list of roles
-		And I should see "r-project::packages"
+		And I go to the list of roles
+		Then I should see "r-project::packages"
 	
