@@ -1,0 +1,25 @@
+<% form_for(@role) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </p>
+  <p>
+    <%= f.label :description %><br />
+    <%= f.text_field :description %>
+  </p>
+  <p>
+    <%= f.label :platform %><br />
+    <%= f.text_field :platform %>
+  </p>
+  <p>
+	<%= f.label :recipes %><br /><br />
+	<%= select_tag "role[recipe_ids][]", 
+		options_for_select(Recipe.all.map{ |recipe| [recipe.name, recipe.id] }, @role.recipes.map{|recipe2| recipe2.id } ),
+		 :multiple=>true %>
+  </p>
+  <p>
+    <%= f.submit 'Submit' %>
+  </p>
+<% end %>
