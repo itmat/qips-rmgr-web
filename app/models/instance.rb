@@ -7,7 +7,12 @@ class Instance < ActiveRecord::Base
     
     @ec2 = RightAws::Ec2.new(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
 
-    #start ONE instance based on it's farm.  save NEW instance id
+    def self.get_ec2()
+      @ec2 = RightAws::Ec2.new(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+      return @ec2 
+    end
+
+    #start ONE instance based on it's farm.  save NEW instance id. maybe be deprecated!!!
     def start()
       
         begin
@@ -27,11 +32,10 @@ class Instance < ActiveRecord::Base
         
     #make the call to ec2 to terminate the machine.  change status to shutdown
     def terminate
-    
-      ec2.terminate_instances(@instance_id)
-      @state = 'shutdown'
+      ec2 = Instance.get_ec2
+      ec2.terminate_instances(instance_id)
+      self.state = 'shutdown'
       save
-      
       
     end
 
@@ -111,15 +115,20 @@ class Instance < ActiveRecord::Base
       
       # add new instances from aws to local records (should not happen often)
       # we only add instances that we can find farms for.  the rest we don't add
+      # if we don't add then we try and sync ec2_states
       
       @ec2.describe_instances.each do |i|
-        if i[:aws_state] == 'running' || i[:aws_state] == 'starting' || i[:aws_state] == 'pending' then
-          # but check if we really want to save it
-          unless Instance.first(:instance_id => i[:aws_instance_id]) || Farm.find(:first, :conditions => {:ami_id => i[:aws_image_id]}).nil?
+       
+        if inst = Instance.first(:conditions => {:instance_id => i[:aws_instance_id]})
+          inst.ec2_state = i[:aws_state]
+          inst.save
+        else
+          unless Farm.find(:first, :conditions => {:ami_id => i[:aws_image_id]}).nil? || i[:aws_state] == 'shutting-down' || i[:aws_state] == 'terminated'
             temp = Instance.create_from_aws_hash(i)
             logger.info "Added instance: #{i[:aws_image_id]} -- #{i[:aws_instance_id]} -- #{i[:aws_state]} to local record."
           end
         end
+        
       end
       
       #FINALLY we check each of our records against what's running in aws. if instance is not there or is terminated, then delete our record!
@@ -127,15 +136,15 @@ class Instance < ActiveRecord::Base
       Instance.all.each do |i|
         #check if it's on aws
         begin
-          temp = @ec2.describe_instances(i.aws_instance_id)[0]
+          temp = @ec2.describe_instances(i.instance_id)[0]
           if temp[:aws_state] == 'terminated'
             i.destroy
-            logger.info "Removed #{i.aws_image_id} -- #{i.aws_instance_id} from local record."
+            logger.info "Removed #{i.farm.ami_id} -- #{i.instance_id} from local record."
           end
         rescue Exception => e
           puts e.message
           i.destroy
-          logger.info "Removed #{i.aws_image_id} -- #{i.aws_instance_id} from local record."
+          logger.info "Removed #{i.farm.ami_id} -- #{i.instance_id} from local record."
         end
       end
       

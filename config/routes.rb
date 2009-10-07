@@ -7,9 +7,15 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :roles
 
+  map.reconcile_all 'farms/reconcile_all', :controller => 'farms', :action => 'reconcile_all'
+
   map.resources :farms
   
   map.resources :recipes
+
+  map.terminate_instance 'instances/:id/terminate', :controller => 'instances', :action => 'terminate'
+  
+  
 
   # The priority is based upon order of creation: first created -> highest priority.
 

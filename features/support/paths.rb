@@ -14,6 +14,9 @@ module NavigationHelpers
     when /list of farms/
       farms_path
       
+    when /list of instances/
+      instances_path
+      
     when /new farm page/
       new_farm_path
       

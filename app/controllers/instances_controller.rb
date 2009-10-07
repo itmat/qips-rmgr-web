@@ -2,6 +2,9 @@ class InstancesController < ApplicationController
   # GET /instances
   # GET /instances.xml
   def index
+    
+    Instance.sync_with_ec2
+    
     @instances = Instance.all
 
     respond_to do |format|
@@ -13,6 +16,8 @@ class InstancesController < ApplicationController
   # GET /instances/1
   # GET /instances/1.xml
   def show
+    Instance.sync_with_ec2
+    
     @instance = Instance.find(params[:id])
 
     respond_to do |format|
@@ -87,7 +92,6 @@ class InstancesController < ApplicationController
   def terminate
     @instance = Instance.find(params[:id])
     @instance.terminate
-    @instance.destroy
 
     respond_to do |format|
       format.html { redirect_to(instances_url) }

@@ -16,11 +16,15 @@ class FarmsController < ApplicationController
   # GET /farms/1
   # GET /farms/1.xml
   def show
+    
+    Instance.sync_with_ec2
+    
     @farm = Farm.find(params[:id])
 
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @farm }
+      format.json  { render :json => @farm }
     end
   end
 
@@ -95,14 +99,15 @@ class FarmsController < ApplicationController
     @num_started = @farm.start(num_start)
 
     if @num_started < num_start
-      flash[:notice] = "Could not start all requested instances due to farm policy. Started #{num_started} instances."
+      flash[:notice] = "Could not start all requested instances due to farm policy. Started #{@num_started} instances."
     else
-      flash[:notice] = "Started #{num_started} instances."
+      flash[:notice] = "Started #{@num_started} instances."
     end
 
-    format.html { redirect_to(@farm) }
-    format.xml  { head :ok }
-  
+    respond_to do |format|
+      format.html { redirect_to(@farm) }
+      format.xml  { head :ok }
+    end
   end
   
   
@@ -121,7 +126,7 @@ class FarmsController < ApplicationController
   # reconcile all farms
   # POST /farms/reconcile_all
   def reconcile_all
-    @farms = Farms.all
+    @farms = Farm.all
     @reports = Array.new
 
     @farms.each do |farm|

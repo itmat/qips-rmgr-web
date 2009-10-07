@@ -9,6 +9,8 @@ Factory.define :recipe do |f|
 end
 
 Factory.define :farm do |f|
+  f.key "admin-systems"
+  f.groups "default,sequest"
   f.enabled true
 end
 
