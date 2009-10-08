@@ -11,13 +11,21 @@
   </p>
   <p>
     <%= f.label :platform %><br />
-    <%= f.text_field :platform %>
+    <%= f.select :platform, ["windows", "aki"] %>
   </p>
   <p>
 	<%= f.label :recipes %><br /><br />
 	<%= select_tag "role[recipe_ids][]", 
 		options_for_select(Recipe.all.map{ |recipe| [recipe.name, recipe.id] }, @role.recipes.map{|recipe2| recipe2.id } ),
 		 :multiple=>true %>
+  </p>
+  <p>
+    <%= f.label :launch_buffer %><br />
+    <%= f.text_field :launch_buffer %>
+  </p>
+  <p>
+    <%= f.label :prov_buffer %><br />
+    <%= f.text_field :prov_buffer %>
   </p>
   <p>
     <%= f.submit 'Submit' %>

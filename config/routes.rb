@@ -15,6 +15,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.terminate_instance 'instances/:id/terminate', :controller => 'instances', :action => 'terminate'
   
+  map.instance_state 'instance/:id/state', :controller => 'instances', :action => 'state'
   
 
   # The priority is based upon order of creation: first created -> highest priority.

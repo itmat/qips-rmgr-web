@@ -46,7 +46,7 @@ class Instance < ActiveRecord::Base
 
     def running?
     
-      (state == 'launched' || state == 'idle' || state == 'busy' || state == 'reserved')
+      (state == 'launched' || state == 'idle' || state == 'busy' || state == 'reserved' || state == 'manual')
     end
     
 
@@ -66,8 +66,9 @@ class Instance < ActiveRecord::Base
     #  creates an instance from a typical aws hash.  finds the farm as well. 
     #
     
-    def self.create_from_aws_hash(i)
+    def self.create_from_aws_hash(i, state=nil)
       
+      set_state = state ||= 'launched'
       
       farm = Farm.find(:first, :conditions => {:ami_id => i[:aws_image_id]})
 
@@ -75,7 +76,7 @@ class Instance < ActiveRecord::Base
         logger.error "Could not find a farm for #{i[:aws_image_id]}"
         
       else
-        temp = Instance.create(:instance_id => i[:aws_instance_id], :farm => farm, :launch_time => i[:aws_launch_time], :ec2_state => i[:aws_state], :state => "launched")     
+        temp = Instance.create(:instance_id => i[:aws_instance_id], :farm => farm, :launch_time => i[:aws_launch_time], :ec2_state => i[:aws_state], :state => set_state)     
         logger.info "Saved instance #{farm.ami_id} --- #{temp.instance_id}"
       end
       
@@ -124,7 +125,7 @@ class Instance < ActiveRecord::Base
           inst.save
         else
           unless Farm.find(:first, :conditions => {:ami_id => i[:aws_image_id]}).nil? || i[:aws_state] == 'shutting-down' || i[:aws_state] == 'terminated'
-            temp = Instance.create_from_aws_hash(i)
+            temp = Instance.create_from_aws_hash(i, 'manual')
             logger.info "Added instance: #{i[:aws_image_id]} -- #{i[:aws_instance_id]} -- #{i[:aws_state]} to local record."
           end
         end
@@ -149,6 +150,33 @@ class Instance < ActiveRecord::Base
       end
       
     end
+            
+            
+    ######################################################
+    #
+    #  Finds all ec2 instances that don't have farms
+    #  Returns and ARRAY of HASHES representing them 
+    #        
+            
+    def self.rogue_instances
+      
+      rogue_array = Array.new
+      
+      @ec2.describe_instances.each do |i|
+
+        if Farm.find(:first, :conditions => {:ami_id => i[:aws_image_id]}).nil? 
+          rogue_array << i
+
+        end
+      
+      end
+      
+      return rogue_array
+      
+      
+    end
+    
+            
             
     
     #######################################################

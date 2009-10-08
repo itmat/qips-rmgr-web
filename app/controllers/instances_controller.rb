@@ -6,6 +6,7 @@ class InstancesController < ApplicationController
     Instance.sync_with_ec2
     
     @instances = Instance.all
+    @rogues = Instance.rogue_instances
 
     respond_to do |format|
       format.html # index.html.erb
@@ -98,5 +99,30 @@ class InstancesController < ApplicationController
       format.xml  { head :ok }
     end
   end
+  
+  # POST /instances/i-1234abcd/state  :state => 'idle', etc
+  def state
+    @instance = Instance.find_by_instance_id(params[:id])
+    @instance.state = params[:state] if params[:state]
+    @instance.cpu = params[:cpu].to_f if params[:cpu]
+    @instance.top = params[:top] if params[:top]
+    
+    @instance.prov_time = DateTime.now if params[:state] == 'provisioning'
+    
+    
+    @instance.save
+    
+    
+    respond_to do |format|
+      format.html { redirect_to(instances_url) }
+      format.xml  { head :ok }
+    end
+  end  
+  
+  
+  
+  
+  
+  
 
 end
