@@ -11,7 +11,7 @@ class Farm < ActiveRecord::Base
   #   returns actual number started  
   #
     
-  def start(num_requested=1)
+  def start(num_requested=1, workitem_id=nil)
     
     # find instances with that image id
     logger.info "Considering request to start #{num_requested} #{role.name} instances "
@@ -47,8 +47,11 @@ class Farm < ActiveRecord::Base
 
       logger.info "Starting #{num_to_start} more instances for #{role.name} jobs."
       #eventually we will try and thread the startup process, but for now we'll just start it
-      Instance.start_and_create_instances(ami_id,groups.split(','),key, role.name, num_to_start)
-      logger.info "Finished starting instances for #{role.name}job."
+      saved_instances = Instance.start_and_create_instances(ami_id,groups.split(','),key, role.name, num_to_start)
+
+      Delayed::Job.enqueue(InstanceMonitor.new(save_instances, workitem_id)) unless workitem_id.nil?
+      
+      logger.info "Finished starting instances for #{role.name} job."
   
     end
     

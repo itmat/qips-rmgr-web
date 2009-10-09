@@ -111,6 +111,46 @@ class FarmsController < ApplicationController
   end
   
   
+  # start by role
+  # looks up farm based on role, then call start!
+  # looks for :role :num_start :workflow_id
+  def start_by_role
+    if params[:role].nil? || params[:num_start].nil? || params[:workflow_id].nil?
+      respond_to do |format|
+        format.html { head :bad_request }
+        format.xml  { head :bad_request }
+      end
+      
+    else
+      begin
+        role = Role.find(:first, :conditions => {:name => params[:role]})
+        @farm = Farm.find(:first, :conditions => {:role => role})
+        
+        @num_started = @farm.start(params[:num_start], params[:workflow_id])
+      
+      rescue
+        
+        logger.error "Exception Caught while trying to start_by_role"
+        
+        respond_to do |format|
+          format.html { head :bad_request }
+          format.xml  { head :bad_request }
+        end
+      
+      end
+      
+      respond_to do |format|
+        format.html { render }
+        format.xml  { head :ok }
+      end
+      
+      
+    end
+    
+    
+  end
+  
+  
   # reconcile a farm
   # POST /farms/1/reconcile
   def reconcile 

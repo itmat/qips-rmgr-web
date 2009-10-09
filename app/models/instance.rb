@@ -12,16 +12,17 @@ class Instance < ActiveRecord::Base
       return @ec2 
     end
 
-    #start ONE instance based on it's farm.  save NEW instance id. maybe be deprecated!!!
-    def start()
+    # restarts an instance and then repopulates instance-id, etc 
+    def recycle()
       
         begin
           new_instances = @ec2.run_instances(@farm.ami_id, 1 ,1 , @farm.groups.split(','),@farm.key, @farm.role.name, 'public')
           new_instances.each do |i|
-            @instance_id =  i[:aws_instance_id]
-            @launch_time = i[:aws_launch_time]
-            @state = "launched"
-            @ec2_state = i[:aws_state]
+            self.instance_id =  i[:aws_instance_id]
+            self.launch_time = i[:aws_launch_time]
+            self.prov_time = nil
+            self.state = "launched"
+            self.ec2_state = i[:aws_state]
           end
           save
           logger.info "Started and Saved Instance #{@farm.ami_id} -- #{@instance_id}"
@@ -46,7 +47,7 @@ class Instance < ActiveRecord::Base
 
     def running?
     
-      (state == 'launched' || state == 'idle' || state == 'busy' || state == 'reserved' || state == 'manual')
+      (state == 'launched' || state == 'admin' || state == 'provisioning' || state == 'idle' || state == 'busy' || state == 'reserved' || state == 'manual')
     end
     
 
@@ -56,11 +57,13 @@ class Instance < ActiveRecord::Base
     #
 
     def available?
-      (state == 'launched' || state == 'idle')
+      (state == 'launched' || state == 'provisioning' || state == 'idle')
       
     end
 
-
+    def provisioned?
+      (state == 'idle' || state == 'admin' || state == 'busy' || state == 'reserved')
+    end
     
     #######
     #  creates an instance from a typical aws hash.  finds the farm as well. 
@@ -87,14 +90,16 @@ class Instance < ActiveRecord::Base
     #
     #  Here is the main method that starts things
     #  right now it just starts the instances and returns, 
-    #  
+    #  returns array of started instances
     #
 
-    def self.start_and_create_instances(ami, groups, key, role, num=1)      
+    def self.start_and_create_instances(ami, groups, key, role, num=1)
+      saved_instances = []      
       begin
         new_instances = @ec2.run_instances(ami,num,num,groups,key, role, 'public')
         new_instances.each do |i|
           temp = Instance.create_from_aws_hash(i)
+          saved_instances << temp
         end
         logger.info "Started and saved #{num} #{ami} instances."
         
@@ -102,6 +107,8 @@ class Instance < ActiveRecord::Base
         logger.error "Caught exception when trying to start #{num} #{ami} instances!"
       end
 
+      return saved_instances
+      
     end
     
 
