@@ -9,7 +9,7 @@
 
 ### some samples
 
-roles = Role.create([{:name => 'sequest', :description => "test desc"}, {:name => 'compute', :description => "test desc"}])
+roles = Role.create([{:name => 'sequest', :description => "test desc", :launch_buffer => 15, :prov_buffer => 10}, {:name => 'compute', :description => "test desc", :launch_buffer => 15, :prov_buffer => 10}])
 
 farm = Farm.create({:name => 'TEST', :description => 'Test node server', :ami_id => 'ami-c544a5ac',
       :min => 0, :max => 3, :key => 'admin-systems', :groups => 'default, sequest', :role => roles.first})

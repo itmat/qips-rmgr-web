@@ -14,9 +14,9 @@ class Instance < ActiveRecord::Base
 
     # restarts an instance and then repopulates instance-id, etc 
     def recycle()
-      
+        ec2 = Instance.get_ec2
         begin
-          new_instances = @ec2.run_instances(@farm.ami_id, 1 ,1 , @farm.groups.split(','),@farm.key, @farm.role.name, 'public')
+          new_instances = ec2.run_instances(farm.ami_id, 1 ,1 , farm.groups.split(','),farm.key, farm.role.name, 'public')
           new_instances.each do |i|
             self.instance_id =  i[:aws_instance_id]
             self.launch_time = i[:aws_launch_time]
@@ -25,9 +25,10 @@ class Instance < ActiveRecord::Base
             self.ec2_state = i[:aws_state]
           end
           save
-          logger.info "Started and Saved Instance #{@farm.ami_id} -- #{@instance_id}"
-        rescue
-          logger.error "Exception caught while trying to start image #{@farm.ami_id}"
+          logger.info "Started and Saved Instance #{farm.ami_id} -- #{instance_id}"
+        rescue => e
+          logger.error "Exception caught while trying to start image #{farm.ami_id}"
+          logger.error "#{e.message}\n\n#{e.backtrace}"
         end
     end
         

@@ -54,14 +54,13 @@ class Farm < ActiveRecord::Base
         saved_instances = Instance.start_and_create_instances(ami_id,groups.split(','),key, role.name, num_to_start)
       end
       
-      Delayed::Job.enqueue(InstanceMonitor.new(saved_instances, workitem_id)) unless workitem_id.nil?
+      Delayed::Job.enqueue(InstanceMonitor.new(saved_instances.map{|si| si.instance_id}, workitem_id)) unless workitem_id.nil?
       
       #unless workitem_id.nil?
        # im = InstanceMonitor.new(saved_instances, workitem_id)
         #im.perform
         
       #end
-      
       
       logger.info "Finished starting instances for #{role.name} job."
   

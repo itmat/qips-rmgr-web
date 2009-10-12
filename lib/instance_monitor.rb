@@ -1,6 +1,6 @@
 
 
-class InstanceMonitor < Struct.new(:instance_list, :workitem_id)
+class InstanceMonitor < Struct.new(:instance_ids, :workitem_id)
   
   MAX_FAIL_COUNT = 5
   SLEEP_TIME = 15
@@ -9,14 +9,16 @@ class InstanceMonitor < Struct.new(:instance_list, :workitem_id)
   
   def perform
     fail_count = 0
+    instance_list = InstanceMonitor.get_instances(instance_ids)
     up_status = Array.new(instance_list.size) { |s| s = false}  #switch to true when either idle or busy
     while fail_count <= MAX_FAIL_COUNT
       #loop through instances and check to make sure status is 'idle' or 'busy'
 
       #set_status
       up_status.size.times do |i|
+        instance_list[i].reload
         puts "State for #{instance_list[i].instance_id} is: #{instance_list[i].state}"
-        up_status[i] = true if instance_list[i].state == 'idle' || instance_list[i].state == 'admin'
+        up_status[i] = true if instance_list[i].state == 'idle' || instance_list[i].state == 'admin' || instance_list[i].state == 'busy'
       end
       
       # break if all up!
@@ -59,6 +61,20 @@ class InstanceMonitor < Struct.new(:instance_list, :workitem_id)
 
   end
   
+  
+  def self.get_instances(instance_ids)
+    #returns an array of instances based on the instance id's
+    ia = []
+    instance_ids.each do |id|
+      ia << Instance.find(:first, :conditions => {:instance_id => id})
+    end
+    return ia
+  
+  end
+
+  
+  
+  
   def send_reply
     # this is where we send a message back to the workflow engine.  right now, this is just message.
     # eventually this will post back a tcp call or something.
@@ -66,7 +82,7 @@ class InstanceMonitor < Struct.new(:instance_list, :workitem_id)
     
   end
   
-  
+  # this method may be extraneous
   def self.send_reply(workitem_id=nil)
     # this is where we send a message back to the workflow engine.  right now, this is just message.
     # eventually this will post back a tcp call or something.
