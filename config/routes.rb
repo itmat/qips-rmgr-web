@@ -8,6 +8,8 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :roles
 
   map.reconcile_all 'farms/reconcile_all', :controller => 'farms', :action => 'reconcile_all'
+  
+  map.start_by_role 'farms/start_by_role', :controller => 'farms', :action => 'start_by_role'
 
   map.resources :farms
   

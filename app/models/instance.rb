@@ -73,6 +73,8 @@ class Instance < ActiveRecord::Base
       
       set_state = state ||= 'launched'
       
+      temp = nil
+      
       farm = Farm.find(:first, :conditions => {:ami_id => i[:aws_image_id]})
 
       if farm.nil?
@@ -82,6 +84,8 @@ class Instance < ActiveRecord::Base
         temp = Instance.create(:instance_id => i[:aws_instance_id], :farm => farm, :launch_time => i[:aws_launch_time], :ec2_state => i[:aws_state], :state => set_state)     
         logger.info "Saved instance #{farm.ami_id} --- #{temp.instance_id}"
       end
+      
+      return temp
       
     end
     

@@ -29,27 +29,39 @@ class Farm < ActiveRecord::Base
         node.state = 'RESERVED'
         node.save
       end
+      InstanceMonitor.send_reply(workitem_id) unless workitem_id.nil?
            
     else
+      logger.info "Reserving for: #{num_requested} #{role.name} instances "
       # reserve those nodes that are running, and then start / create the balance
       node_array.each do |node|
          node.state = 'RESERVED'
          node.save
-         num_requested = num_requested - 1
+         num_requested = num_requested.to_i - 1
          break if num_requested == 0 
        end
 
       #now lets start the rest of the nodes needed, assuming we don't go past the max limit!
-
       #first lets get a count of how many nodes are LAUNCHED, IDLE, BUSY, or RESERVED
       total_left =  max - total_running
-      num_to_start = total_left < num_requested ? total_left : num_requested
-
+      num_to_start = total_left < num_requested.to_i ? total_left : num_requested.to_i
       logger.info "Starting #{num_to_start} more instances for #{role.name} jobs."
+            
       #eventually we will try and thread the startup process, but for now we'll just start it
-      saved_instances = Instance.start_and_create_instances(ami_id,groups.split(','),key, role.name, num_to_start)
-
-      Delayed::Job.enqueue(InstanceMonitor.new(save_instances, workitem_id)) unless workitem_id.nil?
+      if num_to_start < 1
+        saved_instances = []
+      else
+        saved_instances = Instance.start_and_create_instances(ami_id,groups.split(','),key, role.name, num_to_start)
+      end
+      
+      Delayed::Job.enqueue(InstanceMonitor.new(saved_instances, workitem_id)) unless workitem_id.nil?
+      
+      #unless workitem_id.nil?
+       # im = InstanceMonitor.new(saved_instances, workitem_id)
+        #im.perform
+        
+      #end
+      
       
       logger.info "Finished starting instances for #{role.name} job."
   

@@ -1,5 +1,5 @@
 class FarmsController < ApplicationController
-  before_filter :authenticate
+  before_filter :authenticate, :except => :start_by_role
   
   
   # GET /farms
@@ -115,32 +115,27 @@ class FarmsController < ApplicationController
   # looks up farm based on role, then call start!
   # looks for :role :num_start :workflow_id
   def start_by_role
-    if params[:role].nil? || params[:num_start].nil? || params[:workflow_id].nil?
-      respond_to do |format|
-        format.html { head :bad_request }
-        format.xml  { head :bad_request }
-      end
+    if params[:role].nil? || params[:num_start].nil? || params[:workitem_id].nil?
+    
       
     else
       begin
         role = Role.find(:first, :conditions => {:name => params[:role]})
-        @farm = Farm.find(:first, :conditions => {:role => role})
+        @farm = Farm.find(:first, :conditions => {:role_id => role})
         
-        @num_started = @farm.start(params[:num_start], params[:workflow_id])
+        @num_started = @farm.start(params[:num_start], params[:workitem_id])
       
-      rescue
+      rescue => e
         
-        logger.error "Exception Caught while trying to start_by_role"
-        
-        respond_to do |format|
-          format.html { head :bad_request }
-          format.xml  { head :bad_request }
-        end
+        logger.error "Exception Caught while trying to start_by_role:"
+        logger.error "#{e.message}"
+        logger.error "#{e.backtrace}"
+      
       
       end
       
       respond_to do |format|
-        format.html { render }
+        format.html { redirect_to(@farm) }
         format.xml  { head :ok }
       end
       
