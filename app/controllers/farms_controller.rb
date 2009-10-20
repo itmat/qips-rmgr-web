@@ -99,9 +99,9 @@ class FarmsController < ApplicationController
     @num_started = @farm.start(num_start)
 
     if @num_started < num_start
-      flash[:notice] = "Could not start all requested instances due to farm policy. Started #{@num_started} instances."
+      flash[:notice] = "Could not start all requested instances due to farm policy. Starting #{@num_started} instances.. may take a few moments."
     else
-      flash[:notice] = "Started #{@num_started} instances."
+      flash[:notice] = "Starting #{@num_started} instances... may take a few moments."
     end
 
     respond_to do |format|
@@ -115,10 +115,8 @@ class FarmsController < ApplicationController
   # looks up farm based on role, then call start!
   # looks for :role :num_start :workflow_id
   def start_by_role
-    if params[:role].nil? || params[:num_start].nil? || params[:workitem_id].nil?
-    
-      
-    else
+
+    unless params[:role].nil? || params[:num_start].nil? || params[:workitem_id].nil?
       begin
         role = Role.find(:first, :conditions => {:name => params[:role]})
         @farm = Farm.find(:first, :conditions => {:role_id => role})
@@ -144,6 +142,52 @@ class FarmsController < ApplicationController
     
     
   end
+  
+  ####################
+  #
+  #  very similar to start_by_role, except get everything from /POST :workitem
+  #
+  
+  def process_workitem
+
+    unless params[:workitem].nil? 
+      
+      #first we decode and validate the workitem
+      wi = WorkItemHelper.decode_message(params[:workitem])
+      if WorkItemHelper.validate_workitem(wi)
+      
+        begin
+          role = Role.find(:first, :conditions => {:name => wi.params['role']})
+          @farm = Farm.find(:first, :conditions => {:role_id => role})
+        
+          @num_started = @farm.start(wi.params['num_start'], wi.params['pid'])
+      
+        rescue => e
+        
+          logger.error "Exception Caught while trying to start_by_workitem:"
+          logger.error "#{e.message}"
+          logger.error "#{e.backtrace}"
+      
+      
+        end
+      
+      else
+        
+        flash[:notice] = "Could not start instances based on workitem."
+      
+      end
+      
+    end    
+
+    respond_to do |format|
+      format.html { redirect_to(@farm) }
+      format.xml  { head :ok }
+    end
+    
+    
+    
+  end
+  
   
   
   # reconcile a farm

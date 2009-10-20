@@ -62,9 +62,11 @@ class Instance < ActiveRecord::Base
       
     end
 
-    def provisioned?
-      (state == 'idle' || state == 'admin' || state == 'busy' || state == 'reserved')
-    end
+
+    # DEPRECATED WE DON'T NEED TO SEE IF NODE IS PROVISIONED
+    # def provisioned?
+    #  (state == 'idle' || state == 'admin' || state == 'busy' || state == 'reserved')
+    # end
     
     #######
     #  creates an instance from a typical aws hash.  finds the farm as well. 
@@ -82,7 +84,8 @@ class Instance < ActiveRecord::Base
         logger.error "Could not find a farm for #{i[:aws_image_id]}"
         
       else
-        temp = Instance.create(:instance_id => i[:aws_instance_id], :farm => farm, :launch_time => i[:aws_launch_time], :ec2_state => i[:aws_state], :state => set_state)     
+        temp = Instance.create(:instance_id => i[:aws_instance_id], :farm => farm, :launch_time => i[:aws_launch_time], :ec2_state => i[:aws_state], :state => set_state)
+        temp.save     
         logger.info "Saved instance #{farm.ami_id} --- #{temp.instance_id}"
       end
       
@@ -95,16 +98,14 @@ class Instance < ActiveRecord::Base
     #
     #  Here is the main method that starts things
     #  right now it just starts the instances and returns, 
-    #  returns array of started instances
+    #  
     #
 
     def self.start_and_create_instances(ami, groups, key, role, num=1)
-      saved_instances = []      
       begin
         new_instances = @ec2.run_instances(ami,num,num,groups,key, role, 'public')
         new_instances.each do |i|
           temp = Instance.create_from_aws_hash(i)
-          saved_instances << temp
         end
         logger.info "Started and saved #{num} #{ami} instances."
         
@@ -112,8 +113,6 @@ class Instance < ActiveRecord::Base
         logger.error "Caught exception when trying to start #{num} #{ami} instances!"
       end
 
-      return saved_instances
-      
     end
     
 
@@ -192,7 +191,7 @@ class Instance < ActiveRecord::Base
             
     
     #######################################################
-    #   COPIED FROM DAEMON TODO BASED ON SQS UPDATES -- DEPCRECATED?
+    #   COPIED FROM DAEMON TODO BASED ON SQS UPDATES -- DEPRECATED?
     #   Update_state grabs a handful of json update msgs from sqs queue
     #   It then updates all the local records from the messages
     #

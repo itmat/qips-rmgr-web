@@ -26,16 +26,16 @@ class Farm < ActiveRecord::Base
       logger.info "Instance limit for #{num_requested} reached. Will not start any more instances."
       #lets reserve all nodes so they don't get shutdown in the meantime.
       node_array.each do |node|
-        node.state = 'RESERVED'
+        node.state = 'reserved'
         node.save
       end
-      InstanceMonitor.send_reply(workitem_id) unless workitem_id.nil?
+      WorkitemHelper.send_reply(workitem_id) unless workitem_id.nil?
            
     else
       logger.info "Reserving for: #{num_requested} #{role.name} instances "
       # reserve those nodes that are running, and then start / create the balance
       node_array.each do |node|
-         node.state = 'RESERVED'
+         node.state = 'reserved'
          node.save
          num_requested = num_requested.to_i - 1
          break if num_requested == 0 
@@ -45,25 +45,16 @@ class Farm < ActiveRecord::Base
       #first lets get a count of how many nodes are LAUNCHED, IDLE, BUSY, or RESERVED
       total_left =  max - total_running
       num_to_start = total_left < num_requested.to_i ? total_left : num_requested.to_i
-      logger.info "Starting #{num_to_start} more instances for #{role.name} jobs."
+
             
-      #eventually we will try and thread the startup process, but for now we'll just start it
-      if num_to_start < 1
-        saved_instances = []
-      else
-        saved_instances = Instance.start_and_create_instances(ami_id,groups.split(','),key, role.name, num_to_start)
-      end
+      #start num_to_start instances via Instance. Enqueue these in delayed job because they may take a while
+      Instance.send_later(:start_and_create_instances, ami_id,groups.split(','),key, role.name, num_to_start)
       
-      Delayed::Job.enqueue(InstanceMonitor.new(saved_instances.map{|si| si.instance_id}, workitem_id)) unless workitem_id.nil?
+      #now also enqueue the workitem reply if needed
+      WorkItemHelper.send_later(:send_reply, workitem_id) unless workitem_id.nil?
       
-      #unless workitem_id.nil?
-       # im = InstanceMonitor.new(saved_instances, workitem_id)
-        #im.perform
-        
-      #end
+      logger.info "Starting #{num_to_start} more instances for #{role.name} jobs. Note that this may take a moment. "
       
-      logger.info "Finished starting instances for #{role.name} job."
-  
     end
     
     return num_to_start
@@ -94,8 +85,8 @@ class Farm < ActiveRecord::Base
     if ia.size < min
       num_start = min.to_i - ia.size
       # need to start some of them
-      logger.info "Attempting to start #{num_start} #{ami_id} instances..."
-      Instance.start_and_create_instances(ami_id,groups.split(','),key, role.name, num_start)
+      logger.info "Attempting to start #{num_start} #{ami_id} instances... may take a few moments."
+      Instance.send_later(:start_and_create_instances, ami_id,groups.split(','),key, role.name, num_to_start)
 
     elsif ia.size > max
       # need to stop some of the instances, if they are either 'IDLE' or 'LAUNCHED' state

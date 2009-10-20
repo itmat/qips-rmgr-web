@@ -1,6 +1,6 @@
+#DEPRECATED BECAUSE WE NO LONGER NEED TO MONITOR INSTANCE START UP
 
-
-class InstanceMonitor < Struct.new(:instance_ids, :workitem_id)
+class InstanceMonitor < Struct.new(:instance_ids, :workitem_id) 
   
   MAX_FAIL_COUNT = 5
   SLEEP_TIME = 15
