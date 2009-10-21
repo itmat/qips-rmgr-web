@@ -59,7 +59,7 @@
 
 <hr>
 
-<% form_tag "/farms/start/#{@farm.id}" do -%>
+<% form_for "farm", :url => {:action => "start"} do -%>
 	<%= label_tag 'num_start' %>
 	<%= text_field_tag 'num_start' %>
     <div><%= submit_tag 'Start' %></div>
@@ -67,7 +67,7 @@
 
 <hr>
 
-<% form_tag "/farms/reconcile/#{@farm.id}" do -%>
+<% form_for "farm", :url => {:action => "reconcile"}  do -%>
     <div><%= submit_tag 'Reconcile!' %></div>
 <% end -%>
 

@@ -9,9 +9,12 @@ ActionController::Routing::Routes.draw do |map|
 
   map.reconcile_all 'farms/reconcile_all', :controller => 'farms', :action => 'reconcile_all'
   
-  map.start_by_role 'farms/start_by_role', :controller => 'farms', :action => 'start_by_role' #may be deprecated if we handle stuff by ruote workitems. see next line
-  
-  map.process_workitem 'farms/process_workitem', :controller => 'farms', :action => 'process_workitem'
+  map.start_by_role 'farms/start_by_role', :controller => 'farms', :action => 'start_by_role'
+
+  map.start_id 'farms/start/:id', :controller => 'farms', :action => 'start'
+
+  map.reconcile_farm 'farms/reconcile/:id', :controller => 'farms', :action => 'reconcile'
+
 
   map.resources :farms
   
