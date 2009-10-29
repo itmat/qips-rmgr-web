@@ -86,7 +86,7 @@ class Farm < ActiveRecord::Base
       num_start = min.to_i - ia.size
       # need to start some of them
       logger.info "Attempting to start #{num_start} #{ami_id} instances... may take a few moments."
-      Instance.send_later(:start_and_create_instances, ami_id,groups.split(','),key, role.name, num_to_start)
+      Instance.send_later(:start_and_create_instances, ami_id,groups.split(','),key, role.name, num_start)
 
     elsif ia.size > max
       # need to stop some of the instances, if they are either 'IDLE' or 'LAUNCHED' state
@@ -147,7 +147,7 @@ class Farm < ActiveRecord::Base
         total_running = (instances.select{ |j| j.running? }).size
         unless ((total_running - 1) <  min ||  (! i.available?) )
           # for now we shutdown via aws but this will change as we figure out a better way
-          logger.info "Shutting down #{i.ami_id} -- #{i.instance_id} due to IDLE timeout."
+          logger.info "Shutting down #{i.farm.ami_id} -- #{i.instance_id} due to IDLE timeout."
           i.terminate
           num_stopped += 1
         end

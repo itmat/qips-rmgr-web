@@ -15,7 +15,6 @@ ActionController::Routing::Routes.draw do |map|
 
   map.reconcile_farm 'farms/reconcile/:id', :controller => 'farms', :action => 'reconcile'
 
-
   map.resources :farms
   
   map.resources :recipes
