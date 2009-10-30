@@ -129,20 +129,25 @@ class Instance < ActiveRecord::Base
       # we only add instances that we can find farms for.  the rest we don't add
       # if we don't add then we try and sync ec2_states
       
+      private_ips = Array.new  # list of private IPs for unrestricted access
+      
       @ec2.describe_instances.each do |i|
        
         if inst = Instance.first(:conditions => {:instance_id => i[:aws_instance_id]})
+          private_ips << IpAccessWriter.parse_ip(i[:private_dns_name]) unless i[:private_dns_name].nil?
           inst.ec2_state = i[:aws_state]
           inst.save
         else
           unless Farm.find(:first, :conditions => {:ami_id => i[:aws_image_id]}).nil? || i[:aws_state] == 'shutting-down' || i[:aws_state] == 'terminated'
             temp = Instance.create_from_aws_hash(i, 'manual')
+            private_ips << IpAccessWriter.parse_ip(i[:private_dns_name]) unless i[:private_dns_name].nil?
             logger.info "Added instance: #{i[:aws_image_id]} -- #{i[:aws_instance_id]} -- #{i[:aws_state]} to local record."
           end
         end
         
       end
       
+       
       #FINALLY we check each of our records against what's running in aws. if instance is not there or is terminated, then delete our record!
       logger.info "Cleaning up local instance list..."
       Instance.all.each do |i|
@@ -159,6 +164,9 @@ class Instance < ActiveRecord::Base
           logger.info "Removed #{i.farm.ami_id} -- #{i.instance_id} from local record."
         end
       end
+      
+      IpAccessWriter.write_access_file(private_ips)     
+      
       
     end
             

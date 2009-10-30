@@ -3,6 +3,10 @@
 # Specifies gem version of Rails to use when vendor/rails is not present
 RAILS_GEM_VERSION = '2.3.4' unless defined? RAILS_GEM_VERSION
 
+# this tells the rmgr where to write ip hosts.allow file
+
+HOSTS_FILENAME = 'hosts.qips.allow'
+
 # this is the name of the status queue to alert rmgr:
 STATE_QUEUE = 'NODE_STATE'
 
