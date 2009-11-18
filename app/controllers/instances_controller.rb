@@ -1,6 +1,10 @@
 class InstancesController < ApplicationController
   # GET /instances
   # GET /instances.xml
+  
+  # protect_from_forgery :except => [:state, :set_state]
+  protect_from_forgery :only => [:create, :update, :destroy, :terminate]
+  
   def index
     
     Instance.sync_with_ec2
@@ -100,7 +104,7 @@ class InstancesController < ApplicationController
     end
   end
   
-  # POST /instances/i-1234abcd/state  :state => 'idle', etc
+  # POST /instance/i-1234abcd/state  :state => 'idle', etc
   def state
     @instance = Instance.find_by_instance_id(params[:id])
     @instance.state = params[:state] if params[:state]
@@ -119,6 +123,36 @@ class InstancesController < ApplicationController
     end
   end  
   
+  # sets status based on 
+  # POST /instance/set_state  :message => <JSON_HASH>
+  def set_status
+    @kill = '' #kill response will eventually tell node to kill it's ruby process 
+    h = JSON.parse(params[:message])
+        
+    @instance = Instance.find_by_instance_id(h['instance_id'])
+    unless @instance.nil? then
+    
+      @instance.state = h['state'] if h['state']
+      @instance.cpu = h['cpu'].to_f if h['cpu']
+      @instance.top = h['top'] if h['top']
+      @instance.state_changed_at = DateTime.parse(h['timestamp']) if h['timestamp']
+      @instance.executable = h['executable'] if h['executable']
+      @instance.ruby_pid = h['ruby_pid'] if h['ruby_pid']
+      
+      @instance.status_updated_at = DateTime.now
+      @instance.save
+
+      #but now we decide if the process needs to be killed because of process timeout
+      #TODO
+      
+
+    end
+    
+    respond_to do |format|
+      format.html { render }
+      format.xml  { head :ok }
+    end
+  end  
   
   
   

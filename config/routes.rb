@@ -21,9 +21,9 @@ ActionController::Routing::Routes.draw do |map|
 
   map.terminate_instance 'instances/:id/terminate', :controller => 'instances', :action => 'terminate'
   
-  map.instance_state 'instance/:id/state', :controller => 'instances', :action => 'state' # may be deprecated
-  
   map.instance_state 'instance/set_state/:id', :controller => 'instances', :action => 'state'
+  
+  map.instance_status 'instance/set_status', :controller => 'instances', :action => 'set_status'
 
   # The priority is based upon order of creation: first created -> highest priority.
 
