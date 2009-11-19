@@ -104,15 +104,12 @@ class InstancesController < ApplicationController
     end
   end
   
-  # POST /instance/i-1234abcd/state  :state => 'idle', etc
+  # POST /instance/i-1234abcd/state  :state => 'idle', etc ## may be deprecated
   def state
     @instance = Instance.find_by_instance_id(params[:id])
     @instance.state = params[:state] if params[:state]
     @instance.cpu = params[:cpu].to_f if params[:cpu]
     @instance.top = params[:top] if params[:top]
-    
-    @instance.prov_time = DateTime.now if params[:state] == 'provisioning'
-    
     
     @instance.save
     
@@ -133,8 +130,12 @@ class InstancesController < ApplicationController
     unless @instance.nil? then
     
       @instance.state = h['state'] if h['state']
-      @instance.cpu = h['cpu'].to_f if h['cpu']
-      @instance.top = h['top'] if h['top']
+      @instance.ruby_cpu_usage = h['ruby_cpu_usage'].to_f if h['ruby_cpu_usage']
+      @instance.system_cpu_usage = h['system_cpu_usage'].to_f if h['system_cpu_usage']
+      @instance.ruby_mem_usage = h['ruby_mem_usage'] if h['ruby_mem_usage']
+      @instance.system_mem_usage = h['system_mem_usage'] if h['system_mem_usage']
+      @instance.top_pid = h['top_pid'] if h['top_pid']
+      @instance.ruby_pid_status = h['ruby_pid_status'] if h['ruby_pid_status']
       @instance.state_changed_at = DateTime.parse(h['timestamp']) if h['timestamp']
       @instance.executable = h['executable'] if h['executable']
       @instance.ruby_pid = h['ruby_pid'] if h['ruby_pid']
@@ -143,7 +144,17 @@ class InstancesController < ApplicationController
       @instance.save
 
       #but now we decide if the process needs to be killed because of process timeout
-      #TODO
+      if h['timeout']
+        d = DateTime.parse(h['timestamp'])
+        t = (Time.now - (h['timeout'].to_i * 60))
+        
+        if (t <=> d) > 0 then
+          @kill = 'KILL'    
+          logger.info "Sending KILL notice for: Instance: #{h['instance_id']} PID: #{h['ruby_pid']}"
+        end
+        
+        
+      end
       
 
     end
