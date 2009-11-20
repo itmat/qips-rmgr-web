@@ -7,16 +7,20 @@ RAILS_GEM_VERSION = '2.3.4' unless defined? RAILS_GEM_VERSION
 
 HOSTS_FILENAME = 'hosts.qips.allow'
 
-# this is the name of the status queue to alert rmgr:
+NODE_TIMEOUT = 4 # mins until unresponsive compute nodes are recycled
+
+NODE_CYCLE_MAX = 3 # number of tries to recycle an unresponsive node before giving up. 
+
+# this is the name of the status queue to alert rmgr:  DEPRECATED?
 STATE_QUEUE = 'NODE_STATE'
 
 #RMGR workitem queues. we may not use queues for workflows right now. 
 RMGR_IN_QUEUE = 'RMGR_RQ'
-RMGR_OUT_QUEUE = 'RMGR_RQ_FIN'
+RMGR_OUT_QUEUE = 'RMGR_RQ_FIN' # DEPRECATED?
 
-VIS_PEEK = 0 # AWS peek visibility timeout in seconds
-VIS_DEFAULT =  1800 # visibility timeout if not specified
-SLEEP_TIME = 30 # sleep time in loop
+VIS_PEEK = 0 # AWS peek visibility timeout in seconds DEPRECATED 
+VIS_DEFAULT =  1800 # visibility timeout if not specified  DEPRECATED
+SLEEP_TIME = 30 # sleep time in loop DEPRECATED
 
 HOUR_MOD = 50 # num minutes nodes are idle before they are shut off
 

@@ -107,6 +107,31 @@ class Farm < ActiveRecord::Base
     
     num_stop += scale_down
     
+    #########################
+    #
+    #   now that we scaled down, lets recycle those compute nodes that have not checked in for a while (15 mins)
+    #   we're looking for those that are available or busy and are compute nodes
+    #
+    
+    ia = instances.select{ |i| i.running?} 
+    
+    ia.each do |ri|
+      if (ri.available? || ri.state.eql?('busy')) && ri.farm.farm_type.eql?('compute') && ri.silent_since?(NODE_TIMEOUT)
+        #recycle if not heard from in a while
+        if ri.cycle_count < NODE_CYCLE_MAX
+          logger.info "Recycling instance #{ri.farm.ami_id} -- #{ri.instance_id}..."
+          ri.terminate
+          ri.recycle
+          ri.cycle_count += 1
+          ri.save
+        else
+          logger.info "Shutting down instance #{ri.farm.ami_id} -- #{ri.instance_id} because it was unresponsive and exceeded max recycle tries."
+          ri.terminate          
+        end
+      end  
+    end
+    
+    
     return {:farm_name => name, :message => 'Finished reconciling', :num_shutdown => num_stop, :num_started => num_start}
     
   end

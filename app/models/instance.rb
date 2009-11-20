@@ -20,9 +20,21 @@ class Instance < ActiveRecord::Base
           new_instances.each do |i|
             self.instance_id =  i[:aws_instance_id]
             self.launch_time = i[:aws_launch_time]
-            self.prov_time = nil
             self.state = "launched"
             self.ec2_state = i[:aws_state]
+            
+            #reset other values
+            self.ruby_cpu_usage = nil
+            self.system_cpu_usage = nil
+            self.ruby_mem_usage = nil
+            self.system_mem_usage = nil
+            self.top_pid = nil
+            self.ruby_pid_status = nil
+            self.state_changed_at = nil
+            self.executable = nil
+            self.ruby_pid = nil
+            self.status_updated_at = nil
+            
           end
           save
           logger.info "Started and Saved Instance #{farm.ami_id} -- #{instance_id}"
@@ -61,6 +73,30 @@ class Instance < ActiveRecord::Base
       (state == 'launched' || state == 'provisioning' || state == 'idle')
       
     end
+
+    ################
+    #
+    #  returns true if has not heard from in a while
+    #
+
+    def silent_since?(timeout = 5)
+
+      if status_updated_at.nil?
+        t1 = launch_time
+      else
+        t1 = status_updated_at
+      end
+      
+      t2 = Time.now - (timeout*60)
+  
+      
+      if (t2 <=> t1) > 0     
+        return true
+      else
+        return false
+      end
+    end
+
 
 
     # DEPRECATED WE DON'T NEED TO SEE IF NODE IS PROVISIONED

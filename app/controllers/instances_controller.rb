@@ -9,7 +9,8 @@ class InstancesController < ApplicationController
     
     Instance.sync_with_ec2
     
-    @instances = Instance.all
+    @compute_instances = Instance.all.select{|i| i.farm.farm_type.eql?('compute')}
+    @admin_instances = Instance.all.select{|i| i.farm.farm_type.eql?('admin')}
     @rogues = Instance.rogue_instances
 
     respond_to do |format|
@@ -108,9 +109,6 @@ class InstancesController < ApplicationController
   def state
     @instance = Instance.find_by_instance_id(params[:id])
     @instance.state = params[:state] if params[:state]
-    @instance.cpu = params[:cpu].to_f if params[:cpu]
-    @instance.top = params[:top] if params[:top]
-    
     @instance.save
     
     

@@ -45,17 +45,35 @@
 
 <h2>Instances: </h2>
 
-<Table>
+<table border="1" cellspacing="0" cellpadding="3">
+  <tr>
+    <th>Instance</th>
+    <th>State</th>
+    <th>Ec2 state</th>
+    <th>Time stamps</th>
+    <th>Farm</th>
+	<th>Action</th>
+	 
+  </tr>
 
-<tr><td>instance id</td><td>cpu</td><td>top</td><td>state</td><td>ec2 state</td></tr>
-
-<% @farm.instances.each do |i|	%>
-
-<tr><td><%= i.instance_id%></td><td><%= i.cpu%></td><td><%= i.top%></td><td><%= i.state%></td><td><%= i.ec2_state%></td></tr>
-
-<% end%>
-
+<% @farm.instances.each do |instance| %>
+  <tr>
+    <td><%=h instance.instance_id %>
+	    </td>
+    <td><%=h instance.state %></td>
+    <td><%=h instance.ec2_state %></td>
+	<td>
+		Launched: <%=h instance.launch_time %>	
+		</td>
+    <td><%=h instance.farm.name %><BR>
+    <%=h instance.farm.ami_id %></td>
+	<% unless instance.state == 'shutdown' || instance.ec2_state == 'shutting-down' || instance.ec2_state == 'terminated' %>
+	<td><%= link_to 'Terminate', terminate_instance_path(instance), :confirm => 'Are you sure?' %></td>
+	<% end -%>
+  </tr>
+<% end %>
 </table>
+
 
 <hr>
 

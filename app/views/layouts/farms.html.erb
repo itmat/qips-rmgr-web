@@ -9,9 +9,20 @@
 </head>
 <body>
 
-<p style="color: green"><%= flash[:notice] %></p>
+<table width="80%" border="0" cellspacing="0">
+         <tr><td valign="top">
+	<%= render :partial => "shared/heading" %>
 
-<%= yield %>
+	<p style="color: green"><%= flash[:notice] %></p>
+
+	<%= yield  %>
+
+
+
+</td></tr>
+
+</table>
+
 
 </body>
 </html>
