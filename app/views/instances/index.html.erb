@@ -1,4 +1,7 @@
-<h2>Administrative Instances</h2>
+
+
+<big><%= link_to_function "&plusmn;", "$('admin').toggle();" %> <strong><i>Administrative Instances</i></strong></big><BR><BR>
+<div id="admin">
 <table border="1" cellspacing="0" cellpadding="3">
   <tr bgcolor="#AAFFFF">
     <th>Instance</th>
@@ -12,12 +15,12 @@
 
 <% @admin_instances.each do |instance| %>
   <tr>
-    <td><%=h instance.instance_id %>
+    <td><b><%=h instance.instance_id %></b>
 	    </td>
     <td><%=h instance.state %></td>
     <td><%=h instance.ec2_state %></td>
 	<td>
-		Launched: <%=h instance.launch_time %>	
+		Launched: <%=h instance.launch_time.localtime.to_s(:db) %> <small>(<%= ((Time.now - instance.launch_time)/60).floor %> mins)</small>	
 		</td>
     <td><%=h instance.farm.name %><BR>
     <%=h instance.farm.ami_id %></td>
@@ -27,9 +30,11 @@
   </tr>
 <% end %>
 </table>
-
-<h2>Compute Instances:</h2>
-
+</div>
+<BR><BR>
+<big><%= link_to_function "&plusmn;", "$('compute').toggle();" %> <strong><i>Compute Instances</i></strong></big><BR><BR>
+<div id="compute">
+	
 <table border="1" cellspacing="0" cellpadding="3">
   <tr bgcolor="#FFCCFF">
     <th>Instance</th>
@@ -44,8 +49,8 @@
   </tr>
 
 <% @compute_instances.each do |instance| %>
-  <tr>
-    <td><%=h instance.instance_id %><BR>
+  <tr nowrap>
+    <td><b><%=h instance.instance_id %></b><BR>
 	    <small>Cycled: <%=h instance.cycle_count%></small></td>
     <td><%=h instance.state %></td>
     <td><%=h instance.ec2_state %></td>
@@ -54,9 +59,9 @@
     <td>PID: <%=h instance.ruby_pid %> (<%= instance.ruby_pid_status %>) <BR>
 	    Usage: <%=h (instance.ruby_cpu_usage||=0)*100 %>% (<%=h (instance.ruby_mem_usage||=0) %>K) <BR>
         Executable: <%=h instance.executable %></td>
-	<td>Checked In: <%=h instance.status_updated_at %><BR>
-		State Change: <%=h instance.state_changed_at %><BR>
-		Launched: <%=h instance.launch_time %>	
+	<td>Checked In:  <%=h instance.status_updated_at.localtime.to_s(:db) %> <small>(<%= ((Time.now - instance.status_updated_at)/60).floor %> mins)</small><BR>
+		State Change:  <%=h instance.state_changed_at.localtime.to_s(:db) %> <small>(<%= ((Time.now - instance.state_changed_at)/60).floor %> mins)</small><BR>
+		Launched: <%=h instance.launch_time.localtime.to_s(:db) %> <small>(<%= ((Time.now - instance.launch_time)/60).floor %> mins)</small>	
 		</td>
     <td><%=h instance.farm.name %><BR>
     <%=h instance.farm.ami_id %></td>
@@ -69,7 +74,10 @@
 <% end %>
 </table>
 
-<h2>Instances NOT tracked by Resource manager</h2>
+</div>
+<BR><BR>
+<big><%= link_to_function "&plusmn;", "$('unknown').toggle();" %> <strong><i>Unrecognized Instances</i></strong></big><BR><BR>
+<div id="unknown">
 
 <table border="1" cellpadding="3" cellspacing="0">
   <tr bgcolor="#DDDDDD">
@@ -82,14 +90,14 @@
 
 <% @rogues.each do |r| %>
   <tr>
-    <td><%=h r[:aws_instance_id]%></td>
+    <td><b><%=h r[:aws_instance_id]%></b></td>
     <td><%=h r[:aws_image_id]%></td>
     <td><%=h r[:aws_state]%></td>
-    <td><%=h r[:aws_launch_time]%></td>
+    <td> <%=h DateTime.parse(r[:aws_launch_time]).to_time.to_s(:db) %> <small>(<%= ((Time.now - DateTime.parse(r[:aws_launch_time]).to_time)/60).floor %> mins)</small></td>
 
   </tr>
 <% end %>
 </table>
-
+</div>
 
 <br />
