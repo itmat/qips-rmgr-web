@@ -1,8 +1,20 @@
 <table width="100%" border="0" cellspacing="0" cellpadding="10">
 
-  <tr> 
-    <td align="left" bgcolor="#9C836B"><big><strong>QIPS - Resource Manager</strong></big></td>
-   <td align="right" bgcolor="#9C836B"><strong>
+  <tr class="data_row"> 
+    <td align="left"><%= image_tag("qips.png", :size => "125x65") %><big><strong> [ Resource Manager ]</strong></big></td>
+    <td align="center">
+	<%
+	
+	p1 = IO.popen("tail -500 ./log/#{RAILS_ENV}.log") 
+	
+	
+	%>
+<%= text_area_tag 'log_file', p1.read, :size => "80x6", :readonly => true %>
+
+</td>
+
+
+   <td align="right"><strong>
  <%= link_to "Instances", instances_path %> | 
 <%= link_to "Farms", farms_path %> | 
 <%= link_to "Roles", roles_path %> | 
