@@ -54,11 +54,13 @@
 	    <small>Cycled: <%=h instance.cycle_count%></small></td>
     <td><%=h instance.state %></td>
     <td><%=h instance.ec2_state %></td>
-	<td><%=h (instance.system_cpu_usage||=0)*100 %>% (<%=h (instance.system_mem_usage||=0) %>K) <BR>
+	<td><%=h (instance.system_cpu_usage||=0)*100 %>% <small>(<%=h (instance.system_mem_usage||=0) %>K)</small> <BR>
 		Top PID: <%=h instance.top_pid %></td>
-    <td>PID: <%=h instance.ruby_pid %> (<%= instance.ruby_pid_status %>) <BR>
-	    Usage: <%=h (instance.ruby_cpu_usage||=0)*100 %>% (<%=h (instance.ruby_mem_usage||=0) %>K) <BR>
-        Executable: <%=h instance.executable %></td>
+    <td>PID: <%=h instance.ruby_pid %> <small>(<%= instance.ruby_pid_status %>)</small> <BR>
+	    Usage: <%=h (instance.ruby_cpu_usage||=0)*100 %>% <small>(<%=h (instance.ruby_mem_usage||=0) %>K)</small> <BR>
+        Executable: <%=h instance.executable %><BR>
+	    <small>Cycled: <%=h instance.ruby_cycle_count %></small>
+	</td>
 	<td>Checked In:  <% if instance.status_updated_at %> <%=h instance.status_updated_at.localtime.to_s(:db) %> <small>(<%= ((Time.now - instance.status_updated_at)/60).floor %> mins)</small><% end %><BR>
 		State Change:  <% if instance.state_changed_at %><%=h instance.state_changed_at.localtime.to_s(:db) %> <small>(<%= ((Time.now - instance.state_changed_at)/60).floor %> mins)</small><% end %><BR>
 		Launched: <%=h instance.launch_time.localtime.to_s(:db) %> <small>(<%= ((Time.now - instance.launch_time)/60).floor %> mins)</small>	

@@ -34,6 +34,7 @@ class Instance < ActiveRecord::Base
             self.executable = nil
             self.ruby_pid = nil
             self.status_updated_at = nil
+            self.ruby_cycle_count = 0
             
           end
           save

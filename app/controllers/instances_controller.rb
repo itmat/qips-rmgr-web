@@ -139,6 +139,10 @@ class InstancesController < ApplicationController
       @instance.ruby_pid = h['ruby_pid'] if h['ruby_pid']
       
       @instance.status_updated_at = DateTime.now
+      
+      #reset cycle count if idle:
+      @instance.ruby_cycle_count = 0 if h['state'] && h['state'].eql?('idle')
+      
       @instance.save
 
       #but now we decide if the process needs to be killed because of process timeout
@@ -146,9 +150,33 @@ class InstancesController < ApplicationController
         d = DateTime.parse(h['timestamp'])
         t = (Time.now - (h['timeout'].to_i * 60))
         
-        if (t <=> d) > 0 then
-          @kill = 'KILL'    
-          logger.info "Sending KILL notice for: Instance: #{h['instance_id']} PID: #{h['ruby_pid']}"
+        if ((t <=> d) > 0) && @instance.state.eql?('busy') then
+          # first we check cycle counts.  if ruby_cycle_count < max then cycle ruby.
+          
+          if @instance.ruby_cycle_count < RUBY_CYCLE_MAX
+            # cycle ruby
+            @kill = 'KILL'    
+            logger.info "Sending KILL notice for: Instance: #{h['instance_id']} PID: #{h['ruby_pid']}"
+            @instance.ruby_cycle_count += 1
+            @instance.save
+            
+          else
+            # recycle instance entirely, unless maxed out
+            if @instance.cycle_count < NODE_CYCLE_MAX
+              logger.info "Recycling instance #{@instance.farm.ami_id} -- #{@instance.instance_id}..."
+              @instance.terminate
+              @instance.recycle
+              @instance.cycle_count += 1
+              @instance.save
+            else
+              logger.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because it was unresponsive and exceeded max recycle tries."
+              @instance.terminate
+              @instance.save
+            end
+            
+            
+          end
+          
         end
         
         
@@ -157,10 +185,7 @@ class InstancesController < ApplicationController
 
     end
     
-    respond_to do |format|
-      format.html { render }
-      format.xml  { head :ok }
-    end
+    render :layout=>false
   end  
   
   

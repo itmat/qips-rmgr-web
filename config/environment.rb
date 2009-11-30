@@ -10,6 +10,7 @@ HOSTS_FILENAME = 'hosts.qips.allow'
 NODE_TIMEOUT = 4 # mins until unresponsive compute nodes are recycled
 
 NODE_CYCLE_MAX = 3 # number of tries to recycle an unresponsive node before giving up. 
+RUBY_CYCLE_MAX = 3 # number of tries to cycle the ruby process if it times out busy
 
 # this is the name of the status queue to alert rmgr:  DEPRECATED?
 STATE_QUEUE = 'NODE_STATE'
