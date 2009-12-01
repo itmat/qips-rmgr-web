@@ -1,6 +1,4 @@
 class FarmsController < ApplicationController
-  before_filter :authenticate, :except => :start_by_role
-  
   
   # GET /farms
   # GET /farms.xml

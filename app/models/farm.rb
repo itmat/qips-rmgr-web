@@ -1,4 +1,18 @@
 class Farm < ActiveRecord::Base
+  # Columns 
+  # t.string :name
+  # t.string :description
+  # t.string :ami_id
+  # t.integer :min
+  # t.integer :max
+  # t.integer :role_id
+  # t.timestamps
+  # t.string :farm_type # may rename ?
+  # t.string :key # AWS pem key
+  # t.string :groups # AWS security groups comma-delimited list
+  
+  validates_presence_of :name, :ami_id
+  
   has_many :instances
   belongs_to :role
 

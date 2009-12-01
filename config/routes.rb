@@ -15,8 +15,14 @@ ActionController::Routing::Routes.draw do |map|
 
   map.reconcile_farm 'farms/reconcile/:id', :controller => 'farms', :action => 'reconcile'
 
-  map.resources :farms
+  map.resources :farms, :member => {:reconcile => :post, :start => :post}, :collection => {:reconcile_all => :post} 
+  # reconcile_farm_path(@farm)
+  # ROOT_URL_PATH/farms/:id/reconcile :method => :post
+  # start_farm_path(@farm)
+  # ROOT_URL_PATH/farms/:id/start :method => :post
   
+  # reconcile_all_farms_path()
+  # ROOT_URL_PATH/farms/reconcile_all :method => :post 
   map.resources :recipes
 
   map.terminate_instance 'instances/:id/terminate', :controller => 'instances', :action => 'terminate'
