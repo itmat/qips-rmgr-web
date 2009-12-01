@@ -17,6 +17,9 @@ RMGR_IN_QUEUE = 'RMGR_RQ'
 
 HOUR_MOD = 50 # num minutes nodes are idle before they are shut off
 
+IPTABLES_OUTPUT_PATH  = '/etc/sysconfig/iptables'
+IPTABLES_RESTART_CMD = 'service iptables restart'
+
 #get AWS creds
 require File.join(File.dirname(__FILE__), 'aws')
 

@@ -1,37 +1,31 @@
-
+require 'erubis'
 
 class IpAccessWriter
   
-    @hosts_filename = HOSTS_FILENAME  ||= '/etc/hosts.qips'
+    @iptables = IPTABLES_OUTPUT_PATH  ||= '/etc/sysconfig/iptables'
   
   def initialize(h_file=nil)
   
-    @hosts_filename = h_file ||= HOSTS_FILENAME
+    @iptables = h_file ||= IPTABLES_OUTPUT_PATH
     
   end 
   
   
   
   def self.write_access_file(ip_array=nil)
-    
     unless ip_array.nil?
-      f = File.open(@hosts_filename, "w+") 
-      
-      f.write("######\n")
-      f.write("## HOSTS ALLOW FOR QIPS\n")
-      f.write("######\n")
-      
-      ip_array.each do |ip|
-        
-        f.write("ALL:#{ip}\n") unless ip.empty?
-        
-      end
-      
+
+     f_erb = File.open(IPTABLES_ERB)
+     eruby = Erubis::Eruby.new(f_erb.read )
+      f = File.open(@iptables, "w+") 
+     
+      f.write(eruby.result({:ip_array => ip_array}))
+            
       f.close
       
     end
     
-    
+    system IPTABLES_RESTART_CMD
     
   end
   
