@@ -1,7 +1,5 @@
-<p>
-  <b>Name:</b>
-  <%=h @farm.name %>
-</p>
+
+  <H2>Farm: <i><%=h @farm.name %></i></H2>
 
 <p>
   <b>Description:</b>
@@ -46,7 +44,7 @@
 <h2>Instances: </h2>
 
 <table border="1" cellspacing="0" cellpadding="3">
-  <tr>
+  <tr bgcolor="#AAFFFF">
     <th>Instance</th>
     <th>State</th>
     <th>Ec2 state</th>
@@ -57,7 +55,7 @@
   </tr>
 
 <% @farm.instances.each do |instance| %>
-  <tr>
+  <tr class="data_row">
     <td><%=h instance.instance_id %>
 	    </td>
     <td><%=h instance.state %></td>
@@ -78,8 +76,8 @@
 <hr>
 
 <% form_for "farm", :url => {:action => "start"} do -%>
-	<%= label_tag 'num_start' %>
-	<%= text_field_tag 'num_start' %>
+	Start N Instances:
+	<%= text_field_tag 'num_start', nil,:size => 5 %>
     <div><%= submit_tag 'Start' %></div>
 <% end -%>
 

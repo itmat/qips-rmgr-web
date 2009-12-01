@@ -1,7 +1,7 @@
 <h1>Listing farms</h1>
 
-<table border=1 cellpadding=2>
-  <tr>
+<table border=1 cellpadding=1 cellspacing=0>
+  <tr bgcolor="#CCFFCC">
     <th>Name</th>
     <th>Description</th>
     <th>Ami</th>
@@ -15,7 +15,7 @@
   </tr>
 
 <% @farms.each do |farm| %>
-  <tr>
+  <tr class="data_row">
     <td><%=h farm.name %></td>
     <td><%=h farm.description %></td>
     <td><%=h farm.ami_id %></td>

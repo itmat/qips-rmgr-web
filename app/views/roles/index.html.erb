@@ -1,7 +1,7 @@
 <h1>Listing roles</h1>
 
-<table border=1 cellpadding=1>
-  <tr>
+<table border=1 cellpadding=3 cellspacing="0">
+  <tr bgcolor="#FFCCFF">
     <th>Name</th>
     <th>Description</th>
     <th>Recipes</th>
@@ -11,7 +11,7 @@
   </tr>
 
 <% @roles.each do |role| %>
-  <tr>
+  <tr class="data_row">
     <td><%=h role.name %></td>
     <td><%=h role.description %></td>
     <td><%=h role.recipes.map{ |r| r.name + ' | ' } %></td>
