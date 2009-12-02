@@ -25,7 +25,7 @@ class IpAccessWriter
       
     end
     
-    system IPTABLES_RESTART_CMD
+    #system IPTABLES_RESTART_CMD
     
   end
   
