@@ -18,7 +18,7 @@ RMGR_IN_QUEUE = 'RMGR_RQ'
 HOUR_MOD = 50 # num minutes nodes are idle before they are shut off
 
 IPTABLES_OUTPUT_PATH  = '/etc/sysconfig/iptables'
-IPTABLES_RESTART_CMD = 'service iptables restart'
+IPTABLES_RESTART_CMD = '/sbin/service iptables restart'
 IPTABLES_ERB = 'config/iptables.erb'
 
 #get AWS creds
