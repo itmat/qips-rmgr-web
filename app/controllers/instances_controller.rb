@@ -4,6 +4,7 @@ class InstancesController < ApplicationController
   
   # protect_from_forgery :except => [:state, :set_state]
   protect_from_forgery :only => [:create, :update, :destroy, :terminate]
+  skip_before_filter :authenticate, :only => :set_status
   
   def index
     
