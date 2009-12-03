@@ -5,6 +5,7 @@
 :RH-Firewall-1-INPUT - [0:0]
 -A INPUT -j RH-Firewall-1-INPUT
 -A FORWARD -j RH-Firewall-1-INPUT
+-A RH-Firewall-1-INPUT -i lo -j ACCEPT
 -A RH-Firewall-1-INPUT -p icmp --icmp-type ping -j ACCEPT
 -A RH-Firewall-1-INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 -A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --src 128.91.211.0/255.255.255.0 --dport 22 -j ACCEPT
