@@ -5,6 +5,7 @@
     <th>Name</th>
     <th>Description</th>
     <th>Ami</th>
+    <th>Kernel</th>
     <th>Min</th>
     <th>Max</th>
 	<th>Running</th>
@@ -19,6 +20,7 @@
     <td><%=h farm.name %></td>
     <td><%=h farm.description %></td>
     <td><%=h farm.ami_id %></td>
+    <td><%=h farm.kernel_id %></td>
     <td><%=h farm.min %></td>
     <td><%=h farm.max %></td>
 	<td><%=h farm.instances.select{|i| i.running? }.size %>

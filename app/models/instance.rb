@@ -16,7 +16,7 @@ class Instance < ActiveRecord::Base
     def recycle()
         ec2 = Instance.get_ec2
         begin
-          new_instances = ec2.run_instances(farm.ami_id, 1 ,1 , farm.groups.split(','),farm.key, farm.role.name, 'public')
+          new_instances = ec2.run_instances(farm.ami_id, 1 ,1 , farm.groups.split(','),farm.key, farm.role.name, 'public', nil, nil, farm.kernel_id)
           new_instances.each do |i|
             self.instance_id =  i[:aws_instance_id]
             self.launch_time = i[:aws_launch_time]
@@ -121,7 +121,7 @@ class Instance < ActiveRecord::Base
         logger.error "Could not find a farm for #{i[:aws_image_id]}"
         
       else
-        temp = Instance.create(:instance_id => i[:aws_instance_id], :farm => farm, :launch_time => i[:aws_launch_time], :ec2_state => i[:aws_state], :state => set_state)
+        temp = Instance.create(:instance_id => i[:aws_instance_id], :farm => farm, :launch_time => i[:aws_launch_time], :ec2_state => i[:aws_state], :state => set_state, :public_dns_name => i[:dns_name])
         temp.save     
         logger.info "Saved instance #{farm.ami_id} --- #{temp.instance_id}"
       end
@@ -138,9 +138,9 @@ class Instance < ActiveRecord::Base
     #  
     #
 
-    def self.start_and_create_instances(ami, groups, key, role, num=1)
+    def self.start_and_create_instances(ami, groups, key, kernel='', role='', num=1)
       begin
-        new_instances = @ec2.run_instances(ami,num,num,groups,key, role, 'public')
+        new_instances = @ec2.run_instances(ami,num,num,groups,key, role, 'public', nil, nil, kernel)
         new_instances.each do |i|
           temp = Instance.create_from_aws_hash(i)
         end
@@ -173,6 +173,7 @@ class Instance < ActiveRecord::Base
         if inst = Instance.first(:conditions => {:instance_id => i[:aws_instance_id]})
           private_ips << IpAccessWriter.parse_ip(i[:private_dns_name]) unless i[:private_dns_name].nil?
           inst.ec2_state = i[:aws_state]
+          inst.public_dns_name = i[:dns_name] unless i[:dns_name].nil?
           inst.save
         else
           unless Farm.find(:first, :conditions => {:ami_id => i[:aws_image_id]}).nil? || i[:aws_state] == 'shutting-down' || i[:aws_state] == 'terminated'

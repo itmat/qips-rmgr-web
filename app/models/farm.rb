@@ -62,7 +62,7 @@ class Farm < ActiveRecord::Base
 
             
       #start num_to_start instances via Instance. Enqueue these in delayed job because they may take a while
-      Instance.send_later(:start_and_create_instances, ami_id,groups.split(','),key, role.name, num_to_start)
+      Instance.send_later(:start_and_create_instances, ami_id,groups.split(','),key, kernel_id, role.name, num_to_start)
       
       #now also enqueue the workitem reply if needed
       WorkItemHelper.send_later(:send_reply, workitem_id) unless workitem_id.nil?
@@ -100,7 +100,7 @@ class Farm < ActiveRecord::Base
       num_start = min.to_i - ia.size
       # need to start some of them
       logger.info "Attempting to start #{num_start} #{ami_id} instances... may take a few moments."
-      Instance.send_later(:start_and_create_instances, ami_id,groups.split(','),key, role.name, num_start)
+      Instance.send_later(:start_and_create_instances, ami_id,groups.split(','),key, kernel_id, role.name, num_start)
 
     elsif ia.size > max
       # need to stop some of the instances, if they are either 'IDLE' or 'LAUNCHED' state

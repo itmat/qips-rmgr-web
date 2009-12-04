@@ -7,7 +7,7 @@
     <th>Instance</th>
     <th>State</th>
     <th>Ec2 state</th>
-    <th>Time stamps</th>
+    <th>Time stamps / DNS</th>
     <th>Farm</th>
 	<th>Action</th>
 	 
@@ -20,7 +20,8 @@
     <td><%=h instance.state %></td>
     <td><%=h instance.ec2_state %></td>
 	<td>
-		Launched: <%=h instance.launch_time.localtime.to_s(:db) %> <small>(<%= ((Time.now - instance.launch_time)/60).floor %> mins)</small>	
+		Launched: <%=h instance.launch_time.localtime.to_s(:db) %> <small>(<%= ((Time.now - instance.launch_time)/60).floor %> mins)</small><BR>
+		<small><%=h instance.public_dns_name %></small>	
 		</td>
     <td><%=h instance.farm.name %><BR>
     <%=h instance.farm.ami_id %></td>
@@ -42,7 +43,7 @@
     <th>Ec2 state</th>
     <th>System Info</th>
     <th>Ruby Info</th>
-    <th>Time stamps</th>
+    <th>Time stamps / DNS</th>
     <th>Farm</th>
 	<th>Action</th>
 	 
@@ -63,7 +64,8 @@
 	</td>
 	<td>Checked In:  <% if instance.status_updated_at %> <%=h instance.status_updated_at.localtime.to_s(:db) %> <small>(<%= ((Time.now - instance.status_updated_at)/60).floor %> mins)</small><% end %><BR>
 		State Change:  <% if instance.state_changed_at %><%=h instance.state_changed_at.localtime.to_s(:db) %> <small>(<%= ((Time.now - instance.state_changed_at)/60).floor %> mins)</small><% end %><BR>
-		Launched: <%=h instance.launch_time.localtime.to_s(:db) %> <small>(<%= ((Time.now - instance.launch_time)/60).floor %> mins)</small>	
+		Launched: <%=h instance.launch_time.localtime.to_s(:db) %> <small>(<%= ((Time.now - instance.launch_time)/60).floor %> mins)</small><BR>
+	  <small><%=h instance.public_dns_name %></small>		
 		</td>
     <td><%=h instance.farm.name %><BR>
     <%=h instance.farm.ami_id %></td>
@@ -86,6 +88,7 @@
     <th>Instance ID</th>
 	<th>AMI ID</th>
     <th>Ec2 state</th>
+	<th>DNS</th>
 	<th>Launch Time</th>
 
   </tr>
@@ -95,6 +98,7 @@
     <td><b><%=h r[:aws_instance_id]%></b></td>
     <td><%=h r[:aws_image_id]%></td>
     <td><%=h r[:aws_state]%></td>
+    <td><%=h r[:dns_name] %></td>	
     <td> <%=h DateTime.parse(r[:aws_launch_time]).to_time.to_s(:db) %> <small>(<%= ((Time.now - DateTime.parse(r[:aws_launch_time]).to_time)/60).floor %> mins)</small></td>
 
   </tr>

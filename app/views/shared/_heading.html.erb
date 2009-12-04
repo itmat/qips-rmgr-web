@@ -10,7 +10,7 @@
 	
 	%>
 <%= text_area_tag 'log_file', p1.read, :size => "80x6", :readonly => true %>
-
+<script>log_file.scrollTop = log_file.scrollHeight;</script>
 </td>
 
 
