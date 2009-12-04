@@ -3,23 +3,7 @@
 # Specifies gem version of Rails to use when vendor/rails is not present
 RAILS_GEM_VERSION = '2.3.4' unless defined? RAILS_GEM_VERSION
 
-# this tells the rmgr where to write ip hosts.allow file
-
-HOSTS_FILENAME = 'hosts.qips.allow'
-
-NODE_TIMEOUT = 20 # mins until unresponsive compute nodes are recycled
-
-NODE_CYCLE_MAX = 3 # number of tries to recycle an unresponsive node before giving up. 
-RUBY_CYCLE_MAX = 3 # number of tries to cycle the ruby process if it times out busy
-
-#RMGR workitem queues. we may not use queues for workflows right now. 
-RMGR_IN_QUEUE = 'RMGR_RQ'
-
-HOUR_MOD = 50 # num minutes nodes are idle before they are shut off
-
-IPTABLES_OUTPUT_PATH  = '/etc/sysconfig/iptables'
-IPTABLES_RESTART_CMD = '/usr/bin/sudo /sbin/service iptables restart'
-IPTABLES_ERB = 'config/iptables.erb'
+# SEE OTHER ENVIRONMENT FILES FOR MORE VARS!!
 
 #get AWS creds
 require File.join(File.dirname(__FILE__), 'aws')

@@ -1,33 +1,39 @@
 <% form_for(@role) do |f| %>
   <%= f.error_messages %>
-
-  <p>
-    <%= f.label :name %><br />
+<table border="0" cellpadding="3" cellspacing="3">
+	
+  <tr>
+    <td> 
+	<%= f.label :name %>: </td><td>
     <%= f.text_field :name %>
-  </p>
-  <p>
-    <%= f.label :description %><br />
+    </td>
+  </tr>
+  <tr>
+	<td>
+    <%= f.label :description %>: </td><td>
     <%= f.text_field :description %>
-  </p>
-  <p>
-    <%= f.label :platform %><br />
+    </td>
+  </tr>
+  <tr>
+	<td>
+    <%= f.label :platform %>: </td><td>
     <%= f.select :platform, ["windows", "aki"] %>
-  </p>
-  <p>
-	<%= f.label :recipes %><br /><br />
+	</td>
+  </tr>
+  <tr>
+	<td>
+	<%= f.label :recipes %>: </td><td>
 	<%= select_tag "role[recipe_ids][]", 
 		options_for_select(Recipe.all.map{ |recipe| [recipe.name, recipe.id] }, @role.recipes.map{|recipe2| recipe2.id } ),
 		 :multiple=>true %>
-  </p>
-  <p>
-    <%= f.label :launch_buffer %><br />
-    <%= f.text_field :launch_buffer %>
-  </p>
-  <p>
-    <%= f.label :prov_buffer %><br />
-    <%= f.text_field :prov_buffer %>
-  </p>
-  <p>
+		</td>
+  </tr>
+
+  <tr><td>
     <%= f.submit 'Submit' %>
-  </p>
+   </td>
+  </tr>
+
+</table>
+
 <% end %>

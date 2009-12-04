@@ -11,7 +11,7 @@ class Farm < ActiveRecord::Base
   # t.string :key # AWS pem key
   # t.string :groups # AWS security groups comma-delimited list
   
-  validates_presence_of :name, :ami_id
+  validates_presence_of :name, :ami_id, :groups, :key, :min, :max
   
   has_many :instances
   belongs_to :role

@@ -1,43 +1,38 @@
 <% form_for(@farm) do |f| %>
   <%= f.error_messages %>
 
-  <p>
-    <%= f.label :name %><br />
-    <%= f.text_field :name %>
-  </p>
-  <p>
-    <%= f.label :description %><br />
-    <%= f.text_field :description %>
-  </p>
-  <p>
-    <%= f.label :ami_id %><br />
-    <%= f.text_field :ami_id %>
-  </p>
-  <p>
-    <%= f.label :groups %><br />
-    <%= f.text_field :groups %>
-  </p>
-  <p>
-    <%= f.label :key %><br />
-    <%= f.text_field :key %>
-  </p>
-  <p>
-    <%= f.label :min %><br />
-    <%= f.text_field :min %>
-  </p>
-  <p>
-    <%= f.label :max %><br />
-    <%= f.text_field :max %>
-  </p>
-  <p>
-    <%= f.label :role_id %><br />
-    <%= f.select :role_id, Role.all.collect {|r| [ r.name, r.id ] }, { :include_blank => false } %>
-  </p>
-  <p>
-	<%= f.label :farm_type %><br />
-    <%= f.select :farm_type, ["compute", "admin"] %>
-  </p>
-  <p>
+  <table border="0" cellspacing="4" cellpadding="4">
+  <tr>
+    <td><%= f.label :name %>: </td><td><%= f.text_field :name, :size => 20 %></td>
+  </tr>
+  <tr><td>
+    <%= f.label :description %>: </td><td>
+    <%= f.text_area :description, :cols => 30, :rows => 4 %>
+	</td>
+  </tr>
+  <tr>
+   <td><%= f.label :ami_id %>: </td><td><%= f.text_field :ami_id, :size => 20 %></td>
+  </tr>
+  <tr>
+    <td><%= f.label :groups %>: </td><td><%= f.text_field :groups, :size => 20 %></td>
+  </tr>
+  <tr>
+    <td><%= f.label :key %>: </td><td><%= f.text_field :key, :size => 20 %></td>
+  </tr>
+  <tr>
+    <td><%= f.label :min %>: <%= f.text_field :min, :size => 5 %> </td><td><%= f.label :max %>: <%= f.text_field :max, :size => 5 %></td>
+  </tr>
+  <tr>
+    <td><%= f.label :role_id %>: </td><td><%= f.select :role_id, Role.all.collect {|r| [ r.name, r.id ] }, { :include_blank => false } %></td>
+  </tr>
+  <tr>
+	<td><%= f.label :farm_type %>: </td><td><%= f.select :farm_type, ["compute", "admin"] %></td>
+  </tr>
+  <tr><td colspan="2">
     <%= f.submit 'Submit' %>
-  </p>
+	</td>
+  </tr>
+  </table>
+
+
 <% end %>

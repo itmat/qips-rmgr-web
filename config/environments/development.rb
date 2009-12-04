@@ -1,5 +1,19 @@
 # Settings specified here will take precedence over those in config/environment.rb
 
+NODE_TIMEOUT = 30 # mins until unresponsive compute nodes are recycled
+
+NODE_CYCLE_MAX = 3 # number of tries to recycle an unresponsive node before giving up. 
+RUBY_CYCLE_MAX = 3 # number of tries to cycle the ruby process if it times out busy
+
+#RMGR workitem queues. we may not use queues for workflows right now. 
+RMGR_IN_QUEUE = 'RMGR_RQ'
+
+HOUR_MOD = 52 # num minutes nodes are idle before they are shut off
+
+IPTABLES_OUTPUT_PATH  = 'iptables' 
+IPTABLES_RESTART_CMD = 'echo PLACEHOLDER'
+IPTABLES_ERB = 'config/iptables.erb'
+
 # In the development environment your application's code is reloaded on
 # every request.  This slows down response time but is perfect for development
 # since you don't have to restart the webserver when you make code changes.

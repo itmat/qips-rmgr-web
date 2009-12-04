@@ -6,8 +6,6 @@
     <th>Description</th>
     <th>Recipes</th>
     <th>Platform</th>
-	<th>Launch Buffer</th>
-	<th>Provisioning Buffer</th>
   </tr>
 
 <% @roles.each do |role| %>
@@ -16,8 +14,6 @@
     <td><%=h role.description %></td>
     <td><%=h role.recipes.map{ |r| r.name + ' | ' } %></td>
 	<td><%=h role.platform %></td>
-	<td><%=h role.launch_buffer %></td>
-	<td><%=h role.prov_buffer %></td>
     <td><%= link_to 'Edit', edit_role_path(role) %></td>
     <td><%= link_to 'Destroy', role, :confirm => 'Are you sure?', :method => :delete %></td>
   </tr>
