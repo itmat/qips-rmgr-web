@@ -5,11 +5,17 @@
     <td align="center">
 	<%
 	
-	p1 = IO.popen("tail -500 ./log/#{RAILS_ENV}.log") 
+	log_tail = nil
+	
+	IO.popen("tail -500 ./log/#{RAILS_ENV}.log"){ |p| 
+		
+		log_tail = p.read
+		
+		} 
 	
 	
 	%>
-<%= text_area_tag 'log_file', p1.read, :size => "80x6", :readonly => true %>
+<%= text_area_tag 'log_file', log_tail, :size => "80x6", :readonly => true %>
 <script>log_file.scrollTop = log_file.scrollHeight;</script>
 </td>
 

@@ -8,10 +8,10 @@ class Farm < ActiveRecord::Base
   # t.integer :role_id
   # t.timestamps
   # t.string :farm_type # may rename ?
-  # t.string :key # AWS pem key
-  # t.string :groups # AWS security groups comma-delimited list
+  # t.string :key_pair_name # AWS pem key
+  # t.string :security_groups # AWS security groups comma-delimited list
   
-  validates_presence_of :name, :ami_id, :groups, :key, :min, :max
+  validates_presence_of :name, :ami_id, :security_groups, :key_pair_name, :min, :max
   
   has_many :instances
   belongs_to :role
@@ -62,7 +62,7 @@ class Farm < ActiveRecord::Base
 
             
       #start num_to_start instances via Instance. Enqueue these in delayed job because they may take a while
-      Instance.send_later(:start_and_create_instances, ami_id,groups.split(','),key, kernel_id, role.name, num_to_start)
+      Instance.send_later(:start_and_create_instances, ami_id,security_groups.split(','),key_pair_name, kernel_id, role.name, num_to_start)
       
       #now also enqueue the workitem reply if needed
       WorkItemHelper.send_later(:send_reply, workitem_id) unless workitem_id.nil?
@@ -100,7 +100,7 @@ class Farm < ActiveRecord::Base
       num_start = min.to_i - ia.size
       # need to start some of them
       logger.info "Attempting to start #{num_start} #{ami_id} instances... may take a few moments."
-      Instance.send_later(:start_and_create_instances, ami_id,groups.split(','),key, kernel_id, role.name, num_start)
+      Instance.send_later(:start_and_create_instances, ami_id,security_groups.split(','),key_pair_name, kernel_id, role.name, num_start)
 
     elsif ia.size > max
       # need to stop some of the instances, if they are either 'IDLE' or 'LAUNCHED' state
@@ -199,7 +199,7 @@ class Farm < ActiveRecord::Base
 
   #before save removes any whitespace from the string.  this is so split will give us a clean array
   def strip_groups
-    groups.gsub!(/\s/,'') unless groups.nil?
+    security_groups.gsub!(/\s/,'') unless security_groups.nil?
   end
 
 end
