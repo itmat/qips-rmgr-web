@@ -12,17 +12,6 @@ class RolesController < ApplicationController
     end
   end
 
-  # GET /roles/1
-  # GET /roles/1.xml
-  def show
-    @role = Role.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @role }
-    end
-  end
-
   # GET /roles/new
   # GET /roles/new.xml
   def new
@@ -47,7 +36,7 @@ class RolesController < ApplicationController
     respond_to do |format|
       if @role.save
         flash[:notice] = 'Role was successfully created.'
-        format.html { redirect_to(@role) }
+        format.html { redirect_to(roles_path) }
         format.xml  { render :xml => @role, :status => :created, :location => @role }
       else
         format.html { render :action => "new" }
@@ -66,7 +55,7 @@ class RolesController < ApplicationController
     respond_to do |format|
       if @role.update_attributes(params[:role])
         flash[:notice] = 'Role was successfully updated.'
-        format.html { redirect_to(@role) }
+        format.html { redirect_to(roles_path) }
         format.xml  { head :ok }
       else
         format.html { render :action => "edit" }

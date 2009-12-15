@@ -5,7 +5,7 @@ Feature: Manage Instances
 	
 	Background:
 	Given I have the following farms
-		| name | description | ami-id | min | max | farm_type
+		| name | description | ami-id | min | max | farm_type |
 		| TEST_PERSISTENT | Persistent Server | ami-db57b6b2 | 1 | 1 | admin |
 		| Test_node | Sequest Server | ami-b96586d0 | 0 | 3 | compute |
 	
@@ -23,7 +23,7 @@ Feature: Manage Instances
 	Given I am logged in as "<login>"
 	When I go to <page>
 	Then I should <action>
-	
+	 
 	Examples:
 	 	| login | page | action |
 		| admin | the list of instances | be on the list of instances |

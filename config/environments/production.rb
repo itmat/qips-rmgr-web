@@ -14,6 +14,8 @@ IPTABLES_OUTPUT_PATH  = '/etc/sysconfig/iptables'
 IPTABLES_RESTART_CMD = '/usr/bin/sudo /sbin/service iptables restart'
 IPTABLES_ERB = 'config/iptables.erb'
 
+LOG_CMD = "tail -500 ./log/#{RAILS_ENV}.log" #command that prints log in the site heading.  DO NOT USE FOR TESTS
+
 # The production environment is meant for finished, "live" apps.
 # Code is not reloaded between requests
 config.cache_classes = true
@@ -40,3 +42,13 @@ config.action_view.cache_template_loading            = true
 
 # Enable threaded mode
 # config.threadsafe!
+
+
+config.gem "rspec", :lib => false, :version => ">=1.2.2"
+config.gem "rspec-rails", :lib => false, :version => ">=1.2.2"
+config.gem "webrat", :lib => false, :version => ">=0.4.3"
+config.gem "cucumber", :lib => false, :version => ">=0.3.0"
+config.gem "thoughtbot-factory_girl", :lib => "factory_girl", :source => "http://gems.github.com"
+config.gem "erubis", :lib => false, :version => ">=2.6.2"
+config.gem "json", :lib => false, :version => ">=1.2.0"
+

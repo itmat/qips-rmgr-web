@@ -5,13 +5,7 @@
     <td align="center">
 	<%
 	
-	log_tail = nil
-	
-	IO.popen("tail -500 ./log/#{RAILS_ENV}.log"){ |p| 
-		
-		log_tail = p.read
-		
-		} 
+	log_tail = `#{LOG_CMD}`
 	
 	
 	%>

@@ -14,6 +14,9 @@ IPTABLES_OUTPUT_PATH  = 'iptables'
 IPTABLES_RESTART_CMD = 'echo PLACEHOLDER'
 IPTABLES_ERB = 'config/iptables.erb'
 
+LOG_CMD = "tail -500 ./log/#{RAILS_ENV}.log" #command that prints log in the site heading.  DO NOT USE FOR TESTS
+
+
 # In the development environment your application's code is reloaded on
 # every request.  This slows down response time but is perfect for development
 # since you don't have to restart the webserver when you make code changes.
@@ -35,3 +38,5 @@ config.gem "rspec-rails", :lib => false, :version => ">=1.2.2"
 config.gem "webrat", :lib => false, :version => ">=0.4.3"
 config.gem "cucumber", :lib => false, :version => ">=0.3.0"
 config.gem "thoughtbot-factory_girl", :lib => "factory_girl", :source => "http://gems.github.com"
+config.gem "erubis", :lib => false, :version => ">=2.6.2"
+config.gem "json", :lib => false, :version => ">=1.2.0"

@@ -3,6 +3,8 @@ Feature: Manage Roles
 	As an admin
 	I want to manage roles
 	
+	# NOTE: remove log/test/log before running tests!
+	
 	Background:
 	Given the following recipe records
 		| name | description |
@@ -43,13 +45,14 @@ Feature: Manage Roles
 		And I fill in "description" with "trans-proteomic"
 		And I select "tpp::packages" from "role_recipe_ids_"
 		And I press "Submit"
-		And I go to the list of roles
-		Then I should see "Test"
+		Then I should be on the list of roles
+		And I should see "Test"
 		
 	Scenario: Remove Role
 		Given I am logged in as "admin"
 		When I go to the list of roles
 		And I follow "Destroy"
+		Then I should be on the list of roles
 		Then I should have 3 roles
 		
 	Scenario: Edit Role
@@ -57,6 +60,6 @@ Feature: Manage Roles
 		When I go to the edit WWW role page
 		And I select "r-project::packages" from "role_recipe_ids_"
 		And I press "Submit"
-		And I go to the list of roles
-		Then I should see "r-project::packages"
+		Then I should be on the list of roles
+		And I should see "r-project::packages"
 	
