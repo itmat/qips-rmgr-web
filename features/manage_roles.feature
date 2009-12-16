@@ -48,6 +48,17 @@ Feature: Manage Roles
 		Then I should be on the list of roles
 		And I should see "Test"
 		
+	Scenario: Create INVALID Role
+		Given I am logged in as "admin"
+		When I go to the new role page
+		And I fill in "name" with ""
+		And I fill in "description" with "trans-proteomic"
+		And I select "tpp::packages" from "role_recipe_ids_"
+		And I press "Submit"
+		Then I should not be on the list of roles
+		And I should see "error"
+		And I should see "Name can't be blank"
+		
 	Scenario: Remove Role
 		Given I am logged in as "admin"
 		When I go to the list of roles

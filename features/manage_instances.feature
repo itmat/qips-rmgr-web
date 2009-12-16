@@ -1,56 +1,114 @@
-Feature: Manage Instances
-	In order to make a management site for our AWS environment
+@ec2
+Feature: Manage Instances (requires ec2)
+	In order to manage instances
 	As an admin
-	I want to manage instances
+	I want to view instance information, start & terminate instances, and change their states to manual
 	
 	Background:
-	Given I have the following farms
-		| name | description | ami-id | min | max | farm_type |
-		| TEST_PERSISTENT | Persistent Server | ami-db57b6b2 | 1 | 1 | admin |
-		| Test_node | Sequest Server | ami-b96586d0 | 0 | 3 | compute |
-	
-	And I have the following instances
-		| instance_id | farm_id | state | 
-		| i-1234abcd | 2 | launched | 
-		| i-abcd1234 | 2 | busy | 
-	
-	And the following user records
-		| username | privledge |
-		| admin | admin |
-		| guest | restricted |
-	
-	Scenario Outline: Restrict Instance Maintenance
+	Given the following recipes
+		| name | description |
+		| Sudo | Configures the sudo file for ITMAT admins |
+		| Cron | Configures the crontab file for the root user |
+		
+	And the following role records
+		| name |  platform |
+		| Compute |  aki |
+		| Sequest |  windows |
+		| WWW |  aki |
+		| DB |  aki |
+
+	And the following farm records
+		| name | description | ami_id | min | max | role_id | farm_type |
+		| TEST | Test Node Server | ami-c544a5ac | 0 | 2 | 2 | compute |
+		| TEST_PERSIST | Test Persistent | ami-db57b6b2 | 1 | 1 | 2 | admin |
+
+	And the following instance records
+		| instance_id | ruby_cpu_usage | top_pid | state | farm_id |
+		| i-1234abcd | 0.00 | sequest-server | idle | 1 |
+
+	Scenario: Start N Instances from farm.  Also tests maximum limit. 
+		#  Starts 4 instances of the first farm in ec2
+		Given I am logged in as "admin"
+		When I go to the view TEST farm page
+		# should have deleted the rouge test instances
+		Then I should have 0 running instances with ami_id "ami-c544a5ac"
+		When I fill in "num_start" with "4"
+		And I press "Start"
+		Then I should be on the view TEST farm page
+		When I run Delayed Jobs
+		And I wait for 20 seconds
+		# note that that the max is 2 instances, so there should only be 2 instances
+		Then I should have 2 running instances with ami_id "ami-c544a5ac"
+		When I go to the list of instances
+		Then I should see "launched"
+
+	Scenario Outline: Restrict Instance List
 	Given I am logged in as "<login>"
 	When I go to <page>
 	Then I should <action>
 	 
 	Examples:
 	 	| login | page | action |
-		| admin | the list of instances | be on the list of instances |
-		| guest | the list of instances | not be on the list of instances |
-		| guest | the list of resources | see "You must be logged in as an administrator to access this page" |
-				
-	
-	Scenario: List Instances
-		Given I am logged in
+		| admin | the list of instances | see "manual" |
+		| guest | the list of instances | not see "manual" |				
+		|       | the list of instances | not see "manual" |	
+
+  Scenario: List instances
+    Given I am logged in as "admin"
+    When I go to the list of instances
+    Then I should have 2 running instances with ami_id "ami-c544a5ac"
+    And I should see "manual"
+
+
+  Scenario: Terminate Instances
+    # this serves to test the terminate instance functionality
+  	Given I am logged in as "admin"
+  	When I go to the list of instances
+  	Then I should have 2 running instances with ami_id "ami-c544a5ac"
+  	When I follow "Terminate"
+  	And I wait for 10 seconds
+  	Then I should have 1 running instances with ami_id "ami-c544a5ac"
+  	And I should be on the list of instances
+  	When I follow "Terminate"
+  	And I wait for 10 seconds
+  	Then I should have 0 running instances with ami_id "ami-c544a5ac"
+
+	Scenario: Test min limitation. Also confirms delete instance.  
+		# lets reconcile a farm that has persistent instances
+		Given I am logged in as "admin"
+		When I go to the view TEST_PERSIST farm page
+		Then I should have 0 running instances with ami_id "ami-db57b6b2"
+		When I press "Reconcile"
+		And I run Delayed Jobs
+		And I wait for 20 seconds
+		Then I should have 1 running instance with ami_id "ami-db57b6b2"
 		When I go to the list of instances
-		Then I should see "i-1234abcd"
-		And I should see "TEST_PERSISTENT"
-		And I should see "launched"
-		And I should see "ami-b96586d0"
-    And I should see "i-abcd1234"   
-		And I should see "busy"
+		Then I should see "launched"
+		And I should see "ami-db57b6b2"
+		When I follow "Terminate"
+		And I wait for 10 seconds
+		Then I should have 0 running instances with ami_id "ami-db57b6b2"
+    And I should see "shutdown"
+    
+  Scenario: Manual Override for instances
+    Given I am logged in as "admin"
+	  When I go to the view TEST farm page
+	  And I fill in "num_start" with "1"
+	  And I press "Start"
+	  Then I should be on the view TEST farm page
+	  When I run Delayed Jobs
+	  And I wait for 20 seconds
+	  Then I should have 1 running instances with ami_id "ami-c544a5ac"
+	  When I go to the list of instances
+	  Then I should see "launched"
+    When I follow "Manual Override"
+    Then I should be on the list of instances
+    And I should see "manual"
+  	When I follow "Terminate"
+  	And I wait for 10 seconds
+  	Then I should have 0 running instances with ami_id "ami-c544a5ac"
+  	
+  	
+    
 		
-	Scenario: Terminate an Instance
-		Given I am logged in
-		When I go to the list of instances
-		And I see "i-1234abcd"
-		And I press "Terminate"
-		And I press "OK"
-		Then I should see "shutdown"
-		
-	Scenario: Update Instance State
-		When I update instance 1 with state "Idle"
-		And I go to the list of instances
-		Then I should see "Idle"
 		

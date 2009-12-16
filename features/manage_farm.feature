@@ -1,26 +1,25 @@
-Feature: Manage Farms
-	In order to make a management site for our AWS environment
+Feature: Manage Farms (CRUD ONLY)
+	In order to manage farms
 	As an admin
-	I want to manage farms
+	I want to be able to create, update and delete farms
 	
 	Background:
-	Given the following role records
-		| name | recipes | platform |
-		| Compute | { "recipes": "TPP" } | aki |
-		| Sequest | { "recipes": "Sequest" } | windows |
-		| WWW | { "recipes": "WWW" } | aki |
-		| DB | { "recipes": "DB" } | aki |
+	Given the following recipes
+		| name | description |
+		| Sudo | Configures the sudo file for ITMAT admins |
+		| Cron | Configures the crontab file for the root user |
+		
+	And the following role records
+		| name |  platform |
+		| Compute |  aki |
+		| Sequest |  windows |
+		| WWW |  aki |
+		| DB |  aki |
 
 	And the following farm records
-		| name | description | ami_id | min | max | role_id |
-		| WWW | Web Server | ami-99c021f0 | 1 | 1 | 3 |
-		| MySQL | DB Server | ami-6b53b202 | 1 | 1 | 4 |
-		| Sequest | Sequest Server | ami-db57b6b2 | 0 | 19 | 2 |
- 		| Compute | Linux Compute Node | ami-820fefeb | 0 | 9 | 1 |
-	
-	And the following instance records
-		| instance_id | cpu | top | state | farm_id |
-		| i-1234abcd | 0.00 | sequest-server | Busy | 3 |
+		| name | description | ami_id | min | max | role_id | farm_type |
+		| TEST | Test Node Server | ami-c544a5ac | 0 | 2 | 2 | compute |
+		| TEST_PERSIST | Test Persistent | ami-db57b6b2 | 1 | 1 | 2 | admin |
 
 	Scenario Outline: Restrict Farm Maintenance
 	Given I am logged in as "<login>"
@@ -29,19 +28,26 @@ Feature: Manage Farms
 	
 	Examples:
 	 	| login | page | action |
-		| admin | the list of farms | see "MySQL" |
-		| guest | the list of farms | not see "MySQL" |
-		|       | the list of farms | not see "MySQL" |
+		| admin | the list of farms | see "TEST" |
+		| guest | the list of farms | not see "TEST" |
+		|       | the list of farms | not see "TEST" |
 		
 		
 	Scenario: List Farms
 		#Given I am logged in as "admin" with password "admin"
 		Given I am logged in as "admin"
 		And I go to the list of farms
-		Then I should see "MySQL"
-		And I should see "WWW"
-		And I should see "Compute"
-		And I should see "Sequest"
+		Then I should see "TEST"
+		And I should see "TEST_PERSIST"
+
+	Scenario: View Farm
+		Given I am logged in as "admin"
+		When I go to the view TEST_PERSIST farm page
+		Then I should see "Test Persistent"
+		And I should see "ami-db57b6b2"
+    And I should see "admin-systems"
+    And I should see "default,sequest"
+    And I should see "admin"
 
 	Scenario: Create Farm
 		Given I am logged in as "admin"
@@ -51,43 +57,47 @@ Feature: Manage Farms
 		And I fill in "ami" with "ami015db968"
 		And I fill in "min" with "1"
 		And I fill in "max" with "1"
-		And I fill in "enabled" with "N"
+		And I fill in "Security groups" with "default,sequest"
+		And I fill in "Key pair name" with "admin-systems"
 		And I select "Compute" from "role"
 		And I press "Submit"
-		And I go to the list of farms
-		Then I should see "XYZ"
+		Then I should be on the list of farms
+		And I should see "XYZ"
 		
+	Scenario: Create INVALID Farm
+		Given I am logged in as "admin"
+		When I go to the new farm page
+		And I fill in "name" with ""
+		And I fill in "description" with "Test Farm"
+		And I fill in "ami" with "ami12345678"
+		And I fill in "min" with "1"
+		And I fill in "max" with "1"
+		And I select "Compute" from "role"
+  	And I press "Submit"
+  	Then I should not be on the list of farms
+  	And I should see "error"
+    And I should see "Name can't be blank"
+	
 	Scenario: Delete Farm
 		Given I am logged in as "admin"
 		When I go to the list of farms
 		And I follow "destroy"
 		Then I should be on list of farms
-		And I should have 3 farms
+		And I should have 1 farms
 		
 	Scenario: Update Farm
 		Given I am logged in as "admin"
-		When I go to the edit MySQL farm page
-		And I should see "MySQL"
+		When I go to the edit TEST_PERSIST farm page
+		And I should see "TEST_PERSIST"
 		And I fill in "description" with "DB v2"
-		And I fill in "ami" with "ami-2cf21645"
+		And I fill in "ami" with "ami-12345678"
 		And I fill in "min" with "2"
 		And I fill in "max" with "2"
 		And I select "DB" from "role"
-		And I press "Submit"
-		And I go to the list of farms
-		Then I should see "DB v2"
-		And I should not see "DB Server"
+		And I press "Submit" 
+		Then I should be on the list of farms
+		And I should see "DB v2"
+		And I should not see "Test Persistent"
 		
-	Scenario: View Farm and its instances
-		Given I am logged in as "admin"
-		When I go to the view Sequest farm page
-		Then I should see "Sequest Server"
-		And I should see "Sequest"
-		And I should see "ami-db57b6b2"
-		And I should see "i-1234abcd"
-		And I should see "0.0"
-		And I should see "sequest-server"
-		And I should see "Busy" 
-		And I should see "running"
-		
+
 

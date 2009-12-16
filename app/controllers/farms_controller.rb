@@ -50,7 +50,7 @@ class FarmsController < ApplicationController
     respond_to do |format|
       if @farm.save
         flash[:notice] = 'Farm was successfully created.'
-        format.html { redirect_to(@farm) }
+        format.html { redirect_to(farms_path) }
         format.xml  { render :xml => @farm, :status => :created, :location => @farm }
       else
         format.html { render :action => "new" }
@@ -67,7 +67,7 @@ class FarmsController < ApplicationController
     respond_to do |format|
       if @farm.update_attributes(params[:farm])
         flash[:notice] = 'Farm was successfully updated.'
-        format.html { redirect_to(@farm) }
+        format.html { redirect_to(farms_path) }
         format.xml  { head :ok }
       else
         format.html { render :action => "edit" }
@@ -95,7 +95,7 @@ class FarmsController < ApplicationController
     @farm = Farm.find(params[:id])
     num_start = params[:num_start].to_i ||= 1
     @num_started = @farm.start(num_start)
-
+    logger.info "TEST"
     if @num_started < num_start
       flash[:notice] = "Could not start all requested instances due to farm policy. Starting #{@num_started} instances.. may take a few moments."
     else

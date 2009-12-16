@@ -77,7 +77,7 @@
 <hr>
 
 <% form_for "farm", :url => {:action => "start"} do -%>
-	Start N Instances:
+	Request N Instances:
 	<%= text_field_tag 'num_start', nil,:size => 5 %>
     <div><%= submit_tag 'Start' %></div>
 <% end -%>
