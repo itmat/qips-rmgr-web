@@ -16,7 +16,7 @@ class Instance < ActiveRecord::Base
     def recycle()
         ec2 = Instance.get_ec2
         begin
-          new_instances = ec2.run_instances(farm.ami_id, 1 ,1 , farm.security_groups.split(','),farm.key_pair_name, farm.role.name, 'public', nil, nil, farm.kernel_id)
+          new_instances = ec2.run_instances(farm.ami_id, 1 ,1 , farm.security_groups.split(','),farm.key_pair_name, farm.role.name, 'public', nil, farm.kernel_id)
           new_instances.each do |i|
             self.instance_id =  i[:aws_instance_id]
             self.launch_time = i[:aws_launch_time]
@@ -140,7 +140,7 @@ class Instance < ActiveRecord::Base
 
     def self.start_and_create_instances(ami, security_groups, key_pair_name, kernel='', role='', num=1)
       begin
-        new_instances = @ec2.run_instances(ami,num,num,security_groups,key_pair_name, role, 'public', nil, nil, kernel)
+        new_instances = @ec2.run_instances(ami,num,num,security_groups,key_pair_name, role, 'public', nil, kernel)
         new_instances.each do |i|
           temp = Instance.create_from_aws_hash(i)
         end
