@@ -37,6 +37,7 @@ class Instance < ActiveRecord::Base
             self.ruby_cycle_count = 0
             
           end
+          self.cycle_count += 1
           save
           logger.info "Started and Saved Instance #{farm.ami_id} -- #{instance_id}"
         rescue => e
@@ -61,7 +62,7 @@ class Instance < ActiveRecord::Base
 
     def running?
     
-      (state == 'launched' || state == 'admin' || state == 'provisioning' || state == 'idle' || state == 'busy' || state == 'reserved' || state == 'manual')
+      (state == 'launched' || state == 'admin' || state == 'idle' || state == 'busy' || state == 'reserved' || state == 'manual')
     end
     
 
@@ -71,7 +72,7 @@ class Instance < ActiveRecord::Base
     #
 
     def available?
-      (state == 'launched' || state == 'provisioning' || state == 'idle')
+      (state == 'launched' || state == 'idle')
       
     end
 

@@ -136,7 +136,6 @@ class Farm < ActiveRecord::Base
           logger.info "Recycling instance #{ri.farm.ami_id} -- #{ri.instance_id}..."
           ri.terminate
           ri.recycle
-          ri.cycle_count += 1
           ri.save
         else
           logger.info "Shutting down instance #{ri.farm.ami_id} -- #{ri.instance_id} because it was unresponsive and exceeded max recycle tries."
