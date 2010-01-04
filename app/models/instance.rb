@@ -48,10 +48,10 @@ class Instance < ActiveRecord::Base
         
     #make the call to ec2 to terminate the machine.  change status to shutdown
     def terminate
-      ec2 = Instance.get_ec2
-      ec2.terminate_instances(instance_id)
       self.state = 'shutdown'
       save
+      ec2 = Instance.get_ec2
+      ec2.terminate_instances(instance_id)
       
     end
 
