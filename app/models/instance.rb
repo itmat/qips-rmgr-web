@@ -51,8 +51,11 @@ class Instance < ActiveRecord::Base
       self.state = 'shutdown'
       save
       ec2 = Instance.get_ec2
-      ec2.terminate_instances(instance_id)
-      
+      begin
+        ec2.terminate_instances(instance_id)
+      rescue
+        logger.info "Caught Exception while trying to terminate instance #{instance_id}"
+      end
     end
 
     ###########
