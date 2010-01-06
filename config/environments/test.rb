@@ -15,7 +15,15 @@ IPTABLES_RESTART_CMD = 'echo PLACEHOLDER'
 IPTABLES_ERB = 'config/iptables.erb'
 
 
+#test ami's for live tests
+
+TEST_AMI_1 = "ami-b96586d0"
+TEST_AMI_2 = "ami-c544a5ac"
+
+
 LOG_CMD = "" #command that prints log in the site heading.  DO NOT USE FOR TESTS
+
+
 
 
 # The test environment is used exclusively to run your application's

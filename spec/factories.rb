@@ -12,8 +12,7 @@ end
 Factory.define :farm do |f|
   f.name "test"
   f.description "test farm"
-  # f.sequence(:ami_id) { |n| "ami-abcd100#{n}"}
-  f.ami_id "ami-b96586d0"
+  f.ami_id TEST_AMI_1
   f.min 0
   f.max 2
   f.key_pair_name "admin-systems"

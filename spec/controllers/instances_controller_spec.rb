@@ -19,7 +19,7 @@ describe InstancesController do
     :ruby_pid => 7890      
        }
 
-  describe "GET set_status" do #PLACEHOLDER
+  describe "GET set_status" do 
     it "should fill in the vars of an instance during set status message" do
       instance = Factory(:instance, :instance_id => 'i-abcd1234')
       get :set_status, :message => default_message.to_json
@@ -39,7 +39,7 @@ describe InstancesController do
     end
   end
 
-  describe "GET set_status" do #PLACEHOLDER
+  describe "GET set_status" do 
     it "should NOT send KILL response normally." do
       instance = Factory(:instance, :instance_id => 'i-abcd1234')
       get :set_status, :message => default_message.to_json
@@ -47,7 +47,7 @@ describe InstancesController do
     end
   end
 
-  describe "GET set_status" do #PLACEHOLDER
+  describe "GET set_status" do 
     it "should send KILL response if ruby times out.  Also increments ruby cycle count." do
       custom_message = default_message
       custom_message[:timestamp] = "#{(Time.now - 4000)}"
@@ -59,7 +59,7 @@ describe InstancesController do
     end
   end
 
-  describe "GET set_status" do #PLACEHOLDER
+  describe "GET set_status" do 
     it "send KILL response if ruby times out, but recycles node when cycle count > MAX." do
       custom_message = default_message
       custom_message[:timestamp] = "#{Time.now - 4000}"
@@ -73,7 +73,7 @@ describe InstancesController do
     end
   end
   
-  describe "GET set_status" do #PLACEHOLDER
+  describe "GET set_status" do 
     it "send KILL response if ruby times out, but not when cycle count > MAX. should shut down a node that exceeds MAX CYCLE" do
       custom_message = default_message
       custom_message[:timestamp] = "#{Time.now - 4000}"
