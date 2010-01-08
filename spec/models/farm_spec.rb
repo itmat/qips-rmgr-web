@@ -28,7 +28,7 @@ describe Farm do
     instance.farm.scale_down.should == 1
     instance.reload
     instance.running?.should == false
-    
+    sleep 3
   end
   
   it "should NOT scale down instances that have been idle for a while and are busy" do
@@ -42,6 +42,7 @@ describe Farm do
     instance.reload
     instance.running?.should == true
     instance.terminate # cleanup
+    sleep 3
     
   end
   
@@ -56,6 +57,7 @@ describe Farm do
     instance.reload
     instance.running?.should == true
     instance.terminate # cleanup
+    sleep 3
     
   end
   
@@ -69,6 +71,7 @@ describe Farm do
     farm.reload
     farm.instances.size.should == 1
     farm.instances.each {|i| i.terminate } # cleanup!
+    sleep 3
     
   end
   
@@ -87,6 +90,7 @@ describe Farm do
     farm.reload
     farm.instances.select{|i| i.running? }.size.should == 1
     farm.instances.each {|i| i.terminate } # cleanup!
+    sleep 3
     
   end
 
@@ -107,6 +111,7 @@ describe Farm do
     farm.reload
     farm.instances.select{|i| i.running? }.size.should == 2
     farm.instances.each {|i| i.terminate } # cleanup!
+    sleep 3
     
   end
   

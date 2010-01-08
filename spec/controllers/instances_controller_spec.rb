@@ -70,6 +70,7 @@ describe InstancesController do
       instance.instance_id.should_not == 'i-abcd1234'
       instance.ruby_cycle_count.should == 0
       instance.terminate #clean up
+      sleep 3
     end
   end
   

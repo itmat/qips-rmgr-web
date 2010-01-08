@@ -12,6 +12,8 @@ describe Instance do
     instance.recycle
     instance.cycle_count.should == 1
     instance.terminate #cleanup
+    sleep 3
+    
   end
   
   it "should reset all the vars when recycled" do
@@ -44,7 +46,7 @@ describe Instance do
     instance.ruby_cycle_count.should == 0
     
     instance.terminate #cleanup
-        
+    sleep 3
     
     
   end

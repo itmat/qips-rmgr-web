@@ -13,6 +13,7 @@ integrate_views
       farm.reload
       farm.instances.size.should == 1
       farm.instances.each { |i| i.terminate}
+      sleep 3
       
     end
   end
@@ -32,7 +33,7 @@ integrate_views
       farm2.instances.size.should == 1
       
       Instance.all.each { |i| i.terminate} # clean up
-
+      sleep 3
 
     end
   end
