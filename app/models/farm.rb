@@ -67,7 +67,8 @@ class Farm < ActiveRecord::Base
       #now also enqueue the workitem reply if needed
       WorkItemHelper.send_later(:send_reply, workitem_id) unless workitem_id.nil?
       
-      logger.info "Starting #{num_to_start} more instances for #{role.name} jobs. Note that this may take a moment. "
+      logger.info "Starting #{num_to_start} more #{ami_id} instances. Note that this may take a moment. "
+      EventLog.info "Starting #{num_to_start} more #{ami_id} instances. Note that this may take a moment. "
       
     end
     
@@ -93,13 +94,15 @@ class Farm < ActiveRecord::Base
     num_stop = 0
     num_start = 0
 
-    logger.info "Starting / Stopping instances based on config..."
-
+    logger.info "Reconciling farm #{ami_id}..."
+    EventLog.info "Reconciling farm #{ami_id}..."
+    
     ia = instances.select{ |i| i.running?} 
     if ia.size < min
       num_start = min.to_i - ia.size
       # need to start some of them
       logger.info "Attempting to start #{num_start} #{ami_id} instances... may take a few moments."
+      EventLog.info "Attempting to start #{num_start} #{ami_id} instances... may take a few moments."
       Instance.send_later(:start_and_create_instances, ami_id,security_groups.split(','),key_pair_name, kernel_id, role.name, num_start)
 
     elsif ia.size > max
@@ -111,6 +114,7 @@ class Farm < ActiveRecord::Base
         if ri.available? 
           #shut it down!
           logger.info "Shutting down instance #{ami_id} -- #{ri.instance_id}..."
+          EventLog.info "Shutting down instance #{ami_id} -- #{ri.instance_id}..."
           ri.terminate
           count += 1
         end  
@@ -134,11 +138,13 @@ class Farm < ActiveRecord::Base
         #recycle if not heard from in a while
         if ri.cycle_count < NODE_CYCLE_MAX
           logger.info "Recycling instance #{ri.farm.ami_id} -- #{ri.instance_id}..."
+          EventLog.info "Recycling instance #{ri.farm.ami_id} -- #{ri.instance_id}..."
           ri.terminate
           ri.recycle
           ri.save
         else
           logger.info "Shutting down instance #{ri.farm.ami_id} -- #{ri.instance_id} because it was unresponsive and exceeded max recycle tries."
+          EventLog.info "Shutting down instance #{ri.farm.ami_id} -- #{ri.instance_id} because it was unresponsive and exceeded max recycle tries."
           ri.terminate          
         end
       end  
@@ -159,7 +165,8 @@ class Farm < ActiveRecord::Base
     
     num_stopped = 0
     # lets figure out what we can shut down.
-    logger.info "Looking for unused instances..."
+    logger.info "Looking for unused instances to scale down..."
+    EventLog.info "Looking for unused instances to scale down..."
     instances.each do |i|
       #this is actually pretty complicated.  we have to figure out the exact range for each instance, based on the instance launch time
       lt = i.launch_time
@@ -186,6 +193,7 @@ class Farm < ActiveRecord::Base
         unless ((total_running - 1) <  min ||  (! i.available?) )
           # for now we shutdown via aws but this will change as we figure out a better way
           logger.info "Shutting down #{i.farm.ami_id} -- #{i.instance_id} due to IDLE timeout."
+          EventLog.info "Shutting down #{i.farm.ami_id} -- #{i.instance_id} due to IDLE timeout."
           i.terminate
           num_stopped += 1
         end

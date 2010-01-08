@@ -50,7 +50,7 @@ class InstancesController < ApplicationController
   def set_status
     @kill = '' #kill response will eventually tell node to kill it's ruby process 
     h = JSON.parse(params[:message])
-        
+    EventLog.info "Setting state for instance #{h['instance_id']}"    
     @instance = Instance.find_by_instance_id(h['instance_id'])
     unless @instance.nil? then
     
@@ -72,6 +72,18 @@ class InstancesController < ApplicationController
       
       @instance.save
 
+      #now check for error state
+      
+      if @instance.state.eql?('error')
+        logger.error "Instance #{@instance.instance_id} reported following error: #{h['error_message']}"
+        EventLog.error "Instance #{@instance.instance_id} reported following error: #{h['error_message']}"
+        EventLog.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because of error..."
+        @instance.terminate
+        render :layout=>false
+      end
+
+
+
       #but now we decide if the process needs to be killed because of process timeout
       if h['timeout']
         d = DateTime.parse(h['timestamp'])
@@ -84,6 +96,7 @@ class InstancesController < ApplicationController
             # cycle ruby
             @kill = 'KILL'    
             logger.info "Sending KILL notice for: Instance: #{h['instance_id']} PID: #{h['ruby_pid']}"
+            EventLog.info "Sending KILL notice for: Instance: #{h['instance_id']} PID: #{h['ruby_pid']}"
             @instance.ruby_cycle_count += 1
             @instance.save
             
@@ -91,12 +104,14 @@ class InstancesController < ApplicationController
             # recycle instance entirely, unless maxed out
             if @instance.cycle_count < NODE_CYCLE_MAX
               logger.info "Recycling instance #{@instance.farm.ami_id} -- #{@instance.instance_id}..."
+              EventLog.info "Recycling instance #{@instance.farm.ami_id} -- #{@instance.instance_id}..."
               @instance.terminate
               @instance.recycle
               @instance.cycle_count += 1
               @instance.save
             else
               logger.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because it was unresponsive and exceeded max recycle tries."
+              EventLog.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because it was unresponsive and exceeded max recycle tries."
               @instance.terminate
               @instance.save
             end
