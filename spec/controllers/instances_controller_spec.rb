@@ -16,7 +16,8 @@ describe InstancesController do
     :timestamp => "#{Time.now}",
     :executable => 'sleep',
     :timeout => 60,
-    :ruby_pid => 7890      
+    :ruby_pid => 7890,
+    :child_procs => ['test1', 'test2']
        }
 
   describe "GET set_status" do 
@@ -35,6 +36,9 @@ describe InstancesController do
       instance.executable.should == 'sleep'
       instance.ruby_pid.should == 7890
       instance.state_changed_at.should == DateTime.parse(default_message[:timestamp])
+      instance.child_procs.include?('test1').should == true
+      instance.child_procs.include?('test2').should == true
+      
        
     end
   end

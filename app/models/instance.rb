@@ -4,7 +4,7 @@ require 'json'
 
 class Instance < ActiveRecord::Base
     belongs_to :farm
-    
+    serialize :child_procs
     @ec2 = RightAws::Ec2.new(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
 
     def self.get_ec2()

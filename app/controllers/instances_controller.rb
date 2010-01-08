@@ -64,6 +64,7 @@ class InstancesController < ApplicationController
       @instance.state_changed_at = DateTime.parse(h['timestamp']) if h['timestamp']
       @instance.executable = h['executable'] if h['executable']
       @instance.ruby_pid = h['ruby_pid'] if h['ruby_pid']
+      @instance.child_procs = h['child_procs'] if h['child_procs']
       
       @instance.status_updated_at = DateTime.now
       
