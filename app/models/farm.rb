@@ -17,7 +17,7 @@ class Farm < ActiveRecord::Base
   belongs_to :role
 
   #before save removes any whitespace from the string.  this is so split will give us a clean array
-  before_save :strip_groups
+  before_save :strip_groups, :destroy_instances_if_ami_changed
 
 
   #### start N instances from farm. mind upper limits
@@ -208,5 +208,12 @@ class Farm < ActiveRecord::Base
   def strip_groups
     security_groups.gsub!(/\s/,'') unless security_groups.nil?
   end
+
+  #before save removes any instances from farm.  this prevents bug where you might see duplicate instances
+  def destroy_instances_if_ami_changed
+    self.instances.each { |i| i.destroy } if self.ami_id_changed?
+  end
+  
+
 
 end
