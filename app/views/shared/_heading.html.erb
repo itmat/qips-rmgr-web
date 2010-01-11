@@ -6,19 +6,53 @@
 	<%
 	
 	log_tail = `#{LOG_CMD}`
-	
+	event_tail = EventLog.dump
 	
 	%>
 <%= text_area_tag 'log_file', log_tail, :size => "80x6", :readonly => true %>
-<script>log_file.scrollTop = log_file.scrollHeight;</script>
+<%= text_area_tag 'event_log', event_tail, :size => "80x6", :readonly => true %>
+
+
+<script>
+
+log_file.scrollTop = log_file.scrollHeight;
+event_log.scrollTop = event_log.scrollHeight;
+event_log.hide();
+
+function toggle_log(){
+	
+	if (log_file.visible() == true) {
+		log_file.hide();
+	}
+	else{
+		log_file.show();
+		log_file.scrollTop = log_file.scrollHeight;
+		
+	}
+	
+	if (event_log.visible() == true) {
+		event_log.hide();
+	}
+	else{
+		event_log.show();
+		event_log.scrollTop = event_log.scrollHeight;
+		
+	}
+		
+}
+
+
+</script>
 </td>
 
 
    <td align="right"><strong>
  <%= link_to "Instances", instances_path %> | 
 <%= link_to "Farms", farms_path %> | 
-<%= link_to "Roles", roles_path %> | 
-
+<%= link_to "Roles", roles_path %> | <BR><BR>
+	
+<%= link_to_function "Toggle Logs / Events", "toggle_log()" %>	
+ 
         </strong></td>
   </tr>
 </table>

@@ -15,7 +15,11 @@ IPTABLES_RESTART_CMD = 'echo PLACEHOLDER'
 IPTABLES_ERB = 'config/iptables.erb'
 
 
+
+
 LOG_CMD = "" #command that prints log in the site heading.  DO NOT USE FOR TESTS
+
+
 
 
 # The test environment is used exclusively to run your application's

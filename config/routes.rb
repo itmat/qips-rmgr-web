@@ -1,7 +1,4 @@
 ActionController::Routing::Routes.draw do |map|
-  map.resources :recipes
-
-  map.resources :users
 
   map.resources :instances
 

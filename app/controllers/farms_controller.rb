@@ -1,5 +1,7 @@
 class FarmsController < ApplicationController
   
+  skip_before_filter :authenticate, :only => ['reconcile', 'reconcile_all']
+    
   # GET /farms
   # GET /farms.xml
   def index

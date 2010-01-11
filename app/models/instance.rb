@@ -4,7 +4,7 @@ require 'json'
 
 class Instance < ActiveRecord::Base
     belongs_to :farm
-    
+    serialize :child_procs
     @ec2 = RightAws::Ec2.new(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
 
     def self.get_ec2()
@@ -16,7 +16,7 @@ class Instance < ActiveRecord::Base
     def recycle()
         ec2 = Instance.get_ec2
         begin
-          new_instances = ec2.run_instances(farm.ami_id, 1 ,1 , farm.security_groups.split(','),farm.key_pair_name, farm.role.name, 'public', nil, nil, farm.kernel_id)
+          new_instances = ec2.run_instances(farm.ami_id, 1 ,1 , farm.security_groups.split(','),farm.key_pair_name, farm.role.name, 'public', nil, farm.kernel_id)
           new_instances.each do |i|
             self.instance_id =  i[:aws_instance_id]
             self.launch_time = i[:aws_launch_time]
@@ -37,21 +37,29 @@ class Instance < ActiveRecord::Base
             self.ruby_cycle_count = 0
             
           end
+          self.cycle_count += 1
           save
           logger.info "Started and Saved Instance #{farm.ami_id} -- #{instance_id}"
+          EventLog.info "Started and Saved Instance #{farm.ami_id} -- #{instance_id}"
         rescue => e
           logger.error "Exception caught while trying to start image #{farm.ami_id}"
+          EventLog.error "Exception caught while trying to start image #{farm.ami_id}"
           logger.error "#{e.message}\n\n#{e.backtrace}"
         end
     end
         
     #make the call to ec2 to terminate the machine.  change status to shutdown
     def terminate
-      ec2 = Instance.get_ec2
-      ec2.terminate_instances(instance_id)
       self.state = 'shutdown'
       save
-      
+      ec2 = Instance.get_ec2
+      begin
+        ec2.terminate_instances(instance_id)
+        EventLog.info "Terminated instance: #{instance_id}."
+      rescue
+        logger.error "Caught Exception while trying to terminate instance #{instance_id}"
+        EventLog.error "Caught Exception while trying to terminate instance #{instance_id}"
+      end
     end
 
     ###########
@@ -61,7 +69,7 @@ class Instance < ActiveRecord::Base
 
     def running?
     
-      (state == 'launched' || state == 'admin' || state == 'provisioning' || state == 'idle' || state == 'busy' || state == 'reserved' || state == 'manual')
+      (state == 'launched' || state == 'admin' || state == 'idle' || state == 'busy' || state == 'reserved' || state == 'manual')
     end
     
 
@@ -71,7 +79,7 @@ class Instance < ActiveRecord::Base
     #
 
     def available?
-      (state == 'launched' || state == 'provisioning' || state == 'idle')
+      (state == 'launched' || state == 'idle')
       
     end
 
@@ -140,14 +148,15 @@ class Instance < ActiveRecord::Base
 
     def self.start_and_create_instances(ami, security_groups, key_pair_name, kernel='', role='', num=1)
       begin
-        new_instances = @ec2.run_instances(ami,num,num,security_groups,key_pair_name, role, 'public', nil, nil, kernel)
+        new_instances = @ec2.run_instances(ami,num,num,security_groups,key_pair_name, role, 'public', nil, kernel)
         new_instances.each do |i|
           temp = Instance.create_from_aws_hash(i)
         end
         logger.info "Started and saved #{num} #{ami} instances."
-        
+        EventLog.info "Started and saved #{num} #{ami} instances."
       rescue
         logger.error "Caught exception when trying to start #{num} #{ami} instances!"
+        EventLog.error "Caught exception when trying to start #{num} #{ami} instances!"
       end
 
     end
@@ -179,7 +188,8 @@ class Instance < ActiveRecord::Base
           unless Farm.find(:first, :conditions => {:ami_id => i[:aws_image_id]}).nil? || i[:aws_state] == 'shutting-down' || i[:aws_state] == 'terminated'
             temp = Instance.create_from_aws_hash(i, 'manual')
             private_ips << IpAccessWriter.parse_ip(i[:private_dns_name]) unless i[:private_dns_name].nil?
-            logger.info "Added instance: #{i[:aws_image_id]} -- #{i[:aws_instance_id]} -- #{i[:aws_state]} to local record."
+            logger.info "Auto-added instance: #{i[:aws_image_id]} -- #{i[:aws_instance_id]} -- #{i[:aws_state]} to local record."
+            EventLog.info "Auto-added instance: #{i[:aws_image_id]} -- #{i[:aws_instance_id]} -- #{i[:aws_state]} to local record."
           end
         end
         
@@ -194,12 +204,14 @@ class Instance < ActiveRecord::Base
           temp = @ec2.describe_instances(i.instance_id)[0]
           if temp[:aws_state] == 'terminated'
             i.destroy
-            logger.info "Removed #{i.farm.ami_id} -- #{i.instance_id} from local record."
+            logger.info "Auto-removed #{i.farm.ami_id} -- #{i.instance_id} from local record."
+            EventLog.info "Auto-removed #{i.farm.ami_id} -- #{i.instance_id} from local record."
           end
         rescue Exception => e
           puts e.message
           i.destroy
-          logger.info "Removed #{i.farm.ami_id} -- #{i.instance_id} from local record."
+          logger.info "Auto-removed #{i.farm.ami_id} -- #{i.instance_id} from local record."
+          EventLog.info "Auto-removed #{i.farm.ami_id} -- #{i.instance_id} from local record."
         end
       end
       

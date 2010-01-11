@@ -20,81 +20,7 @@ class InstancesController < ApplicationController
     end
   end
 
-  # GET /instances/1
-  # GET /instances/1.xml
-  def show
-    Instance.sync_with_ec2
-    
-    @instance = Instance.find(params[:id])
 
-    respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @instance }
-    end
-  end
-
-  # GET /instances/new
-  # GET /instances/new.xml
-  def new
-    @instance = Instance.new
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.xml  { render :xml => @instance }
-    end
-  end
-
-  # GET /instances/1/edit
-  def edit
-    @instance = Instance.find(params[:id])
-  end
-
-  # POST /instances
-  # POST /instances.xml
-  def create
-    @instance = Instance.new(params[:instance])
-
-    respond_to do |format|
-      if @instance.save
-        flash[:notice] = 'Instance was successfully created.'
-        format.html { redirect_to(@instance) }
-        format.xml  { render :xml => @instance, :status => :created, :location => @instance }
-      else
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @instance.errors, :status => :unprocessable_entity }
-      end
-    end
-  end
-
-  # PUT /instances/1
-  # PUT /instances/1.xml
-  def update
-    @instance = Instance.find(params[:id])
-
-    respond_to do |format|
-      if @instance.update_attributes(params[:instance])
-        flash[:notice] = 'Instance was successfully updated.'
-        format.html { redirect_to(@instance) }
-        format.xml  { head :ok }
-      else
-        format.html { render :action => "edit" }
-        format.xml  { render :xml => @instance.errors, :status => :unprocessable_entity }
-      end
-    end
-  end
-
-  # DELETE /instances/1
-  # DELETE /instances/1.xml
-  def destroy
-    @instance = Instance.find(params[:id])
-    @instance.destroy
-
-    respond_to do |format|
-      format.html { redirect_to(instances_url) }
-      format.xml  { head :ok }
-    end
-  end
-  
   # POST /instances/1/terminate
   def terminate
     @instance = Instance.find(params[:id])
@@ -124,10 +50,10 @@ class InstancesController < ApplicationController
   def set_status
     @kill = '' #kill response will eventually tell node to kill it's ruby process 
     h = JSON.parse(params[:message])
-        
+    EventLog.info "Setting state for instance #{h['instance_id']}"    
     @instance = Instance.find_by_instance_id(h['instance_id'])
     unless @instance.nil? then
-    
+      
       @instance.state = h['state'] if h['state']
       @instance.ruby_cpu_usage = h['ruby_cpu_usage'].to_f if h['ruby_cpu_usage']
       @instance.system_cpu_usage = h['system_cpu_usage'].to_f if h['system_cpu_usage']
@@ -138,6 +64,7 @@ class InstancesController < ApplicationController
       @instance.state_changed_at = DateTime.parse(h['timestamp']) if h['timestamp']
       @instance.executable = h['executable'] if h['executable']
       @instance.ruby_pid = h['ruby_pid'] if h['ruby_pid']
+      @instance.child_procs = h['child_procs'] if h['child_procs']
       
       @instance.status_updated_at = DateTime.now
       
@@ -145,45 +72,59 @@ class InstancesController < ApplicationController
       @instance.ruby_cycle_count = 0 if h['state'] && h['state'].eql?('idle')
       
       @instance.save
-
-      #but now we decide if the process needs to be killed because of process timeout
-      if h['timeout']
-        d = DateTime.parse(h['timestamp'])
-        t = (Time.now - (h['timeout'].to_i * 60))
+      
+      #now check for error state
+      
+      if @instance.state.eql?('error')
+        logger.error "Instance #{@instance.instance_id} reported following error: #{h['error_message']}"
+        EventLog.error "Instance #{@instance.instance_id} reported following error: #{h['error_message']}"
+        EventLog.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because of error..."
+        @instance.terminate
+      else
         
-        if ((t <=> d) > 0) && @instance.state.eql?('busy') then
-          # first we check cycle counts.  if ruby_cycle_count < max then cycle ruby.
+        
+        #but now we decide if the process needs to be killed because of process timeout
+        if h['timeout']
+          d = DateTime.parse(h['timestamp'])
+          t = (Time.now - (h['timeout'].to_i * 60))
           
-          if @instance.ruby_cycle_count < RUBY_CYCLE_MAX
-            # cycle ruby
-            @kill = 'KILL'    
-            logger.info "Sending KILL notice for: Instance: #{h['instance_id']} PID: #{h['ruby_pid']}"
-            @instance.ruby_cycle_count += 1
-            @instance.save
+          if ((t <=> d) > 0) && @instance.state.eql?('busy') then
+            # first we check cycle counts.  if ruby_cycle_count < max then cycle ruby.
             
-          else
-            # recycle instance entirely, unless maxed out
-            if @instance.cycle_count < NODE_CYCLE_MAX
-              logger.info "Recycling instance #{@instance.farm.ami_id} -- #{@instance.instance_id}..."
-              @instance.terminate
-              @instance.recycle
-              @instance.cycle_count += 1
+            if @instance.ruby_cycle_count < RUBY_CYCLE_MAX
+              # cycle ruby
+              @kill = 'KILL'    
+              logger.info "Sending KILL notice for: Instance: #{h['instance_id']} PID: #{h['ruby_pid']}"
+              EventLog.info "Sending KILL notice for: Instance: #{h['instance_id']} PID: #{h['ruby_pid']}"
+              @instance.ruby_cycle_count += 1
               @instance.save
+              
             else
-              logger.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because it was unresponsive and exceeded max recycle tries."
-              @instance.terminate
-              @instance.save
+              # recycle instance entirely, unless maxed out
+              if @instance.cycle_count < NODE_CYCLE_MAX
+                logger.info "Recycling instance #{@instance.farm.ami_id} -- #{@instance.instance_id}..."
+                EventLog.info "Recycling instance #{@instance.farm.ami_id} -- #{@instance.instance_id}..."
+                @instance.terminate
+                @instance.recycle
+                @instance.cycle_count += 1
+                @instance.save
+              else
+                logger.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because it was unresponsive and exceeded max recycle tries."
+                EventLog.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because it was unresponsive and exceeded max recycle tries."
+                @instance.terminate
+                @instance.save
+              end
+              
+              
             end
-            
             
           end
           
+          
         end
-        
         
       end
       
-
     end
     
     render :layout=>false
