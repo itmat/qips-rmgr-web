@@ -25,6 +25,7 @@ describe Farm do
     instance.launch_time = (Time.now - 3300) # sets launch time for 54 mins ago
     instance.save
     instance.running?.should == true
+    instance.reload
     instance.farm.scale_down.should == 1
     instance.reload
     instance.running?.should == false
@@ -38,6 +39,7 @@ describe Farm do
     instance.launch_time = (Time.now - 3300) # sets launch time for 54 mins ago
     instance.save
     instance.running?.should == true
+    instance.reload
     instance.farm.scale_down.should == 0
     instance.reload
     instance.running?.should == true
@@ -53,6 +55,7 @@ describe Farm do
     instance.launch_time = (Time.now - 300) # sets launch time for 5 mins ago
     instance.save
     instance.running?.should == true
+    instance.reload
     instance.farm.scale_down.should == 0
     instance.reload
     instance.running?.should == true

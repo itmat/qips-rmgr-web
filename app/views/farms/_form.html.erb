@@ -29,6 +29,9 @@
     <td><%= f.label :role_id %>: </td><td><%= f.select :role_id, Role.all.collect {|r| [ r.name, r.id ] }, { :include_blank => false } %></td>
   </tr>
   <tr>
+    <td><%= f.label :default_user_data %>: </td><td><%= f.text_field :default_user_data, :size => 30 %></td>
+  </tr>
+  <tr>
 	<td><%= f.label :farm_type %>: </td><td><%= f.select :farm_type, ["compute", "admin"] %></td>
   </tr>
   <tr><td colspan="2">

@@ -25,7 +25,7 @@ class Farm < ActiveRecord::Base
   #   returns actual number started  
   #
     
-  def start(num_requested=1, workitem_id=nil)
+  def start(num_requested=1, workitem_id=nil, user_data=nil)
     
     # find instances with that image id
     logger.info "Considering request to start #{num_requested} #{role.name} instances "
@@ -62,7 +62,7 @@ class Farm < ActiveRecord::Base
 
             
       #start num_to_start instances via Instance. Enqueue these in delayed job because they may take a while
-      Instance.send_later(:start_and_create_instances, ami_id,security_groups.split(','),key_pair_name, kernel_id, role.name, num_to_start)
+      Instance.send_later(:start_and_create_instances, ami_id,security_groups.split(','),key_pair_name, kernel_id, user_data ||= '', num_to_start)
       
       #now also enqueue the workitem reply if needed
       WorkItemHelper.send_later(:send_reply, workitem_id) unless workitem_id.nil?
@@ -103,7 +103,7 @@ class Farm < ActiveRecord::Base
       # need to start some of them
       logger.info "Attempting to start #{num_start} #{ami_id} instances... may take a few moments."
       EventLog.info "Attempting to start #{num_start} #{ami_id} instances... may take a few moments."
-      Instance.send_later(:start_and_create_instances, ami_id,security_groups.split(','),key_pair_name, kernel_id, role.name, num_start)
+      Instance.send_later(:start_and_create_instances, ami_id,security_groups.split(','),key_pair_name, kernel_id, default_user_data, num_start)
 
     elsif ia.size > max
       # need to stop some of the instances, if they are either 'IDLE' or 'LAUNCHED' state

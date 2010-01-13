@@ -37,6 +37,12 @@
 </p>
 
 <p>
+  <b>Default User Data:</b>
+  <%=h @farm.default_user_data %>
+</p>
+
+
+<p>
   <b>Type:</b>
   <%=h @farm.farm_type %>
 </p>
@@ -62,7 +68,10 @@
     <td><%=h instance.ec2_state %></td>
 	<td>
 		Launched: <%=h instance.launch_time %><br>
-		<small><%=h instance.public_dns_name %></small>	
+		<small>
+			Data: <%=h instance.user_data %><br>
+			<%=h instance.public_dns_name %>
+			</small>	
 		</td>
     <td><%=h instance.farm.name %><BR>
     <%=h instance.farm.ami_id %></td>
@@ -78,7 +87,8 @@
 
 <% form_for "farm", :url => {:action => "start"} do -%>
 	Request N Instances:
-	<%= text_field_tag 'num_start', nil,:size => 5 %>
+	<%= text_field_tag 'num_start', nil,:size => 5 %><br>
+	Enter custom user data: <%= text_field_tag 'user_data', @farm.default_user_data,:size => 30 %>
     <div><%= submit_tag 'Start' %></div>
 <% end -%>
 

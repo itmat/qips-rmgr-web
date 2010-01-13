@@ -96,7 +96,8 @@ class FarmsController < ApplicationController
   def start
     @farm = Farm.find(params[:id])
     num_start = params[:num_start].to_i ||= 1
-    @num_started = @farm.start(num_start)
+    user_data = params[:user_data] ||= ''
+    @num_started = @farm.start(num_start, nil, user_data)
     logger.info "TEST"
     if @num_started < num_start
       flash[:notice] = "Could not start all requested instances due to farm policy. Starting #{@num_started} instances.. may take a few moments."

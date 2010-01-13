@@ -26,7 +26,8 @@
 	<td><%=h farm.instances.select{|i| i.running? }.size %>
 	<td><%=h farm.key_pair_name %></td>
 	<td><%=h farm.security_groups %></td>
-    <td><%=h farm.role.name %></td>
+    <td><%=h farm.role.name %>
+	</td>
 	<td><%=h farm.farm_type %></td>
     <td><%= link_to 'Show', farm %></td>
     <td><%= link_to 'Edit', edit_farm_path(farm) %></td>
