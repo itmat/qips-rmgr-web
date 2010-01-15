@@ -190,7 +190,7 @@ class Farm < ActiveRecord::Base
 
         #first find out how many instances are running of this type
         total_running = (instances.select{ |j| j.running? }).size
-        unless ((total_running - 1) <  min ||  (! i.available?) )
+        unless ((total_running - 1) <  min ||  (! i.available?) || (farm_type.eql?('admin')))
           # for now we shutdown via aws but this will change as we figure out a better way
           logger.info "Shutting down #{i.farm.ami_id} -- #{i.instance_id} due to IDLE timeout."
           EventLog.info "Shutting down #{i.farm.ami_id} -- #{i.instance_id} due to IDLE timeout."
