@@ -69,8 +69,7 @@ class Instance < ActiveRecord::Base
     #
 
     def running?
-    
-      (state == 'launched' || state == 'admin' || state == 'idle' || state == 'busy' || state == 'reserved' || state == 'manual')
+      (state == 'launched' || state == 'admin' || state == 'idle' || state == 'busy' || state == 'reserved' || state == 'manual' || state == 'provisioning')
     end
     
 
@@ -80,7 +79,7 @@ class Instance < ActiveRecord::Base
     #
 
     def available?
-      (state == 'launched' || state == 'idle')
+      (state == 'launched' || state == 'idle' || state == 'provisioning')
       
     end
 
