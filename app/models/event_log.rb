@@ -18,7 +18,7 @@ class EventLog < ActiveRecord::Base
       end
       
       ea.each do |event|
-        record += "#{event.event_type.upcase}: #{event.created_at.to_s(:db)} - #{event.message}\n"
+        record += "#{event.event_type.upcase}: #{event.created_at.localtime.to_s(:db)} - #{event.message}\n"
               
       end
       
