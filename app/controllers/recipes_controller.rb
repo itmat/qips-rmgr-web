@@ -9,6 +9,7 @@ class RecipesController < ApplicationController
     respond_to do |format|
       format.html # index.html.erb
       format.xml  { render :xml => @recipes }
+      format.json  { render :json => @recipes }
     end
   end
 
@@ -20,6 +21,7 @@ class RecipesController < ApplicationController
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @recipe }
+      format.json  { render :json => @recipe }
     end
   end
 

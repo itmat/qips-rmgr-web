@@ -5,7 +5,7 @@
     <td align="center">
 	<%
 	
-	log_tail = `#{LOG_CMD}`
+	log_tail = `#{LOG_CMD}` unless LOG_CMD.empty?
 	event_tail = EventLog.dump
 	
 	%>

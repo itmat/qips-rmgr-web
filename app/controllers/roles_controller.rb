@@ -9,6 +9,7 @@ class RolesController < ApplicationController
     respond_to do |format|
       format.html # index.html.erb
       format.xml  { render :xml => @roles }
+      format.json  { render :json => @roles }
     end
   end
 

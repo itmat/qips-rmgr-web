@@ -10,6 +10,7 @@ class FarmsController < ApplicationController
     respond_to do |format|
       format.html # index.html.erb
       format.xml  { render :xml => @farms }
+      format.json  { render :json => @farms }
     end
   end
 
@@ -217,6 +218,7 @@ class FarmsController < ApplicationController
     respond_to do |format|
       format.html { render }
       format.xml  { head :ok }
+      format.json  { head :ok}
     end
 
   end
