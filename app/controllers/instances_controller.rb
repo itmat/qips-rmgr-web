@@ -79,8 +79,8 @@ class InstancesController < ApplicationController
       if @instance.state.eql?('error')
         logger.error "Instance #{@instance.instance_id} reported following error: #{h['error_message']}"
         EventLog.error "Instance #{@instance.instance_id} reported following error: #{h['error_message']}"
-        EventLog.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because of error..."
-        @instance.terminate
+        EventLog.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because of error..." unless @instance.farm.farm_type.eql?('admin')
+        @instance.terminate unless @instance.farm.farm_type.eql?('admin')
       else
         
         

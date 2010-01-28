@@ -96,7 +96,6 @@ describe InstancesController do
       custom_message = default_message
       custom_message[:state] = "error"
       custom_message[:error_message] = "test error message"
-      
       instance = Factory(:instance)
       instance.recycle # a real instance
       Delayed::Job.reserve_and_run_one_job
@@ -108,6 +107,27 @@ describe InstancesController do
       sleep 5
       instance.reload
       instance.state.should == 'shutdown'
+
+    end
+  end
+  
+  describe "GET set_status" do 
+    it "should NOT shutdown node if it reports an error and is an admin instance." do
+      custom_message = default_message
+      custom_message[:state] = "error"
+      custom_message[:error_message] = "test error message"
+      admin_farm = Factory(:farm, :farm_type => 'admin')
+      instance = Factory(:instance, :farm => admin_farm)
+      instance.recycle # a real instance
+      Delayed::Job.reserve_and_run_one_job
+      sleep 5
+      instance.reload
+      custom_message[:instance_id] = "#{instance.instance_id}"
+      get :set_status, :message => custom_message.to_json
+      Delayed::Job.reserve_and_run_one_job
+      sleep 5
+      instance.reload
+      instance.state.should_not == 'shutdown'
 
     end
   end
