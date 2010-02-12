@@ -202,7 +202,7 @@ class Instance < ActiveRecord::Base
       end
     end
     
-    private :request_spot_instance
+    private :request_spot_instances
     private :getSpotInstanceId
     private :getSpotRequestState
     
