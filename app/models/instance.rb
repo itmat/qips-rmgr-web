@@ -165,7 +165,7 @@ class Instance < ActiveRecord::Base
       return state
     end
 
-    def request_spot_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1, spot_price='0.10', instance_type='m1.small')
+    def run_spot_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1, spot_price='0.10', instance_type='m1.small')
     	#@amazon_ec2 = AWS::EC2::Base.new(:access_key_id => AWS_ACCESS_KEY_ID, :secret_access_key => AWS_SECRET_ACCESS_KEY)
     	instance_ids = Array.new
     	sirs = @amazon_ec2.request_spot_instances(:image_id => ami, :security_group => security_groups, :key_name => key_pair_name, :kernel_id => kernel, :user_data => user_data, :instance_count => num, :spot_price => spot_price, :instance_type => instance_type, :launch_group => "QIPS")
@@ -188,7 +188,7 @@ class Instance < ActiveRecord::Base
     def self.start_and_create_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1)
       begin
         #new_instances = @ec2.run_instances(ami,num,num,security_groups,key_pair_name, user_data, 'public', nil, kernel)
-        new_instances = @amazon_ec2.request_spot_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1)
+        new_instances = @amazon_ec2.run_spot_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1)
         new_instances.each do |i|
           temp = Instance.create_from_aws_hash(i)
           temp.user_data = user_data
@@ -202,7 +202,7 @@ class Instance < ActiveRecord::Base
       end
     end
     
-    private :request_spot_instances
+    private :run_spot_instances
     private :getSpotInstanceId
     private :getSpotRequestState
     
