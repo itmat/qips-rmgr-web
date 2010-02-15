@@ -153,22 +153,25 @@ class Instance < ActiveRecord::Base
     #  
     #
 
-    def getSpotInstanceId(spot_instance_request_id)
-      sir = @amazon_ec2.describe_spot_instance_requests(:spot_instance_request_id => spot_instance_request_id)
+    def self.getSpotInstanceId(spot_instance_request_id)
+      ec2 = Instance.get_amazon_ec2
+      sir = ec2.describe_spot_instance_requests(:spot_instance_request_id => spot_instance_request_id)
       instance_id = sir['spotInstanceRequestSet']['item'][0]['instanceId']
       return instance_id
     end
 
-    def getSpotRequestState(spot_instance_request_id)
-      sir = @amazon_ec2.describe_spot_instance_requests(:spot_instance_request_id => spot_instance_request_id)
+    def self.getSpotRequestState(spot_instance_request_id)
+      ec2 = Instance.get_amazon_ec2
+      sir = ec2.describe_spot_instance_requests(:spot_instance_request_id => spot_instance_request_id)
       state = sir['spotInstanceRequestSet']['item'][0]['state']
       return state
     end
 
-    def run_spot_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1, spot_price='0.10', instance_type='m1.small')
+    def self.run_spot_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1, spot_price='0.10', instance_type='m1.small')
     	#@amazon_ec2 = AWS::EC2::Base.new(:access_key_id => AWS_ACCESS_KEY_ID, :secret_access_key => AWS_SECRET_ACCESS_KEY)
+    	ec2 = Instance.get_amazon_ec2
     	instance_ids = Array.new
-    	sirs = @amazon_ec2.request_spot_instances(:image_id => ami, :security_group => security_groups, :key_name => key_pair_name, :kernel_id => kernel, :user_data => user_data, :instance_count => num, :spot_price => spot_price, :instance_type => instance_type, :launch_group => "QIPS")
+    	sirs = ec2.request_spot_instances(:image_id => ami, :security_group => security_groups, :key_name => key_pair_name, :kernel_id => kernel, :user_data => user_data, :instance_count => num, :spot_price => spot_price, :instance_type => instance_type, :launch_group => "QIPS")
     	sirs['spotInstanceRequestSet']['item'].each do |sir|
     	  sir_id = sir['spotInstanceRequestId']
     	  instance_id = nil
@@ -178,7 +181,7 @@ class Instance < ActiveRecord::Base
     	    state = getSpotRequestState(sir_id)
     	    break if (state == nil || state == "cancelled" || state == "failed")
         end
-        @amazon_ec2.cancel_spot_instance_requests(:spot_instance_request_id => sir_id)
+        ec2.cancel_spot_instance_requests(:spot_instance_request_id => sir_id)
         #@amazon_ec2.terminate_instances(:instance_id => instance_id)
         instance_ids << instance_id
       end
@@ -188,7 +191,7 @@ class Instance < ActiveRecord::Base
     def self.start_and_create_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1)
       begin
         #new_instances = @ec2.run_instances(ami,num,num,security_groups,key_pair_name, user_data, 'public', nil, kernel)
-        new_instances = @amazon_ec2.run_spot_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1)
+        new_instances = run_spot_instances(ami, security_groups, key_pair_name, kernel, user_data, num)
         new_instances.each do |i|
           temp = Instance.create_from_aws_hash(i)
           temp.user_data = user_data
@@ -196,15 +199,15 @@ class Instance < ActiveRecord::Base
         end
         logger.info "Started and saved #{num} #{ami} instances."
         EventLog.info "Started and saved #{num} #{ami} instances."
-      rescue
-        logger.error "Caught exception when trying to start #{num} #{ami} instances!"
-        EventLog.error "Caught exception when trying to start #{num} #{ami} instances!"
+      rescue Exception => e
+        logger.error "Caught exception when trying to start #{num} #{ami} instances!: #{e.backtrace}"
+        EventLog.error "Caught exception when trying to start #{num} #{ami} instances!: #{e.backtrace}"
       end
     end
     
-    private :run_spot_instances
-    private :getSpotInstanceId
-    private :getSpotRequestState
+    #private :run_spot_instances
+    #private :getSpotInstanceId
+    #private :getSpotRequestState
     
     
     #################  SYNC LOCAL INSTANCES WITH AWS
