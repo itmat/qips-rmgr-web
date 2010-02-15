@@ -170,10 +170,12 @@ class Instance < ActiveRecord::Base
     def self.run_spot_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1, spot_price='0.10', instance_type='m1.small')
     	#@amazon_ec2 = AWS::EC2::Base.new(:access_key_id => AWS_ACCESS_KEY_ID, :secret_access_key => AWS_SECRET_ACCESS_KEY)
     	ec2 = Instance.get_amazon_ec2
-    	instance_ids = Array.new
+    	right_ec2 = Instance.get_ec2
+    	right_aws_hashes = Array.new
     	sirs = ec2.request_spot_instances(:image_id => ami, :security_group => security_groups, :key_name => key_pair_name, :kernel_id => kernel, :user_data => user_data, :instance_count => num, :spot_price => spot_price, :instance_type => instance_type, :launch_group => "QIPS")
     	sirs['spotInstanceRequestSet']['item'].each do |sir|
     	  sir_id = sir['spotInstanceRequestId']
+    	  logger.info "Attempting to request #{sir.to_s} of #{num} spot instance(s). Spot Instance Request ID: #{sir_id}"
     	  instance_id = nil
     	  while (instance_id == nil)
     	    sleep (10)
@@ -181,11 +183,16 @@ class Instance < ActiveRecord::Base
     	    state = getSpotRequestState(sir_id)
     	    break if (state == nil || state == "cancelled" || state == "failed")
         end
+        if (instance_id == nil)
+          logger.error "Spot Instance Request #{sir_id } was #{state}"
+        else
+          logger.info "Spot Instance Request Fulfilled.  Instance ID: #{instance_id}"
+        end
         ec2.cancel_spot_instance_requests(:spot_instance_request_id => sir_id)
-        #@amazon_ec2.terminate_instances(:instance_id => instance_id)
-        instance_ids << instance_id
+        righ_aws_hash = right_ec2.describe_instances(instance_id)
+        right_aws_hashes << right_aws_hash
       end
-      return instance_ids
+      return right_aws_hashes
     end
     
     def self.start_and_create_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1)
