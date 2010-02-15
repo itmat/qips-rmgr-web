@@ -1,15 +1,22 @@
 require 'rubygems'
 require 'right_aws'
+require 'AWS'
 require 'json'
 
 class Instance < ActiveRecord::Base
     belongs_to :farm
     serialize :child_procs
     @ec2 = RightAws::Ec2.new(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+    @amazon_ec2 = AWS::EC2::Base.new(:access_key_id => AWS_ACCESS_KEY_ID, :secret_access_key => AWS_SECRET_ACCESS_KEY)
 
     def self.get_ec2()
       @ec2 = RightAws::Ec2.new(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
       return @ec2 
+    end
+    
+    def self.get_amazon_ec2()
+      @amazon_ec2 = AWS::EC2::Base.new(:access_key_id => AWS_ACCESS_KEY_ID, :secret_access_key => AWS_SECRET_ACCESS_KEY)
+      return @amazon_ec2
     end
 
     # restarts an instance and then repopulates instance-id, etc 
@@ -146,9 +153,42 @@ class Instance < ActiveRecord::Base
     #  
     #
 
+    def getSpotInstanceId(spot_instance_request_id)
+      sir = @amazon_ec2.describe_spot_instance_requests(:spot_instance_request_id => spot_instance_request_id)
+      instance_id = sir['spotInstanceRequestSet']['item'][0]['instanceId']
+      return instance_id
+    end
+
+    def getSpotRequestState(spot_instance_request_id)
+      sir = @amazon_ec2.describe_spot_instance_requests(:spot_instance_request_id => spot_instance_request_id)
+      state = sir['spotInstanceRequestSet']['item'][0]['state']
+      return state
+    end
+
+    def run_spot_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1, spot_price='0.10', instance_type='m1.small')
+    	#@amazon_ec2 = AWS::EC2::Base.new(:access_key_id => AWS_ACCESS_KEY_ID, :secret_access_key => AWS_SECRET_ACCESS_KEY)
+    	instance_ids = Array.new
+    	sirs = @amazon_ec2.request_spot_instances(:image_id => ami, :security_group => security_groups, :key_name => key_pair_name, :kernel_id => kernel, :user_data => user_data, :instance_count => num, :spot_price => spot_price, :instance_type => instance_type, :launch_group => "QIPS")
+    	sirs['spotInstanceRequestSet']['item'].each do |sir|
+    	  sir_id = sir['spotInstanceRequestId']
+    	  instance_id = nil
+    	  while (instance_id == nil)
+    	    sleep (10)
+    	    instance_id = getSpotInstanceId(sir_id)
+    	    state = getSpotRequestState(sir_id)
+    	    break if (state == nil || state == "cancelled" || state == "failed")
+        end
+        @amazon_ec2.cancel_spot_instance_requests(:spot_instance_request_id => sir_id)
+        #@amazon_ec2.terminate_instances(:instance_id => instance_id)
+        instance_ids << instance_id
+      end
+      return instance_ids
+    end
+    
     def self.start_and_create_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1)
       begin
-        new_instances = @ec2.run_instances(ami,num,num,security_groups,key_pair_name, user_data, 'public', nil, kernel)
+        #new_instances = @ec2.run_instances(ami,num,num,security_groups,key_pair_name, user_data, 'public', nil, kernel)
+        new_instances = @amazon_ec2.run_spot_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1)
         new_instances.each do |i|
           temp = Instance.create_from_aws_hash(i)
           temp.user_data = user_data
@@ -160,10 +200,12 @@ class Instance < ActiveRecord::Base
         logger.error "Caught exception when trying to start #{num} #{ami} instances!"
         EventLog.error "Caught exception when trying to start #{num} #{ami} instances!"
       end
-
     end
     
-
+    private :run_spot_instances
+    private :getSpotInstanceId
+    private :getSpotRequestState
+    
     
     #################  SYNC LOCAL INSTANCES WITH AWS
     #
