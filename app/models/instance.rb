@@ -189,7 +189,7 @@ class Instance < ActiveRecord::Base
           logger.info "Spot Instance Request Fulfilled.  Instance ID: #{instance_id}"
         end
         ec2.cancel_spot_instance_requests(:spot_instance_request_id => sir_id)
-        righ_aws_hash = right_ec2.describe_instances(instance_id)
+        right_aws_hash = right_ec2.describe_instances(instance_id)
         right_aws_hashes << right_aws_hash
       end
       return right_aws_hashes
