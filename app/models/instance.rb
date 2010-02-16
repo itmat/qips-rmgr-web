@@ -21,10 +21,11 @@ class Instance < ActiveRecord::Base
 
     # restarts an instance and then repopulates instance-id, etc 
     def recycle()
-        ec2 = Instance.get_ec2
+        #ec2 = Instance.get_ec2
         self.user_data = '' if self.user_data.nil? 
         begin
-          new_instances = ec2.run_instances(farm.ami_id, 1 ,1 , farm.security_groups.split(','),farm.key_pair_name, user_data, 'public', nil, farm.kernel_id)
+          #new_instances = ec2.run_instances(farm.ami_id, 1 ,1 , farm.security_groups.split(','),farm.key_pair_name, user_data, 'public', nil, farm.kernel_id)
+          new_instances = run_spot_instances(farm.ami_id, farm.security_groups.split(','), farm.key_pair_name, farm.kernel_id, user_data, 1)
           new_instances.each do |i|
             self.instance_id =  i[:aws_instance_id]
             self.launch_time = i[:aws_launch_time]
@@ -211,10 +212,6 @@ class Instance < ActiveRecord::Base
         EventLog.error "Caught exception when trying to start #{num} #{ami} instances!: #{e.backtrace}"
       end
     end
-    
-    #private :run_spot_instances
-    #private :getSpotInstanceId
-    #private :getSpotRequestState
     
     
     #################  SYNC LOCAL INSTANCES WITH AWS
