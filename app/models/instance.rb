@@ -191,7 +191,7 @@ class Instance < ActiveRecord::Base
         end
         ec2.cancel_spot_instance_requests(:spot_instance_request_id => sir_id)
         right_aws_hash = right_ec2.describe_instances(instance_id)
-        right_aws_hashes << right_aws_hash
+        right_aws_hashes << right_aws_hash[0]
       end
       return right_aws_hashes
     end
