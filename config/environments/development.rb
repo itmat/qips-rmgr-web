@@ -41,3 +41,4 @@ config.gem "thoughtbot-factory_girl", :lib => "factory_girl", :source => "http:/
 config.gem "erubis", :lib => false, :version => ">=2.6.2"
 config.gem "json", :lib => false, :version => ">=1.2.0"
 config.gem "amazon-ec2",  :lib => false, :version => ">=0.9.3"
+config.gem "right_aws", :lib => false, :version => ">=1.10.0"
