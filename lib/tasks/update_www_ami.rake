@@ -1,6 +1,6 @@
-namespace :update_ami do
+namespace :update_amis do
   desc "Changes the AMI ID to that of the current AWS Web Server in the DB"
-  task :find => :environment do
+  task :update => :environment do
     path = "/opt/bin"
     if File.exists?(path) and File.directory?(path) and File.exists?("#{path}/farm_ami_ids.yml")
       yml = YAML.load_file("#{path}/farm_ami_ids.yml")
@@ -20,7 +20,6 @@ namespace :update_ami do
       end
       Farm.update(result[:id], {:ami_id => compute_ami_id})
       
-      end
     end
   end
 end
