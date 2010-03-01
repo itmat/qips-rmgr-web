@@ -117,8 +117,8 @@ class FarmsController < ApplicationController
   # post num_requested
   def start_compute_instances
     @farm = Farm.find(:first, :conditions => {:name => "Compute Node"})
-    num_requested = params[:num_requested].to_i || = 1
-    user_data = params[:user_data] || = ''
+    num_requested = params[:num_requested].to_i ||= 1
+    user_data = params[:user_data] ||= ''
     @num_started = @farm.start(num_requested, nil, user_data)
     logger.info("Requested #{num_requested} compute instances")
     
