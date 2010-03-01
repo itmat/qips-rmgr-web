@@ -112,6 +112,29 @@ class FarmsController < ApplicationController
     end
   end
   
+  #start some compute nodes from a  farm
+  # POST /farms/start_compute_nodes/2
+  # post num_requested
+  def start_compute_instances
+    @farm = Farm.find(:first, :conditions => {:name => "Compute Node"})
+    num_requested = params[:num_requested].to_i || = 1
+    user_data = params[:user_data] || = ''
+    @num_started = @farm.start(num_requested, nil, user_data)
+    logger.info("Requested #{num_requested} compute instances")
+    
+    if @num_started < num_requested
+      flash[:notice] = "Could not start all requested compute nodes due to farm policy.  Starting #{@num_started} compute instances.. may take a few moments."
+    else
+      flash[:notice] = "Starting #{@num_started} compute instances.. may take a few moments."
+    end
+    
+    respond_to do |format|
+      format.html { redirect_to(@farm) }
+      format.xml  { head :created }
+      format.json { head :created }
+    end
+  end
+  
   
   # start by role
   # looks up farm based on role, then call start!
