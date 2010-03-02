@@ -176,7 +176,7 @@ class Instance < ActiveRecord::Base
     	sirs = ec2.request_spot_instances(:image_id => ami, :security_group => security_groups, :key_name => key_pair_name, :kernel_id => kernel, :user_data => user_data, :instance_count => num, :spot_price => spot_price, :instance_type => instance_type, :launch_group => "QIPS")
     	sirs['spotInstanceRequestSet']['item'].each do |sir|
     	  sir_id = sir['spotInstanceRequestId']
-    	  ActionController::Base.logger.info "Attempting to request #{sir.to_s} of #{num} spot instance(s). Spot Instance Request ID: #{sir_id}"
+    	  logger.info "Attempting to request a spot instance(s). Spot Instance Request ID: #{sir_id}"
     	  instance_id = nil
     	  while (instance_id == nil)
     	    sleep (10)
@@ -185,10 +185,10 @@ class Instance < ActiveRecord::Base
     	    break if (state == nil || state == "cancelled" || state == "failed")
         end
         if (instance_id == nil)
-          ActionController::Base.logger.error "Spot Instance Request #{sir_id } was #{state}"
+          logger.error "Spot Instance Request #{sir_id } was #{state}"
           #raise "Spot Instance Request #{sir_id} was #{state}. Instance was not created."
         else
-          ActionController::Base.logger.info "Spot Instance Request Fulfilled.  Instance ID: #{instance_id}"
+          logger.info "Spot Instance Request Fulfilled.  Instance ID: #{instance_id}"
         end
         ec2.cancel_spot_instance_requests(:spot_instance_request_id => sir_id)
         right_aws_hash = right_ec2.describe_instances(instance_id)

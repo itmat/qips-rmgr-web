@@ -121,6 +121,7 @@ class FarmsController < ApplicationController
     user_data = params[:user_data] ||= ''
     @num_started = @farm.start(num_requested, nil, user_data)
     logger.info("Requested #{num_requested} compute instances")
+    logger.info("#{@num_started} compute instances started.")
     
     if @num_started < num_requested
       flash[:notice] = "Could not start all requested compute nodes due to farm policy.  Starting #{@num_started} compute instances.. may take a few moments."
@@ -129,9 +130,9 @@ class FarmsController < ApplicationController
     end
     
     respond_to do |format|
-      format.html { redirect_to(@farm) }
-      format.xml  { head :created }
-      format.json { head :created }
+      format.html { head :ok }
+      format.xml  { head :ok }
+      format.json { head :ok }
     end
   end
   
