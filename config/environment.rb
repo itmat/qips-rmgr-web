@@ -51,17 +51,5 @@ Rails::Initializer.run do |config|
   # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}')]
   # config.i18n.default_locale = :de
 
-# Configure defaults if the included environment did not.
-begin
-  RAILS_DEFAULT_LOGGER = Logger.new("#{RAILS_ROOT}/log/#{RAILS_ENV}.log")
-  RAILS_DEFAULT_LOGGER.level = (RAILS_ENV == 'production' ? Logger::INFO : Logger::DEBUG)
-rescue StandardError
-  RAILS_DEFAULT_LOGGER = Logger.new(STDERR)
-  RAILS_DEFAULT_LOGGER.level = Logger::WARN
-  RAILS_DEFAULT_LOGGER.warn(
-    "Rails Error: Unable to access log file. Please ensure that log/#{RAILS_ENV}.log exists and is chmod 0666. " +
-    "The log level has been raised to WARN and the output directed to STDERR until the problem is fixed."
-  )
-end
 
 end

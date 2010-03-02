@@ -49,11 +49,12 @@ class Farm < ActiveRecord::Base
       logger.info "Reserving for: #{num_requested} #{role.name} instances "
       # reserve those nodes that are running, and then start / create the balance
       node_array.each do |node|
-         node.state = 'reserved'
-         node.save
-         num_requested = num_requested.to_i - 1
-         break if num_requested == 0 
-       end
+        break if num_requested < 1
+        node.state = 'reserved'
+        node.save
+        num_requested = num_requested.to_i - 1
+        
+      end
 
       #now lets start the rest of the nodes needed, assuming we don't go past the max limit!
       #first lets get a count of how many nodes are LAUNCHED, IDLE, BUSY, or RESERVED

@@ -129,17 +129,19 @@ class Instance < ActiveRecord::Base
       
       set_state = state ||= 'launched'
       
-      temp = nil
-      
+      temp = Instance.find_by_instance_id(i[:aws_instance_id])
+      return temp unless temp.nil?
+            
       farm = Farm.find(:first, :conditions => {:ami_id => i[:aws_image_id]})
 
       if farm.nil?
-        ActionController::Base.logger.error "Could not find a farm for #{i[:aws_image_id]}"
+        logger.error "Could not find a farm for #{i[:aws_image_id]}"
         
       else
+        
         temp = Instance.create(:instance_id => i[:aws_instance_id], :farm => farm, :launch_time => i[:aws_launch_time], :ec2_state => i[:aws_state], :state => set_state, :public_dns_name => i[:dns_name])
         temp.save     
-        ActionController::Base.logger.info "Saved instance #{farm.ami_id} --- #{temp.instance_id}"
+        logger.info "Saved instance #{farm.ami_id} --- #{temp.instance_id}"
       end
       
       return temp
@@ -198,18 +200,20 @@ class Instance < ActiveRecord::Base
     end
     
     def self.start_and_create_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1)
+      logger.info "ENTERING DELAYED JOB"
       begin
         #new_instances = @ec2.run_instances(ami,num,num,security_groups,key_pair_name, user_data, 'public', nil, kernel)
         new_instances = run_spot_instances(ami, security_groups, key_pair_name, kernel, user_data, num)
         new_instances.each do |i|
           temp = Instance.create_from_aws_hash(i)
           temp.user_data = user_data
+          temp.state = 'launched'
           temp.save
         end
-        ActionController::Base.logger.info "Started and saved #{num} #{ami} instances."
+        logger.info "Started and saved #{num} #{ami} instances."
         EventLog.info "Started and saved #{num} #{ami} instances."
       rescue Exception => e
-        ActionController::Base.logger.error "Caught exception when trying to start #{num} #{ami} instances!: #{e.backtrace}"
+        logger.error "Caught exception when trying to start #{num} #{ami} instances!: #{e.backtrace}"
         EventLog.error "Caught exception when trying to start #{num} #{ami} instances!: #{e.backtrace}"
       end
     end

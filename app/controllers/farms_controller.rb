@@ -130,9 +130,9 @@ class FarmsController < ApplicationController
     end
     
     respond_to do |format|
-      format.html { head :ok }
-      format.xml  { head :ok }
-      format.json { head :ok }
+      format.html { head :created }
+      format.xml  { head :created }
+      format.json { head :created }
     end
   end
   
