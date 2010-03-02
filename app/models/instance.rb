@@ -134,12 +134,12 @@ class Instance < ActiveRecord::Base
       farm = Farm.find(:first, :conditions => {:ami_id => i[:aws_image_id]})
 
       if farm.nil?
-        logger.error "Could not find a farm for #{i[:aws_image_id]}"
+        ActionController::Base.logger.error "Could not find a farm for #{i[:aws_image_id]}"
         
       else
         temp = Instance.create(:instance_id => i[:aws_instance_id], :farm => farm, :launch_time => i[:aws_launch_time], :ec2_state => i[:aws_state], :state => set_state, :public_dns_name => i[:dns_name])
         temp.save     
-        logger.info "Saved instance #{farm.ami_id} --- #{temp.instance_id}"
+        ActionController::Base.logger.info "Saved instance #{farm.ami_id} --- #{temp.instance_id}"
       end
       
       return temp
@@ -176,7 +176,7 @@ class Instance < ActiveRecord::Base
     	sirs = ec2.request_spot_instances(:image_id => ami, :security_group => security_groups, :key_name => key_pair_name, :kernel_id => kernel, :user_data => user_data, :instance_count => num, :spot_price => spot_price, :instance_type => instance_type, :launch_group => "QIPS")
     	sirs['spotInstanceRequestSet']['item'].each do |sir|
     	  sir_id = sir['spotInstanceRequestId']
-    	  logger.info "Attempting to request #{sir.to_s} of #{num} spot instance(s). Spot Instance Request ID: #{sir_id}"
+    	  ActionController::Base.logger.info "Attempting to request #{sir.to_s} of #{num} spot instance(s). Spot Instance Request ID: #{sir_id}"
     	  instance_id = nil
     	  while (instance_id == nil)
     	    sleep (10)
@@ -185,13 +185,14 @@ class Instance < ActiveRecord::Base
     	    break if (state == nil || state == "cancelled" || state == "failed")
         end
         if (instance_id == nil)
-          logger.error "Spot Instance Request #{sir_id } was #{state}"
+          ActionController::Base.logger.error "Spot Instance Request #{sir_id } was #{state}"
+          #raise "Spot Instance Request #{sir_id} was #{state}. Instance was not created."
         else
-          logger.info "Spot Instance Request Fulfilled.  Instance ID: #{instance_id}"
+          ActionController::Base.logger.info "Spot Instance Request Fulfilled.  Instance ID: #{instance_id}"
         end
         ec2.cancel_spot_instance_requests(:spot_instance_request_id => sir_id)
         right_aws_hash = right_ec2.describe_instances(instance_id)
-        right_aws_hashes << right_aws_hash[0]
+        right_aws_hashes << right_aws_hash[0] unless instance_id.nil?
       end
       return right_aws_hashes
     end
@@ -205,10 +206,10 @@ class Instance < ActiveRecord::Base
           temp.user_data = user_data
           temp.save
         end
-        logger.info "Started and saved #{num} #{ami} instances."
+        ActionController::Base.logger.info "Started and saved #{num} #{ami} instances."
         EventLog.info "Started and saved #{num} #{ami} instances."
       rescue Exception => e
-        logger.error "Caught exception when trying to start #{num} #{ami} instances!: #{e.backtrace}"
+        ActionController::Base.logger.error "Caught exception when trying to start #{num} #{ami} instances!: #{e.backtrace}"
         EventLog.error "Caught exception when trying to start #{num} #{ami} instances!: #{e.backtrace}"
       end
     end
