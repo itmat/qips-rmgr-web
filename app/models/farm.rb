@@ -62,7 +62,7 @@ class Farm < ActiveRecord::Base
 
             
       #start num_to_start instances via Instance. Enqueue these in delayed job because they may take a while
-      Instance.send_later(:start_and_create_instances, ami_id,security_groups.split(','),key_pair_name, kernel_id, user_data ||= '', num_to_start)
+      Instance.send_later(:start_and_create_instances, ami_id,security_groups.split(','),key_pair_name, kernel_id, user_data ||= '', num_to_start) unless num_to_start < 1
       
       #now also enqueue the workitem reply if needed
       WorkItemHelper.send_later(:send_reply, workitem_id) unless workitem_id.nil?
