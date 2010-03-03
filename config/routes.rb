@@ -6,7 +6,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.reconcile_all 'farms/reconcile_all', :controller => 'farms', :action => 'reconcile_all'
   
-  map.start_compute_instances 'farms/start_compute_instances/:num_requested', :controller => 'farms', :action => 'start_compute_instances'
+  map.start_compute_instances 'farms/start_compute_instances/:num_requested.:format', :controller => 'farms', :action => 'start_compute_instances'
   
   map.start_by_role 'farms/start_by_role', :controller => 'farms', :action => 'start_by_role'
 
