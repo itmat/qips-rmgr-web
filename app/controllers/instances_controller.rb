@@ -105,10 +105,7 @@ class InstancesController < ApplicationController
               if @instance.cycle_count < NODE_CYCLE_MAX
                 logger.info "Recycling instance #{@instance.farm.ami_id} -- #{@instance.instance_id}..."
                 EventLog.info "Recycling instance #{@instance.farm.ami_id} -- #{@instance.instance_id}..."
-                @instance.terminate
-                @instance.recycle
-                @instance.cycle_count += 1
-                @instance.save
+                @instance.send_later( :recycle )
               else
                 logger.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because it was unresponsive and exceeded max recycle tries."
                 EventLog.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because it was unresponsive and exceeded max recycle tries."

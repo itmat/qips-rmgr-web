@@ -1,5 +1,3 @@
 <h2>Reconcile Report for: <%= @farm.name %> </h2>
 
-Message: <%= @report[:message]%><br>
-Number Started: <%= @report[:num_started]%><br>
-Number Shutdown: <%= @report[:num_shutdown]%><br>
+<%=h @report %><br>

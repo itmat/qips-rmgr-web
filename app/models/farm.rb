@@ -23,6 +23,7 @@ class Farm < ActiveRecord::Base
   #### start N instances from farm. mind upper limits
   #
   #   returns actual number started  
+  #   should be delayed or run from a delayed method
   #
     
   def start(num_requested=1, workitem_id=nil, user_data=nil)
@@ -63,10 +64,10 @@ class Farm < ActiveRecord::Base
 
             
       #start num_to_start instances via Instance. Enqueue these in delayed job because they may take a while
-      Instance.send_later(:start_and_create_instances, ami_id,security_groups.split(','),key_pair_name, kernel_id, user_data ||= '', num_to_start) unless num_to_start < 1
+      Instance.start_and_create_instances(ami_id,security_groups.split(','),key_pair_name, kernel_id, user_data ||= '', num_to_start) unless num_to_start < 1
       
       #now also enqueue the workitem reply if needed
-      WorkItemHelper.send_later(:send_reply, workitem_id) unless workitem_id.nil?
+      WorkItemHelper.send_reply(workitem_id) unless workitem_id.nil?
       
       logger.info "Starting #{num_to_start} more #{ami_id} instances. Note that this may take a moment. "
       EventLog.info "Starting #{num_to_start} more #{ami_id} instances. Note that this may take a moment. "
@@ -82,6 +83,7 @@ class Farm < ActiveRecord::Base
   ####  reconcile with ec2.  start / stop based on min / max. clean up, etc. 
   #
   #  returns hash with following values: message, num_started, num_shutdown
+  #  should be delayed or run from a delayed method
   #
   
   def reconcile
@@ -104,7 +106,7 @@ class Farm < ActiveRecord::Base
       # need to start some of them
       logger.info "Attempting to start #{num_start} #{ami_id} instances... may take a few moments."
       EventLog.info "Attempting to start #{num_start} #{ami_id} instances... may take a few moments."
-      Instance.send_later(:start_and_create_instances, ami_id,security_groups.split(','),key_pair_name, kernel_id, default_user_data, num_start)
+      Instance.start_and_create_instances(ami_id,security_groups.split(','),key_pair_name, kernel_id, default_user_data, num_start)
 
     elsif ia.size > max
       # need to stop some of the instances, if they are either 'IDLE' or 'LAUNCHED' state
@@ -140,9 +142,7 @@ class Farm < ActiveRecord::Base
         if ri.cycle_count < NODE_CYCLE_MAX
           logger.info "Recycling instance #{ri.farm.ami_id} -- #{ri.instance_id}..."
           EventLog.info "Recycling instance #{ri.farm.ami_id} -- #{ri.instance_id}..."
-          ri.terminate
           ri.recycle
-          ri.save
         else
           logger.info "Shutting down instance #{ri.farm.ami_id} -- #{ri.instance_id} because it was unresponsive and exceeded max recycle tries."
           EventLog.info "Shutting down instance #{ri.farm.ami_id} -- #{ri.instance_id} because it was unresponsive and exceeded max recycle tries."

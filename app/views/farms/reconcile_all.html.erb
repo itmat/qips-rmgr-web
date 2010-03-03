@@ -2,10 +2,6 @@
 
 <% @reports.each do |report|%>
 
-Farm Name: <%= report[:farm_name]%><br>
-Message: <%= report[:message]%><br>
-Number Started: <%= report[:num_started]%><br>
-Number Shutdown: <%= report[:num_shutdown]%><br>
-<BR>
+<%= report %><br>
 
 <% end %>

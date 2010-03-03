@@ -96,16 +96,10 @@ class FarmsController < ApplicationController
   # post num_start
   def start
     @farm = Farm.find(params[:id])
-    num_start = params[:num_start].to_i ||= 1
+    num_start = (params[:num_start].nil? || params[:num_start].empty?) ? 1 : params[:num_start].to_i
     user_data = params[:user_data] ||= ''
-    @num_started = @farm.start(num_start, nil, user_data)
-    logger.info "TEST"
-    if @num_started < num_start
-      flash[:notice] = "Could not start all requested instances due to farm policy. Starting #{@num_started} instances.. may take a few moments."
-    else
-      flash[:notice] = "Starting #{@num_started} instances... may take a few moments."
-    end
-
+    @farm.send_later(:start, num_start, nil, user_data)
+    flash[:notice] = "Requested to start #{num_start} instances. This may take a few minutes."
     respond_to do |format|
       format.html { redirect_to(@farm) }
       format.xml  { head :ok }
@@ -117,18 +111,11 @@ class FarmsController < ApplicationController
   # post num_requested
   def start_compute_instances
     @farm = Farm.find(:first, :conditions => {:name => "Compute Node"})
-    num_requested = params[:num_requested].to_i ||= 1
+    num_requested = (params[:num_requested].nil? || params[:num_requested].empty?) ? 1 : params[:num_requested].to_i
     user_data = params[:user_data] ||= ''
-    @num_started = @farm.start(num_requested, nil, user_data)
+    @farm.send_later( :start, num_requested, nil, user_data)
     logger.info("Requested #{num_requested} compute instances")
-    logger.info("#{@num_started} compute instances started.")
-    
-    if @num_started < num_requested
-      flash[:notice] = "Could not start all requested compute nodes due to farm policy.  Starting #{@num_started} compute instances.. may take a few moments."
-    else
-      flash[:notice] = "Starting #{@num_started} compute instances.. may take a few moments."
-    end
-    
+  
     respond_to do |format|
       format.html { head :created }
       format.xml  { head :created }
@@ -137,7 +124,7 @@ class FarmsController < ApplicationController
   end
   
   
-  # start by role
+  # start by role MAY BE DEPRECATED!
   # looks up farm based on role, then call start!
   # looks for :role :num_start :workflow_id
   def start_by_role
@@ -147,7 +134,7 @@ class FarmsController < ApplicationController
         role = Role.find(:first, :conditions => {:name => params[:role]})
         @farm = Farm.find(:first, :conditions => {:role_id => role})
         
-        @num_started = @farm.start(params[:num_start], params[:workitem_id])
+        @farm.send_later( :start, params[:num_start], params[:workitem_id])
       
       rescue => e
         
@@ -170,7 +157,7 @@ class FarmsController < ApplicationController
   end
   
   ####################
-  #
+  #  MAY BE DEPRECATED
   #  very similar to start_by_role, except get everything from /POST :workitem
   #
   
@@ -186,7 +173,7 @@ class FarmsController < ApplicationController
           role = Role.find(:first, :conditions => {:name => wi.params['role']})
           @farm = Farm.find(:first, :conditions => {:role_id => role})
         
-          @num_started = @farm.start(wi.params['num_start'], wi.params['pid'])
+          @farm.send_later( :start, wi.params['num_start'], wi.params['pid'])
       
         rescue => e
         
@@ -220,7 +207,8 @@ class FarmsController < ApplicationController
   # POST /farms/1/reconcile
   def reconcile 
     @farm = Farm.find(params[:id])
-    @report = @farm.reconcile
+    @farm.send_later( :reconcile)
+    @report = "Sent request to reconcile farm: #{@farm.ami_id}"
     respond_to do |format|
       format.html { render }
       format.xml  { head :ok }
@@ -235,7 +223,8 @@ class FarmsController < ApplicationController
     @reports = Array.new
 
     @farms.each do |farm|
-      @reports << farm.reconcile
+      farm.send_later( :reconcile )
+      @reports << "Sent request to reconcile farm: #{@farm.ami_id}"
 
     end
     

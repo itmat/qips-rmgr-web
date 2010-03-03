@@ -19,13 +19,17 @@ class Instance < ActiveRecord::Base
       return @amazon_ec2
     end
 
+    ##############################
     # restarts an instance and then repopulates instance-id, etc 
+    # SHOULD BE DELAYED
+    #
     def recycle()
         #ec2 = Instance.get_ec2
         self.user_data = '' if self.user_data.nil? 
         begin
           #new_instances = ec2.run_instances(farm.ami_id, 1 ,1 , farm.security_groups.split(','),farm.key_pair_name, user_data, 'public', nil, farm.kernel_id)
           new_instances = run_spot_instances(farm.ami_id, farm.security_groups.split(','), farm.key_pair_name, farm.kernel_id, user_data, 1)
+          self.terminate
           new_instances.each do |i|
             self.instance_id =  i[:aws_instance_id]
             self.launch_time = i[:aws_launch_time]
@@ -148,14 +152,11 @@ class Instance < ActiveRecord::Base
       
     end
     
+  
+    ########################
+    # helper method to get and instance id from amazon_ec2 interface
+    #
     
-    ###########  starts instance and saves in local list 
-    #
-    #  Here is the main method that starts things
-    #  right now it just starts the instances and returns, 
-    #  
-    #
-
     def self.getSpotInstanceId(spot_instance_request_id)
       ec2 = Instance.get_amazon_ec2
       sir = ec2.describe_spot_instance_requests(:spot_instance_request_id => spot_instance_request_id)
@@ -163,12 +164,21 @@ class Instance < ActiveRecord::Base
       return instance_id
     end
 
+    #############################
+    # helper method to get spot request state from amazon ec2
+    #
+
     def self.getSpotRequestState(spot_instance_request_id)
       ec2 = Instance.get_amazon_ec2
       sir = ec2.describe_spot_instance_requests(:spot_instance_request_id => spot_instance_request_id)
       state = sir['spotInstanceRequestSet']['item'][0]['state']
       return state
     end
+
+    ###############################
+    # creates spot requests for requested nodes. blocks until those instances are launched
+    # SHOULD BE DELAYED OR RUN IN A DELAYED METHOD
+    #
 
     def self.run_spot_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1, spot_price='0.10', instance_type='m1.small')
     	#@amazon_ec2 = AWS::EC2::Base.new(:access_key_id => AWS_ACCESS_KEY_ID, :secret_access_key => AWS_SECRET_ACCESS_KEY)
@@ -199,6 +209,11 @@ class Instance < ActiveRecord::Base
       return right_aws_hashes
     end
     
+    ##########################
+    # starts and saves instances.  sets state to launched
+    # SHOULD BE DELAYED
+    #
+      
     def self.start_and_create_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1)
       logger.info "ENTERING DELAYED JOB"
       begin
