@@ -52,6 +52,9 @@ function toggle_log(){
 <%= link_to "Roles", roles_path %> | <BR><BR>
 	
 <%= link_to_function "Toggle Logs / Events", "toggle_log()" %>	
+
+<BR><BR>
+	<small>Delayed Queue Count: <%= "#{Delayed::Job.count}" %></small>
  
         </strong></td>
   </tr>
