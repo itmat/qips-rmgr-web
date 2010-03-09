@@ -224,7 +224,7 @@ class FarmsController < ApplicationController
 
     @farms.each do |farm|
       farm.send_later( :reconcile )
-      @reports << "Sent request to reconcile farm: #{@farm.ami_id}"
+      @reports << "Sent request to reconcile farm: #{farm.ami_id}"
 
     end
     
