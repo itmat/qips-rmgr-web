@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{qips-rmgr-web}
-  s.version = "0.2.0"
+  s.version = "0.4.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["David Austin", "Andrew Brader"]
-  s.date = %q{2010-01-19}
+  s.date = %q{2010-03-03}
   s.description = %q{Works with qips node to manage aws instances based on demand.}
   s.email = %q{daustin@mail.med.upenn.edu}
   s.extra_rdoc_files = [
@@ -117,9 +117,12 @@ Gem::Specification.new do |s|
      "lib/instance_monitor.rb",
      "lib/ip_access_writer.rb",
      "lib/tasks/cucumber.rake",
+     "lib/tasks/delayed_jobs.rake",
+     "lib/tasks/prep.rake",
      "lib/tasks/rspec.rake",
      "lib/work_item_helper.rb",
      "pkg/qips-rmgr-web-0.1.0.gem",
+     "pkg/qips-rmgr-web-0.2.0.gem",
      "public/404.html",
      "public/422.html",
      "public/500.html",
