@@ -34,8 +34,11 @@ class IpAccessWriter
       return "#{$1}.#{$2}.#{$3}.#{$4}"   
     else
       return ''
-    end
-    
+    end 
   end
   
+  def self.host_lookup(str)
+    private_ip = `/usr/bin/host #{str} | awk '{print $4}'`
+    return private_ip
+  end
 end

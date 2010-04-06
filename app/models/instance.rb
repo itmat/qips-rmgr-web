@@ -251,14 +251,14 @@ class Instance < ActiveRecord::Base
       @ec2.describe_instances.each do |i|
        
         if inst = Instance.first(:conditions => {:instance_id => i[:aws_instance_id]})
-          private_ips << IpAccessWriter.parse_ip(i[:private_dns_name]) unless i[:private_dns_name].nil?
+          private_ips << IpAccessWriter.host_lookup(i[:private_dns_name]) unless i[:private_dns_name].nil?
           inst.ec2_state = i[:aws_state]
           inst.public_dns_name = i[:dns_name] unless i[:dns_name].nil?
           inst.save
         else
           unless Farm.find(:first, :conditions => {:ami_id => i[:aws_image_id]}).nil? || i[:aws_state] == 'shutting-down' || i[:aws_state] == 'terminated'
             temp = Instance.create_from_aws_hash(i, 'manual')
-            private_ips << IpAccessWriter.parse_ip(i[:private_dns_name]) unless i[:private_dns_name].nil?
+            private_ips << IpAccessWriter.host_lookup(i[:private_dns_name]) unless i[:private_dns_name].nil?
             logger.info "Auto-added instance: #{i[:aws_image_id]} -- #{i[:aws_instance_id]} -- #{i[:aws_state]} to local record."
             EventLog.info "Auto-added instance: #{i[:aws_image_id]} -- #{i[:aws_instance_id]} -- #{i[:aws_state]} to local record."
           end
