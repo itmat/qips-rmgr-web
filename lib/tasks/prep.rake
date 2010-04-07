@@ -2,6 +2,9 @@ namespace :prep do
   desc "Do all prep tasks"
   task :all => ['db', 'ami_ids', 'elastic_ip', 'delayed_jobs:start_work']
 
+  desc "Start the start_work delayed job"
+  task :start_work => ['delayed_jobs:start_work']
+
   desc "Drop, Migrate, Seed the database"
   task :db => ['db:drop', 'db:create', 'db:migrate', 'db:seed']
   
