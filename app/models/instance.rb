@@ -2,6 +2,7 @@ require 'rubygems'
 require 'right_aws'
 require 'AWS'
 require 'json'
+require 'base64'
 
 class Instance < ActiveRecord::Base
     belongs_to :farm
@@ -185,7 +186,7 @@ class Instance < ActiveRecord::Base
     	ec2 = Instance.get_amazon_ec2
     	right_ec2 = Instance.get_ec2
     	right_aws_hashes = Array.new
-    	sirs = ec2.request_spot_instances(:image_id => ami, :security_group => security_groups, :key_name => key_pair_name, :kernel_id => kernel, :user_data => user_data, :instance_count => num, :spot_price => spot_price, :instance_type => instance_type, :launch_group => "QIPS")
+    	sirs = ec2.request_spot_instances(:image_id => ami, :security_group => security_groups, :key_name => key_pair_name, :kernel_id => kernel, :user_data => Base64.encode64(user_data), :instance_count => num, :spot_price => spot_price, :instance_type => instance_type, :launch_group => "QIPS")
     	sirs['spotInstanceRequestSet']['item'].each do |sir|
     	  sir_id = sir['spotInstanceRequestId']
     	  logger.info "Attempting to request a spot instance(s). Spot Instance Request ID: #{sir_id}"
