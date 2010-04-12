@@ -87,7 +87,7 @@
 
 <% form_for "farm", :url => {:action => "start"} do -%>
 	Request N Instances:
-	<%= text_area_tag 'num_start', nil,:size => 5 %><br>
+	<%= text_field_tag 'num_start', nil,:size => 5 %><br>
 	Enter custom user data: <%= text_area_tag 'user_data', @farm.default_user_data,:size => 30 %>
     <div><%= submit_tag 'Start' %></div>
 <% end -%>
