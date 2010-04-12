@@ -38,7 +38,7 @@
 
 <p>
   <b>Default User Data:</b>
-  <%=h @farm.default_user_data %>
+  <pre><%=h @farm.default_user_data %></pre>
 </p>
 
 
@@ -69,7 +69,7 @@
 	<td>
 		Launched: <%=h instance.launch_time %><br>
 		<small>
-			Data: <pre><%=h instance.user_data %></pre><br>
+			Data: <%=h instance.user_data %><br>
 			<%=h instance.public_dns_name %>
 			</small>	
 		</td>
