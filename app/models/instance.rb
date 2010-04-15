@@ -175,17 +175,37 @@ class Instance < ActiveRecord::Base
       state = sir['spotInstanceRequestSet']['item'][0]['state']
       return state
     end
+    
+    def self.get_aws_cred_url()
+      # Generates RESTful authenticated URL to get aws.rb (AWS credentials) from S3
+      s3g = RightAws::S3Generator.new(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+      key = RightAws::S3Generator::Key.new(RightAws::S3::Bucket.new(s3g, 'itmat-qips'), 'aws.rb')
+      return key.get(1.hour)
+    end
 
     ###############################
     # creates spot requests for requested nodes. blocks until those instances are launched
     # SHOULD BE DELAYED OR RUN IN A DELAYED METHOD
     #
 
-    def self.run_spot_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1, spot_price='0.10', instance_type='m1.small')
+    def self.run_spot_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1, spot_price='0.10', instance_type='c1.medium')
     	#@amazon_ec2 = AWS::EC2::Base.new(:access_key_id => AWS_ACCESS_KEY_ID, :secret_access_key => AWS_SECRET_ACCESS_KEY)
     	ec2 = Instance.get_amazon_ec2
     	right_ec2 = Instance.get_ec2
     	right_aws_hashes = Array.new
+    	if (!user_data.blank?)
+    	  amend_user_data = String.new
+    	  line_count = 1
+    	  user_data.each { |line|
+    	    amend_user_data << line
+    	    if (line_count == 2) do
+    	      amend_user_data << "cd /tmp"
+    	      amend_user_data << "wget -nd #{get_aws_cred_url()};"
+  	      end
+  	      line_count = line_count + 1
+  	    }
+  	    user_data = amend_user_data
+  	  end
     	sirs = ec2.request_spot_instances(:image_id => ami, :security_group => security_groups, :key_name => key_pair_name, :kernel_id => kernel, :user_data => Base64.encode64(user_data), :instance_count => num, :spot_price => spot_price, :instance_type => instance_type, :launch_group => "QIPS")
     	sirs['spotInstanceRequestSet']['item'].each do |sir|
     	  sir_id = sir['spotInstanceRequestId']
