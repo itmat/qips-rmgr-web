@@ -200,7 +200,7 @@ class Instance < ActiveRecord::Base
     	    amend_user_data << line
     	    if (line_count == 2)
     	      amend_user_data << "cd /tmp;\n"
-    	      amend_user_data << "wget -nd #{get_aws_cred_url()};\n"
+    	      amend_user_data << "wget -O aws.rb '#{get_aws_cred_url()}';\n"
   	      end
   	      line_count = line_count + 1
   	    end
