@@ -196,14 +196,14 @@ class Instance < ActiveRecord::Base
     	if (!user_data.blank?)
     	  amend_user_data = String.new
     	  line_count = 1
-    	  user_data.each { |line|
+    	  user_data.each do |line|
     	    amend_user_data << line
     	    if (line_count == 2) do
     	      amend_user_data << "cd /tmp"
     	      amend_user_data << "wget -nd #{get_aws_cred_url()};"
   	      end
   	      line_count = line_count + 1
-  	    }
+  	    end
   	    user_data = amend_user_data
   	  end
     	sirs = ec2.request_spot_instances(:image_id => ami, :security_group => security_groups, :key_name => key_pair_name, :kernel_id => kernel, :user_data => Base64.encode64(user_data), :instance_count => num, :spot_price => spot_price, :instance_type => instance_type, :launch_group => "QIPS")
