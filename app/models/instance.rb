@@ -199,8 +199,8 @@ class Instance < ActiveRecord::Base
     	  user_data.each do |line|
     	    amend_user_data << line
     	    if (line_count == 2)
-    	      amend_user_data << "cd /tmp;"
-    	      amend_user_data << "wget -nd #{get_aws_cred_url()};"
+    	      amend_user_data << "cd /tmp;\n"
+    	      amend_user_data << "wget -nd #{get_aws_cred_url()};\n"
   	      end
   	      line_count = line_count + 1
   	    end
