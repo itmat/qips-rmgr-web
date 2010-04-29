@@ -22,11 +22,8 @@ class Farm < ActiveRecord::Base
   #before save removes any whitespace from the string.  this is so split will give us a clean array
   before_save :strip_groups, :destroy_instances_if_ami_changed, :set_ami_spec
   
-  attr_accessor :ec2
   
-  def initialize(args)
-    @ec2 = RightAws::Ec2.new(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
-  end
+  @@ec2 = RightAws::Ec2.new(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
 
 
   #### start N instances from farm. mind upper limits
