@@ -223,7 +223,7 @@ class Farm < ActiveRecord::Base
   
   #it is necessary to get the architecture type of the machine so we can set the ami_spec and spot_price fields in the farms table
   def set_ami_spec
-    ami_arch = @ec2.describe_images([self.ami_id]).first
+    ami_arch = @@ec2.describe_images([self.ami_id]).first
     if (ami_arch[:aws_architecture] == "i386")
       self.ami_spec = "c1.medium"
       self.spot_price = 0.10
