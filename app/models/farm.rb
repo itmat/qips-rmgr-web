@@ -1,3 +1,6 @@
+require 'rubygems'
+require 'right_aws'
+
 class Farm < ActiveRecord::Base
   # Columns 
   # t.string :name
