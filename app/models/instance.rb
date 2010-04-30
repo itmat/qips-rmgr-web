@@ -31,7 +31,7 @@ class Instance < ActiveRecord::Base
           if (farm.spot_price.blank? || farm.ami_spec.blank?)
             new_instances = run_spot_instances(farm.ami_id, farm.security_groups.split(','), farm.key_pair_name, farm.kernel_id, user_data, 1)
           else
-            new_instances = run_spot_instances(farm.ami_id, farm.security_groups.split(','), farm.key_pair_name, farm.kernel_id, user_data, 1, farm.spot_price, farm.ami_spec)
+            new_instances = run_spot_instances(farm.ami_id, farm.security_groups.split(','), farm.key_pair_name, farm.kernel_id, user_data, 1, farm.spot_price.to_s, farm.ami_spec)
           end
           self.terminate
           new_instances.each do |i|
