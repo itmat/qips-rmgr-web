@@ -238,7 +238,7 @@ class Instance < ActiveRecord::Base
     # SHOULD BE DELAYED
     #
       
-    def self.start_and_create_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1, spot_price, ami_spec)
+    def self.start_and_create_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1, spot_price='', ami_spec='')
       logger.info "ENTERING DELAYED JOB"
       begin
         if (spot_price.blank? || ami_spec.blank?)
