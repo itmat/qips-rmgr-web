@@ -330,17 +330,13 @@ class Instance < ActiveRecord::Base
       rogue_array = Array.new
       
       @ec2.describe_instances.each do |i|
-
         if Farm.find(:first, :conditions => {:ami_id => i[:aws_image_id]}).nil? 
           rogue_array << i
-
         end
-      
       end
       
       return rogue_array
-      
-      
+            
     end
     
             
