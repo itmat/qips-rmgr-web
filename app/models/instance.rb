@@ -241,8 +241,11 @@ class Instance < ActiveRecord::Base
     def self.start_and_create_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1)
       logger.info "ENTERING DELAYED JOB"
       begin
-        #new_instances = @ec2.run_instances(ami,num,num,security_groups,key_pair_name, user_data, 'public', nil, kernel)
-        new_instances = run_spot_instances(ami, security_groups, key_pair_name, kernel, user_data, num)
+        if (self.farm.spot_price.blank? || self.farm.ami_spec.blank?)
+          new_instances = run_spot_instances(ami, security_groups, key_pair_name, kernel, user_data, num)
+        else
+          new_instances = run_spot_instances(ami, security_groups, key_pair_name, kernel, user_data, num, self.farm.spot_price, self.farm.ami_spec)
+        end
         new_instances.each do |i|
           temp = Instance.create_from_aws_hash(i)
           temp.user_data = user_data
