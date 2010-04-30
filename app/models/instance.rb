@@ -28,8 +28,11 @@ class Instance < ActiveRecord::Base
         #ec2 = Instance.get_ec2
         self.user_data = '' if self.user_data.nil? 
         begin
-          #new_instances = ec2.run_instances(farm.ami_id, 1 ,1 , farm.security_groups.split(','),farm.key_pair_name, user_data, 'public', nil, farm.kernel_id)
-          new_instances = run_spot_instances(farm.ami_id, farm.security_groups.split(','), farm.key_pair_name, farm.kernel_id, user_data, 1)
+          if (farm.spot_price.blank? || farm.ami_spec.blank?)
+            new_instances = run_spot_instances(farm.ami_id, farm.security_groups.split(','), farm.key_pair_name, farm.kernel_id, user_data, 1)
+          else
+            new_instances = run_spot_instances(farm.ami_id, farm.security_groups.split(','), farm.key_pair_name, farm.kernel_id, user_data, 1, farm.spot_price, farm.ami_spec)
+          end
           self.terminate
           new_instances.each do |i|
             self.instance_id =  i[:aws_instance_id]
