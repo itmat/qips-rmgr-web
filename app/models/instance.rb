@@ -209,7 +209,7 @@ class Instance < ActiveRecord::Base
   	    end
   	    user_data = amend_user_data
   	  end
-    	sirs = ec2.request_spot_instances(:image_id => ami, :security_group => security_groups, :key_name => key_pair_name, :kernel_id => kernel, :user_data => Base64.encode64(user_data), :instance_count => num, :spot_price => spot_price, :instance_type => instance_type, :launch_group => "QIPS")
+    	sirs = ec2.request_spot_instances(:image_id => ami, :security_group => security_groups, :key_name => key_pair_name, :kernel_id => kernel, :user_data => Base64.encode64(user_data), :instance_count => num, :spot_price => spot_price.to_s, :instance_type => instance_type, :launch_group => "QIPS")
     	sirs['spotInstanceRequestSet']['item'].each do |sir|
     	  sir_id = sir['spotInstanceRequestId']
     	  logger.info "Attempting to request a spot instance(s). Spot Instance Request ID: #{sir_id}"
