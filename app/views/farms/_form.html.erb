@@ -34,6 +34,20 @@
   <tr>
 	<td><%= f.label :farm_type %>: </td><td><%= f.select :farm_type, ["compute", "admin"] %></td>
   </tr>
+  <% unless @farm.spot_price.blank? %>
+  <tr>
+        <td><%= f.label :spot_price %>: </td><td><%= f.text_field :spot_price, :size => 5 %></td>
+  </tr>
+  <% end %>
+  <% unless @farm.ami_spec.blank? %>
+  <tr>
+	<% if (["m1.small", "c1.medium"].include?(@farm.ami_spec))%>
+	<td><%= f.label :ami_spec %>: </td><td><%= f.select :ami_spec, ["m1.small", "c1.medium"]%></td>
+	<% else %>
+	<td><%= f.label :ami_spec %>: </td><td><%= f.select :ami_spec, ["m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "c1.xlarge"]%></td>
+	<% end %>
+  </tr>
+  <% end %>
   <tr><td colspan="2">
     <%= f.submit 'Submit' %>
 	</td>
