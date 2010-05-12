@@ -14,7 +14,7 @@ GOALS:
 
 USAGE:
 
-used in conjunction with qips-rmgr-daemon.  the daemon hits certain pages on the web interface at set intervals.  
+used in conjunction with qips-node-amqp.  the daemon hits certain pages on the web interface at set intervals.  
 
 download and run script/server
 
