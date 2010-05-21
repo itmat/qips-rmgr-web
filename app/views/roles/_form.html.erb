@@ -1,3 +1,10 @@
+<%= stylesheet_include_tag "common.css" %>
+<%= stylesheet_include_tag "http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/ui.all.css" %>
+<%= stylesheet_include_tag "ui.multiselect.css" %>
+<%= javascript_include_tag "jquery-1.4.2.min.js" %>
+<%= javascript_include_tag "jquery-ui-1.8.1.custom.min.js" %>
+<%= javascript_include_tag "ui.multiselect.js" %>
+
 <% form_for(@role) do |f| %>
   <%= f.error_messages %>
 <table border="0" cellpadding="3" cellspacing="3">
@@ -25,7 +32,7 @@
 	<%= f.label :recipes %>: </td><td>
 	<%= select_tag "role[recipe_ids][]", 
 		options_for_select(Recipe.all.map{ |recipe| [recipe.name, recipe.id] }, @role.recipes.map{|recipe2| recipe2.id } ),
-		 :multiple=>true %>
+		 :multiple=>true, :class => "multiselect" %>
 		</td>
   </tr>
 
