@@ -5,6 +5,16 @@
 <%= javascript_include_tag "jquery-ui-1.8.1.custom.min.js" %>
 <%= javascript_include_tag "ui.multiselect.js" %>
 
+<script type="text/javascript">
+$(function(){
+  // choose either the full version
+  $(".multiselect").multiselect();
+  // or disable some features
+  //$(".multiselect").multiselect({sortable: false, searchable: false});
+});
+</script>
+
+
 <% form_for(@role) do |f| %>
   <%= f.error_messages %>
 <table border="0" cellpadding="3" cellspacing="3">
