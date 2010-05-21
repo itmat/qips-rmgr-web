@@ -27,6 +27,7 @@ class RolesController < ApplicationController
   # GET /roles/new.xml
   def new
     @role = Role.new
+    @avail_recipes = Role.get_available_recipes(CHEF_REPOS)
 
     respond_to do |format|
       format.html # new.html.erb
@@ -37,6 +38,7 @@ class RolesController < ApplicationController
   # GET /roles/1/edit
   def edit
     @role = Role.find(params[:id])
+    @avail_recipes = Role.get_available_recipes(CHEF_REPOS)
   end
 
   # POST /roles

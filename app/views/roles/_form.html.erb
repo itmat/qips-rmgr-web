@@ -41,7 +41,7 @@ $(function(){
 	<td>
 	<%= f.label :recipes %>: </td><td>
 	<%= select_tag "role[recipe_ids][]", 
-		options_for_select(Recipe.all.map{ |recipe| [recipe.name, recipe.id] }, @role.recipes.map{|recipe2| recipe2.id } ),
+		options_for_select(@avail_recipes),
 		 :multiple=>true, :class => "multiselect" %>
 		</td>
   </tr>
