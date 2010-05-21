@@ -12,7 +12,7 @@
   <tr class="data_row">
     <td><%=h role.name %></td>
     <td><%=h role.description %></td>
-    <td><%=h role.recipes.map{ |r| r.name + ' | ' } %></td>
+    <td><%=h role.recipes.inspect %></td>
 	<td><%=h role.platform %></td>
     <td><%= link_to 'Edit', edit_role_path(role) %></td>
     <td><%= link_to 'Destroy', role, :confirm => 'Are you sure?', :method => :delete %></td>
