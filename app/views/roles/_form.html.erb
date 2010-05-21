@@ -40,10 +40,8 @@ $(function(){
   <tr>
 	<td>
 	<%= f.label :recipes %>: </td><td>
-	<%= select_tag "role[recipe_ids][]", 
-		options_for_select(@avail_recipes),
-		 :multiple=>true, :class => "multiselect" %>
-		</td>
+	<%= f.select :recipes, options_for_select(@avail_recipes, @role.recipes), :multiple=>true, :class => "multiselect" %>
+	</td>
   </tr>
 
   <tr><td>

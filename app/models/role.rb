@@ -8,6 +8,8 @@ class Role < ActiveRecord::Base
     
     validates_presence_of :name
     
+    serialize :recipes
+    
     def self.get_available_recipes(url)
       doc = Nokogiri::HTML(open(url))
 
