@@ -19,6 +19,6 @@ class Role < ActiveRecord::Base
       	end
       end
 
-      return recipes.to_json
+      return recipes
     end
 end
