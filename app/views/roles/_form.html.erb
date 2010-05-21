@@ -40,7 +40,7 @@ $(function(){
   <tr>
 	<td>
 	<%= f.label :recipes %>: </td><td>
-	<%= f.select :recipes, options_for_select(@avail_recipes, @role.recipes), {:multiple => true, :class => "multiselect"} %>
+	<%= f.select :recipes, options_for_select(@avail_recipes, @role.recipes),nil, {:multiple => true, :class => "multiselect"} %>
 	</td>
   </tr>
 
