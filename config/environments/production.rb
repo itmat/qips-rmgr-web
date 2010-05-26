@@ -14,6 +14,10 @@ IPTABLES_OUTPUT_PATH  = '/etc/sysconfig/iptables'
 IPTABLES_RESTART_CMD = '/usr/bin/sudo /sbin/service iptables restart'
 IPTABLES_ERB = 'config/iptables.erb'
 
+#Chef config locations
+CHEF_NODES_JSON_DIR = '/opt/www/htdocs/chef/nodes/'
+CHEF_NODES_JSON_ERB = 'config/nodes.erb'
+
 LOG_CMD = "tail -500 ./log/#{RAILS_ENV}.log" #command that prints log in the site heading.  DO NOT USE FOR TESTS
 
 # The production environment is meant for finished, "live" apps.
