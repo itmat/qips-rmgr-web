@@ -62,6 +62,7 @@ class RolesController < ApplicationController
   # PUT /roles/1.xml
   def update
     @role = Role.find(params[:id])
+    @role.recipes = [] if params[:recipes].nil?
 
     respond_to do |format|
       if @role.update_attributes(params[:role])
