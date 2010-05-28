@@ -10,9 +10,22 @@ RMGR_IN_QUEUE = 'RMGR_RQ'
 
 HOUR_MOD = 52 # num minutes nodes are idle before they are shut off
 
+#IPTABLES locations
 IPTABLES_OUTPUT_PATH  = 'iptables' 
 IPTABLES_RESTART_CMD = 'echo PLACEHOLDER'
 IPTABLES_ERB = 'config/iptables.erb'
+
+#Chef config locations
+CHEF_NODES_JSON_DIR = ''
+CHEF_NODES_JSON_ERB = 'config/nodes.erb'
+CHEF_SOLO_URL = 'http://itmat-chef.s3.amazonaws.com/solo.rb'
+COOKBOOK_URL = 'http://itmat-chef.s3.amazonaws.com/adb_cook.tar.gz'
+
+#User Data location
+USER_DATA_ERB = 'config/user_data.erb'
+
+#AWS Credentials File
+AWS_CRED_PATH = ''
 
 LOG_CMD = "tail -500 ./log/#{RAILS_ENV}.log" #command that prints log in the site heading.  DO NOT USE FOR TESTS
 

@@ -2,15 +2,15 @@ require 'erubis'
 
 class ChefConfigWriter
   
-  def self.write_nodes_json(recipe_array=nil, epoch_time)
-    unless recipe_array.nil?
-      @nodes_json_file = CHEF_NODES_JSON_DIR + "nodes-" + epoch_time + ".json"
-      f_erb = File.open(CHEF_NODES_JSON_ERB)
-      eruby = Erubis::Eruby.new(f_erb.read)
-      f = File.open(@nodes_json_file, "w+")
-      f.write(eruby.result({:recipe_array => recipe_array}))
-      f.close
+  def self.write_nodes_json(recipe_array, unique_id)
+    nodes_json_url = String.new
+    if recipe_array
+      eruby = Erubis::Eruby.new(File.read(CHEF_NODES_JSON_ERB))
+      filename = 'nodes-' + unique_id.to_s + '.json'
+      S3Helper.upload(CHEF_BUCKET, filename, eruby.result({:recipe_array => recipe_array}))
+      nodes_json_url = 'http://' + CHEF_BUCKET + '.s3.amazonaws.com/' + filename
     end
+    return nodes_json_url
   end
   
 end

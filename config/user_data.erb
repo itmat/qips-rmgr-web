@@ -1,0 +1,7 @@
+#!/bin/sh
+
+cd /tmp;
+wget -O aws.rb <%= aws_cred_url %>;
+mv aws.rb <%= AWS_CRED_PATH %>;
+wget -nd <%= CHEF_SOLO_URL %>;
+chef-solo -c solo.rb -j <%= chef_json_url %> -r <%= COOKBOOK_URL %>;

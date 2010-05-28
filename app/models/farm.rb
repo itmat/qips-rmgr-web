@@ -1,5 +1,8 @@
 require 'rubygems'
 require 'right_aws'
+require 'AWS'
+require 'json'
+require 'base64'
 
 class Farm < ActiveRecord::Base
   # Columns 
@@ -24,7 +27,45 @@ class Farm < ActiveRecord::Base
   
   
   @@ec2 = RightAws::Ec2.new(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+  
+  def self.get_ec2()
+    @ec2 = RightAws::Ec2.new(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+    return @ec2 
+  end
+  
+  def self.get_amazon_ec2()
+    @amazon_ec2 = AWS::EC2::Base.new(:access_key_id => AWS_ACCESS_KEY_ID, :secret_access_key => AWS_SECRET_ACCESS_KEY)
+    return @amazon_ec2
+  end
+  
+  ########################
+  # helper method to get and instance id from amazon_ec2 interface
+  #
+  
+  def self.getSpotInstanceId(spot_instance_request_id)
+    ec2 = Farm.get_amazon_ec2
+    sir = ec2.describe_spot_instance_requests(:spot_instance_request_id => spot_instance_request_id)
+    instance_id = sir['spotInstanceRequestSet']['item'][0]['instanceId']
+    return instance_id
+  end
 
+  #############################
+  # helper method to get spot request state from amazon ec2
+  #
+
+  def self.getSpotRequestState(spot_instance_request_id)
+    ec2 = Farm.get_amazon_ec2
+    sir = ec2.describe_spot_instance_requests(:spot_instance_request_id => spot_instance_request_id)
+    state = sir['spotInstanceRequestSet']['item'][0]['state']
+    return state
+  end
+  
+  def self.get_aws_cred_url()
+    # Generates RESTful authenticated URL to get aws.rb (AWS credentials) from S3
+    s3g = RightAws::S3Generator.new(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+    key = RightAws::S3Generator::Key.new(RightAws::S3::Bucket.new(s3g, 'itmat-qips'), 'aws.rb')
+    return key.get(1.hour)
+  end
 
   #### start N instances from farm. mind upper limits
   #
@@ -226,11 +267,46 @@ class Farm < ActiveRecord::Base
     ami_arch = @@ec2.describe_images([self.ami_id]).first
     if (ami_arch[:aws_architecture] == "i386" && self.ami_spec.blank? && self.spot_price.blank?)
       self.ami_spec = "c1.medium"
-      self.spot_price = 0.10
+      self.spot_price = 0.50
     elsif (ami_arch[:aws_architecture] == "x86_64" && self.ami_spec.blank? && self.spot_price.blank?)
       self.ami_spec = "m1.large"
-      self.spot_price = 0.20
+      self.spot_price = 1.00
     end
+  end
+  
+  #run_spot_instance: Originally in Instance, better suited in Farm.  Used for making spot requests for AWS instances.
+  
+  def run_spot_instances(num=1)
+  	#@amazon_ec2 = AWS::EC2::Base.new(:access_key_id => AWS_ACCESS_KEY_ID, :secret_access_key => AWS_SECRET_ACCESS_KEY)
+  	ec2 = Instance.get_amazon_ec2
+  	right_ec2 = Instance.get_ec2
+  	right_aws_hashes = Array.new
+  	if default_user_data.blank?
+  	  epoch_time = Time.now.to_i
+  	  default_user_data = UserDataWriter.write_user_data(ChefConfigWriter.write_nodes_json(self.role.recipes, epoch_time), epoch_time)
+	  end
+	  sirs = ec2.request_spot_instances(:image_id => ami_id, :security_group => security_groups, :key_name => key_pair_name, :kernel_id => kernel_id, :user_data => Base64.encode64(default_user_data), :instance_count => num, :spot_price => spot_price.to_s, :instance_type => ami_spec, :launch_group => "QIPS")
+  	sirs['spotInstanceRequestSet']['item'].each do |sir|
+  	  sir_id = sir['spotInstanceRequestId']
+  	  logger.info "Attempting to request a spot instance(s). Spot Instance Request ID: #{sir_id}"
+  	  instance_id = nil
+  	  while (instance_id == nil)
+  	    sleep (10)
+  	    instance_id = Farm.getSpotInstanceId(sir_id)
+  	    state = Farm.getSpotRequestState(sir_id)
+  	    break if (state == nil || state == "cancelled" || state == "failed")
+      end
+      if instance_id.nil?
+        logger.error "Spot Instance Request #{sir_id } was #{state}"
+        #raise "Spot Instance Request #{sir_id} was #{state}. Instance was not created."
+      else
+        logger.info "Spot Instance Request Fulfilled.  Instance ID: #{instance_id}"
+      end
+      ec2.cancel_spot_instance_requests(:spot_instance_request_id => sir_id)
+      right_aws_hash = right_ec2.describe_instances(instance_id)
+      right_aws_hashes << right_aws_hash[0] unless instance_id.nil?
+    end
+    return right_aws_hashes
   end
 
 end
