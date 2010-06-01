@@ -10,6 +10,9 @@ RMGR_IN_QUEUE = 'RMGR_RQ'
 
 HOUR_MOD = 52 # num minutes nodes are idle before they are shut off
 
+#Amazon EC2 Metadata Tool Download URL
+EC2_METATOOL_URL = 'http://www.amazon.com/gp/redirect.html/ref=aws_rc_1825?location=http%3A%2F%2Fs3.amazonaws.com%2Fec2metadata%2Fec2-metadata&token=A80325AA4DAB186C80828ED5138633E3F49160D9'
+
 #IPTABLES locations
 IPTABLES_OUTPUT_PATH  = 'iptables' 
 IPTABLES_RESTART_CMD = 'echo PLACEHOLDER'
