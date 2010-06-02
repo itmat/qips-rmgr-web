@@ -1,6 +1,5 @@
 require 'rubygems'
-require 'nokogiri'
-require 'open-uri'
+require 'octopussy'
 
 class Role < ActiveRecord::Base
     has_many :farms
@@ -9,17 +8,16 @@ class Role < ActiveRecord::Base
     
     serialize :recipes
     
-    def self.get_available_recipes(url)
-      doc = Nokogiri::HTML(open(url))
-
+    def self.get_avail_recipes()
       recipes = Array.new
+      client = Octopussy::Client.new(:login => GITHUB_LOGIN, :token => GITHUB_API_TOKEN)
+      tree = GITHUB_LOGIN + "/" + GITHUB_REPO
+      hmash = client.tree(tree, GITHUB_COOKBOOK_SHA)
 
-      doc.xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "content", " " ))]').each do |link|
-      	if (link.content.match(/\//))
-      		recipes << link.content.gsub(/\//, '').strip
-      	end
+      hmash.each do | mash |
+              recipes << mash.name if mash.mode == "040000"
       end
-
+      
       return recipes
     end
 end

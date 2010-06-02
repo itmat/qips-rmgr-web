@@ -14,6 +14,8 @@ TEST_AMI_2 = "ami-c544a5ac"
 #get AWS creds
 require File.join(File.dirname(__FILE__), 'aws')
 
+#get Github creds
+require File.join(File.dirname(__FILE__), 'github')
 
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
