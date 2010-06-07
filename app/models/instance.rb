@@ -8,16 +8,10 @@ class Instance < ActiveRecord::Base
     belongs_to :farm
     serialize :child_procs
     @ec2 = RightAws::Ec2.new(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
-    @amazon_ec2 = AWS::EC2::Base.new(:access_key_id => AWS_ACCESS_KEY_ID, :secret_access_key => AWS_SECRET_ACCESS_KEY)
 
     def self.get_ec2()
       @ec2 = RightAws::Ec2.new(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
       return @ec2 
-    end
-    
-    def self.get_amazon_ec2()
-      @amazon_ec2 = AWS::EC2::Base.new(:access_key_id => AWS_ACCESS_KEY_ID, :secret_access_key => AWS_SECRET_ACCESS_KEY)
-      return @amazon_ec2
     end
 
     ##############################
@@ -28,11 +22,7 @@ class Instance < ActiveRecord::Base
         #ec2 = Instance.get_ec2
         self.user_data = '' if self.user_data.nil? 
         begin
-          if (farm.spot_price.blank? || farm.ami_spec.blank?)
-            new_instances = run_spot_instances(farm.ami_id, farm.security_groups.split(','), farm.key_pair_name, farm.kernel_id, user_data, 1)
-          else
-            new_instances = run_spot_instances(farm.ami_id, farm.security_groups.split(','), farm.key_pair_name, farm.kernel_id, user_data, 1, farm.spot_price.to_s, farm.ami_spec)
-          end
+          new_instances = farm.run_spot_instances(1)
           self.terminate
           new_instances.each do |i|
             self.instance_id =  i[:aws_instance_id]
@@ -155,117 +145,7 @@ class Instance < ActiveRecord::Base
       return temp
       
     end
-    
-  
-    ########################
-    # helper method to get and instance id from amazon_ec2 interface
-    #
-    
-    def self.getSpotInstanceId(spot_instance_request_id)
-      ec2 = Instance.get_amazon_ec2
-      sir = ec2.describe_spot_instance_requests(:spot_instance_request_id => spot_instance_request_id)
-      instance_id = sir['spotInstanceRequestSet']['item'][0]['instanceId']
-      return instance_id
-    end
 
-    #############################
-    # helper method to get spot request state from amazon ec2
-    #
-
-    def self.getSpotRequestState(spot_instance_request_id)
-      ec2 = Instance.get_amazon_ec2
-      sir = ec2.describe_spot_instance_requests(:spot_instance_request_id => spot_instance_request_id)
-      state = sir['spotInstanceRequestSet']['item'][0]['state']
-      return state
-    end
-    
-    def self.get_aws_cred_url()
-      # Generates RESTful authenticated URL to get aws.rb (AWS credentials) from S3
-      s3g = RightAws::S3Generator.new(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
-      key = RightAws::S3Generator::Key.new(RightAws::S3::Bucket.new(s3g, 'itmat-qips'), 'aws.rb')
-      return key.get(1.hour)
-    end
-
-    ###############################
-    # creates spot requests for requested nodes. blocks until those instances are launched
-    # SHOULD BE DELAYED OR RUN IN A DELAYED METHOD
-    #
-
-    def self.run_spot_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1, spot_price='0.10', instance_type='c1.medium')
-    	#@amazon_ec2 = AWS::EC2::Base.new(:access_key_id => AWS_ACCESS_KEY_ID, :secret_access_key => AWS_SECRET_ACCESS_KEY)
-    	ec2 = Instance.get_amazon_ec2
-    	right_ec2 = Instance.get_ec2
-    	right_aws_hashes = Array.new
-    	if (!user_data.blank?)
-    	  amend_user_data = String.new
-    	  line_count = 1
-    	  user_data.each do |line|
-    	    amend_user_data << line
-    	    if (line_count == 2)
-    	      amend_user_data << "cd /tmp;\n"
-    	      amend_user_data << "wget -O aws.rb '#{get_aws_cred_url()}';\n"
-  	      end
-  	      line_count = line_count + 1
-  	    end
-  	    user_data = amend_user_data
-  	  end
-    	sirs = ec2.request_spot_instances(:image_id => ami, :security_group => security_groups, :key_name => key_pair_name, :kernel_id => kernel, :user_data => Base64.encode64(user_data), :instance_count => num, :spot_price => spot_price.to_s, :instance_type => instance_type, :launch_group => "QIPS")
-    	sirs['spotInstanceRequestSet']['item'].each do |sir|
-    	  sir_id = sir['spotInstanceRequestId']
-    	  logger.info "Attempting to request a spot instance(s). Spot Instance Request ID: #{sir_id}"
-    	  instance_id = nil
-    	  while (instance_id == nil)
-    	    sleep (10)
-    	    instance_id = getSpotInstanceId(sir_id)
-    	    state = getSpotRequestState(sir_id)
-    	    break if (state == nil || state == "cancelled" || state == "failed")
-        end
-        if (instance_id == nil)
-          logger.error "Spot Instance Request #{sir_id } was #{state}"
-          #raise "Spot Instance Request #{sir_id} was #{state}. Instance was not created."
-        else
-          logger.info "Spot Instance Request Fulfilled.  Instance ID: #{instance_id}"
-        end
-        ec2.cancel_spot_instance_requests(:spot_instance_request_id => sir_id)
-        right_aws_hash = right_ec2.describe_instances(instance_id)
-        right_aws_hashes << right_aws_hash[0] unless instance_id.nil?
-      end
-      return right_aws_hashes
-    end
-    
-    ##########################
-    # starts and saves instances.  sets state to launched
-    # SHOULD BE DELAYED
-    #
-      
-    def self.start_and_create_instances(ami, security_groups, key_pair_name, kernel='', user_data='', num=1, spot_price='', ami_spec='')
-      logger.info "ENTERING DELAYED JOB"
-      begin
-        if (spot_price.blank? || ami_spec.blank?)
-          new_instances = run_spot_instances(ami, security_groups, key_pair_name, kernel, user_data, num)
-        else
-          new_instances = run_spot_instances(ami, security_groups, key_pair_name, kernel, user_data, num, spot_price, ami_spec)
-        end
-        new_instances.each do |i|
-          temp = Instance.create_from_aws_hash(i)
-          temp.user_data = user_data
-          temp.state = 'launched'
-          temp.save
-        end
-        logger.info "Started and saved #{num} #{ami} instances."
-        EventLog.info "Started and saved #{num} #{ami} instances."
-      rescue Exception => e
-        logger.error "Caught exception when trying to start #{num} #{ami} instances!: #{e.backtrace}"
-        EventLog.error "Caught exception when trying to start #{num} #{ami} instances!: #{e.backtrace}"
-      end
-    end
-    
-    
-    #################  SYNC LOCAL INSTANCES WITH AWS
-    #
-    #   this is the main method called to sync with ec2 instances and our cache. 
-    #   adds and deletes local instances as needed. 
-    #
     
     def self.sync_with_ec2
       

@@ -19,7 +19,7 @@ IPTABLES_RESTART_CMD = 'echo PLACEHOLDER'
 IPTABLES_ERB = 'config/iptables.erb'
 
 #Chef config locations
-CHEF_NODES_JSON_DIR = ''
+CHEF_BUCKET = 'itmat-chef'
 CHEF_NODES_JSON_ERB = 'config/nodes.erb'
 CHEF_SOLO_URL = 'http://itmat-chef.s3.amazonaws.com/solo.rb'
 COOKBOOK_URL = 'http://itmat-chef.s3.amazonaws.com/adb_cook.tar.gz'
@@ -28,7 +28,7 @@ COOKBOOK_URL = 'http://itmat-chef.s3.amazonaws.com/adb_cook.tar.gz'
 USER_DATA_ERB = 'config/user_data.erb'
 
 #AWS Credentials File
-AWS_CRED_PATH = ''
+AWS_CRED_PATH = 'config/aws.rb'
 
 LOG_CMD = "tail -500 ./log/#{RAILS_ENV}.log" #command that prints log in the site heading.  DO NOT USE FOR TESTS
 
@@ -58,3 +58,5 @@ config.gem "erubis", :lib => false, :version => ">=2.6.2"
 config.gem "json", :lib => false, :version => ">=1.2.0"
 config.gem "amazon-ec2",  :lib => false, :version => ">=0.9.3"
 config.gem "right_aws", :lib => false, :version => ">=1.10.0"
+config.gem "octopussy", :lib => false, :version => ">=0.2.1.1"
+#config.gem "delayed_job", :lib => false, :version => ">=2.0.3"
