@@ -10,6 +10,9 @@ RMGR_IN_QUEUE = 'RMGR_RQ'
 
 HOUR_MOD = 52 # num minutes nodes are idle before they are shut off
 
+#Temporary work directory
+TEMP_DIR = "/tmp"
+
 #Amazon EC2 Metadata Tool Download URL
 EC2_METATOOL_URL = 'http://www.amazon.com/gp/redirect.html/ref=aws_rc_1825?location=http%3A%2F%2Fs3.amazonaws.com%2Fec2metadata%2Fec2-metadata&token=A80325AA4DAB186C80828ED5138633E3F49160D9'
 
@@ -19,6 +22,8 @@ IPTABLES_RESTART_CMD = 'echo PLACEHOLDER'
 IPTABLES_ERB = 'config/iptables.erb'
 
 #Chef config locations
+GIT_COOKBOOK_URL = "git@github.com:itmat/chef-repo.git"
+GIT_REPOS = "chef-repo"
 CHEF_BUCKET = 'itmat-chef'
 CHEF_NODES_JSON_ERB = 'config/nodes.erb'
 CHEF_SOLO_URL = 'http://itmat-chef.s3.amazonaws.com/solo.rb'
@@ -59,4 +64,5 @@ config.gem "json", :lib => false, :version => ">=1.2.0"
 config.gem "amazon-ec2",  :lib => false, :version => ">=0.9.3"
 config.gem "right_aws", :lib => false, :version => ">=1.10.0"
 config.gem "octopussy", :lib => false, :version => ">=0.2.1.1"
-#config.gem "delayed_job", :lib => false, :version => ">=2.0.3"
+config.gem "git", :lib => false, :version => ">1.2.5"
+config.gem "archive/tar/minitar", :lib => false, :version => ">=0.5.2"
