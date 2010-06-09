@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'octopussy'
+require 'uri'
 require 'git'
 require 'zlib'
 require 'archive/tar/minitar'
@@ -26,6 +27,10 @@ class Role < ActiveRecord::Base
     end
     
     def self.package_and_post_recipes()
+      uri = URI.parse(COOKBOOK_URL)
+      cb_filename = uri.path.gsub('/','')
+      cb_path = uri.path
+      cb_name = cb_filename.split('.').first
       repos_path = TEMP_DIR + "/repos"
       curdir = Dir.getwd
       if (File.exists?(repos_path) && File.directory?(repos_path))
@@ -37,11 +42,11 @@ class Role < ActiveRecord::Base
       Dir.chdir(repos_path)
       Git.clone(GIT_COOKBOOK_URL, GIT_REPOS)
       Dir.chdir(repos_path + "/" + GIT_REPOS)
-      tgz = Zlib::GzipWriter.new(File.open(TEMP_DIR + "/cookbooks.tgz", 'wb'))
-      Minitar.pack('cookbooks', tgz)
+      tgz = Zlib::GzipWriter.new(File.open(TEMP_DIR + cb_path, 'wb'))
+      Minitar.pack(cb_name, tgz)
       FileUtils.rmtree(repos_path)
       Dir.chdir(curdir)
-      S3Helper.upload(CHEF_BUCKET, "cookbooks.tgz", File.open(TEMP_DIR + "/cookbooks.tgz"))
-      File.delete(TEMP_DIR + "/cookbooks.tgz")
+      S3Helper.upload(CHEF_BUCKET, cb_filename, File.open(TEMP_DIR + cb_path))
+      File.delete(TEMP_DIR + cb_path)
     end
 end
