@@ -9,8 +9,10 @@ class ApplicationController < ActionController::Base
   # Scrub sensitive parameters from your log
   # filter_parameter_logging :password
   def authenticate
-    authenticate_or_request_with_http_basic do |username, password|
+    unless (RAILS_ENV=='test')
+      authenticate_or_request_with_http_basic do |username, password|
        username == "admin" && password == "admin"
+      end
     end
   end
 end

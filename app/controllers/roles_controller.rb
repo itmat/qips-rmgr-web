@@ -45,6 +45,7 @@ class RolesController < ApplicationController
   # POST /roles.xml
   def create
     @role = Role.new(params[:role])
+    @avail_recipes = Role.get_avail_recipes()
 
     respond_to do |format|
       if @role.save

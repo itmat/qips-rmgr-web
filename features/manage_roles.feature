@@ -6,71 +6,46 @@ Feature: Manage Roles
 	# NOTE: remove log/test/log before running tests!
 	
 	Background:
-	Given the following recipe records
-		| name | description |
-		| tpp::packages | Configures the TPP program |
-		| r-project::packages | Configures the R-Project program |
+	Given the following role records
+		| name | platform | recipes |
+		| Compute | aki | qips-node-amqp |
+		| Sequest | windows | apache2 |
 	
-	And the following role records
-		| name | platform |
-		| Compute | aki |
-		| Sequest | windows |
-		| WWW | aki |
-		| DB | aki |
-	
-	Scenario Outline: Restrict Role Maintenance
-	Given I am logged in as "<login>"
-	When I go to <page>
-	Then I should <action>
-	
-	Examples:
-	 	| login | page | action |
-		| admin | the list of roles | see "Compute" |
-		| guest | the list of roles | not see "Compute" |
-		|       | the list of roles | not see "Compute" |
-		
-	
+
 	Scenario: List Roles
-		Given I am logged in as "admin"
 		When I go to the list of roles
-		Then I should see "WWW"
-		And I should see "DB"
-		And I should see "Sequest"
+		Then I should see "Sequest"
 		And I should see "Compute"
 				
+	@selenium			
 	Scenario: Create Role
-		Given I am logged in as "admin"
 		When I go to the new role page
-		And I fill in "name" with "Test"
-		And I fill in "description" with "trans-proteomic"
-		And I select "tpp::packages" from "role_recipe_ids_"
+		And I fill in "Name" with "Test"
+		And I fill in "Description" with "qips-node-amqp test"
+		And I select "aki" from "Platform"
+		And I select index "5" from multiselect
+		And I wait for 3 seconds
 		And I press "Submit"
 		Then I should be on the list of roles
 		And I should see "Test"
 		
 	Scenario: Create INVALID Role
-		Given I am logged in as "admin"
 		When I go to the new role page
-		And I fill in "name" with ""
-		And I fill in "description" with "trans-proteomic"
-		And I select "tpp::packages" from "role_recipe_ids_"
+		And I fill in "Name" with ""
+		And I fill in "Description" with "trans-proteomic"
 		And I press "Submit"
 		Then I should not be on the list of roles
 		And I should see "error"
 		And I should see "Name can't be blank"
 		
 	Scenario: Remove Role
-		Given I am logged in as "admin"
 		When I go to the list of roles
 		And I follow "Destroy"
 		Then I should be on the list of roles
-		Then I should have 3 roles
+		Then I should have 1 roles
 		
 	Scenario: Edit Role
-		Given I am logged in as "admin"
-		When I go to the edit WWW role page
-		And I select "r-project::packages" from "role_recipe_ids_"
+		When I go to the edit Compute role page
 		And I press "Submit"
 		Then I should be on the list of roles
-		And I should see "r-project::packages"
 	
