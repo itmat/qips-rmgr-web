@@ -13,10 +13,10 @@ class RolesController < ApplicationController
     end
   end
 
-  # GET /roles/1
   # GET /roles/1.xml
   def show
     @role = Role.find(params[:id])
+    @role = {} if @role.nil?
 
     respond_to do |format|
       format.xml  { render :xml => @role }
