@@ -111,7 +111,7 @@ class Farm < ActiveRecord::Base
 
             
       #start num_to_start instances via Instance. Enqueue these in delayed job because they may take a while
-      Instance.start_and_create_instances(ami_id,security_groups.split(','),key_pair_name, kernel_id, user_data ||= '', num_to_start, spot_price, ami_spec) unless num_to_start < 1
+      start_and_create_instances(num_to_start) unless num_to_start < 1
       
       #now also enqueue the workitem reply if needed
       WorkItemHelper.send_reply(workitem_id) unless workitem_id.nil?
@@ -153,7 +153,7 @@ class Farm < ActiveRecord::Base
       # need to start some of them
       logger.info "Attempting to start #{num_start} #{ami_id} instances... may take a few moments."
       EventLog.info "Attempting to start #{num_start} #{ami_id} instances... may take a few moments."
-      Instance.start_and_create_instances(ami_id,security_groups.split(','),key_pair_name, kernel_id, default_user_data, num_start, spot_price ||= '', ami_spec ||= '')
+      start_and_create_instances(num_start)
 
     elsif ia.size > max
       # need to stop some of the instances, if they are either 'IDLE' or 'LAUNCHED' state
@@ -274,12 +274,32 @@ class Farm < ActiveRecord::Base
     end
   end
   
+  #start_and_create_instances: Originally in Instance class, better suited in farm.  Used to start instances of type Farm
+  
+  def start_and_create_instances(num=1)
+    logger.info "ENTERING DELAYED JOB"
+    begin
+      new_instances = run_spot_instances(num)
+      new_instances.each do |i|
+        temp = Instance.create_from_aws_hash(i)
+        temp.user_data = user_data
+        temp.state = 'launched'
+        temp.save
+      end
+      logger.info "Started and saved #{num} #{ami_id} instances."
+      EventLog.info "Started and saved #{num} #{ami_id} instances."
+    rescue Exception => e
+      logger.error "Caught exception when trying to start #{num} #{ami_id} instances!: #{e.backtrace}"
+      EventLog.error "Caught exception when trying to start #{num} #{ami_id} instances!: #{e.backtrace}"
+    end
+  end
+  
   #run_spot_instance: Originally in Instance, better suited in Farm.  Used for making spot requests for AWS instances.
   
   def run_spot_instances(num=1)
   	#@amazon_ec2 = AWS::EC2::Base.new(:access_key_id => AWS_ACCESS_KEY_ID, :secret_access_key => AWS_SECRET_ACCESS_KEY)
-  	ec2 = Instance.get_amazon_ec2
-  	right_ec2 = Instance.get_ec2
+  	ec2 = Farm.get_amazon_ec2
+  	right_ec2 = Farm.get_ec2
   	right_aws_hashes = Array.new
   	if default_user_data.blank?
   	  epoch_time = Time.now.to_i

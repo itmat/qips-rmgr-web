@@ -22,4 +22,5 @@ bin/*
 interact*.xml
 config/database.yml
 config/aws.rb
+config/github.rb
 

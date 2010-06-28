@@ -5,17 +5,10 @@ Feature: Manage Instances (requires ec2)
 	I want to view instance information, start & terminate instances, and change their states to manual
 	
 	Background:
-	Given the following recipes
-		| name | description |
-		| Sudo | Configures the sudo file for ITMAT admins |
-		| Cron | Configures the crontab file for the root user |
-		
-	And the following role records
-		| name |  platform |
-		| Compute |  aki |
-		| Sequest |  windows |
-		| WWW |  aki |
-		| DB |  aki |
+	Given the following role records
+		| name |  platform | recipes |
+		| Compute |  aki | qips-node-amqp |
+		| Sequest |  windows | apache 2
 
 	And the following farm records
 		| name | description | ami_id | min | max | role_id | default_user_data | farm_type |

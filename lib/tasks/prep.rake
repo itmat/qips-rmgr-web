@@ -3,7 +3,9 @@ namespace :prep do
   task :all => ['db', 'ami_ids', 'elastic_ip', 'delayed_jobs:start_work']
 
   desc "Start the start_work delayed job"
-  task :start_work => ['delayed_jobs:start_work']
+  task :start_work => :environment do
+    Delayed::Worker.new.start
+  end
 
   desc "Drop, Migrate, Seed the database"
   task :db => ['db:drop', 'db:create', 'db:migrate', 'db:seed']
@@ -15,7 +17,7 @@ namespace :prep do
     resp = Net::HTTP.get_response(URI.parse(META_URL))
     instance_id = resp.body
     @right_aws_ec2 = RightAws::Ec2.new(AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY)
-    @right_aws_ec2.associate_address(instance_id, '174.129.2.7')
+    @right_aws_ec2.associate_address(instance_id, AWS_WWW_ELASTIC_IP)
   end
   
   desc "Changes the AMI ID to that of the current AWS Web Server in the DB"

@@ -1,6 +1,10 @@
 require 'rubygems'
-require 'nokogiri'
-require 'open-uri'
+require 'octopussy'
+require 'uri'
+require 'git'
+require 'zlib'
+require 'archive/tar/minitar'
+include Archive::Tar
 
 class Role < ActiveRecord::Base
     has_many :farms
@@ -9,17 +13,40 @@ class Role < ActiveRecord::Base
     
     serialize :recipes
     
-    def self.get_available_recipes(url)
-      doc = Nokogiri::HTML(open(url))
-
+    def self.get_avail_recipes()
       recipes = Array.new
+      client = Octopussy::Client.new(:login => GITHUB_LOGIN, :token => GITHUB_API_TOKEN)
+      tree = GITHUB_LOGIN + "/" + GITHUB_REPO
+      hmash = client.tree(tree, GITHUB_COOKBOOK_SHA)
 
-      doc.xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "content", " " ))]').each do |link|
-      	if (link.content.match(/\//))
-      		recipes << link.content.gsub(/\//, '').strip
-      	end
+      hmash.each do | mash |
+              recipes << mash.name if mash.mode == "040000"
       end
-
+      
       return recipes
+    end
+    
+    def self.package_and_post_recipes()
+      uri = URI.parse(COOKBOOK_URL)
+      cb_filename = uri.path.gsub('/','')
+      cb_path = uri.path
+      cb_name = cb_filename.split('.').first
+      repos_path = TEMP_DIR + "/repos"
+      curdir = Dir.getwd
+      if (File.exists?(repos_path) && File.directory?(repos_path))
+        FileUtils.rmtree(repos_path)
+      	Dir.mkdir(repos_path)
+      else
+        Dir.mkdir(repos_path)
+      end
+      Dir.chdir(repos_path)
+      Git.clone(GIT_COOKBOOK_URL, GIT_REPOS)
+      Dir.chdir(repos_path + "/" + GIT_REPOS)
+      tgz = Zlib::GzipWriter.new(File.open(TEMP_DIR + cb_path, 'wb'))
+      Minitar.pack(cb_name, tgz)
+      FileUtils.rmtree(repos_path)
+      Dir.chdir(curdir)
+      S3Helper.upload(CHEF_BUCKET, cb_filename, File.open(TEMP_DIR + cb_path))
+      File.delete(TEMP_DIR + cb_path)
     end
 end
