@@ -5,7 +5,7 @@ When /^I wait for (\d+) seconds?$/ do |n|
 end
 
 When /^I run Delayed Jobs$/ do
-  Delayed::Job.reserve_and_run_one_job
+  Delayed::Worker.new.work_off
 end
 
 # for special UI multiselect
