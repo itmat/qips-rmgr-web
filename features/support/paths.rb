@@ -22,17 +22,6 @@ module NavigationHelpers
     when /the show page for (.+)/
        polymorphic_path(model($1))
 
-    when /list of farms/
-      farms_path
-
-    when /list of instances/
-      instances_path
-
-    when /new farm page/
-      new_farm_path
-
-    when /edit (.+) farm page/
-      edit_farm_path(Farm.find_by_name($1))
 
     when /view (.+) farm page/
       farm_path(Farm.find_by_name($1))

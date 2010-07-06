@@ -4,100 +4,108 @@ Feature: Manage Farms (CRUD ONLY)
 	I want to be able to create, update and delete farms
 	
 	Background:
-	Given the following recipes
-		| name | description |
-		| Sudo | Configures the sudo file for ITMAT admins |
-		| Cron | Configures the crontab file for the root user |
-		
-	And the following role records
-		| name |  platform |
-		| Compute |  aki |
-		| Sequest |  windows |
-		| WWW |  aki |
-		| DB |  aki |
-
-	And the following farm records
-		| name | description | ami_id | min | max | role_id | farm_type |
-		| TEST | Test Node Server | ami-c544a5ac | 0 | 2 | 2 | compute |
-		| TEST_PERSIST | Test Persistent | ami-db57b6b2 | 1 | 1 | 2 | admin |
-
-	Scenario Outline: Restrict Farm Maintenance
-	Given I am logged in as "<login>"
-	When I go to <page>
-	Then I should <action>
-	
-	Examples:
-	 	| login | page | action |
-		| admin | the list of farms | see "TEST" |
-		| guest | the list of farms | not see "TEST" |
-		|       | the list of farms | not see "TEST" |
-		
+	  Given a role: "role1" exists with name: "Compute", description: "Compute Node Role", platform: "aki", recipes: "qips-node"
+    And a role: "role2" exists with name: "Sequest", description: "Sequest Node Role", platform: "windows", recipes: "apache2"
+    And a farm: "farm1" exists with name: "TEST_32", description: "Test 32-bit node", ami_id: "ami-69987600", min: 0, max: 2, default_user_data: "test again", farm_type: "compute", key_pair_name: "admin-systems", security_groups: "compute-prod", ami_spec: "c1.medium", spot_price: 0.5, role: role "role1"
 		
 	Scenario: List Farms
-		#Given I am logged in as "admin" with password "admin"
-		Given I am logged in as "admin"
-		And I go to the list of farms
-		Then I should see "TEST"
-		And I should see "TEST_PERSIST"
+		When I go to the list of farms page
+		Then I should see "TEST_32"
+		And I should see "Test 32-bit node"
+		And I should see "ami-69987600"
+		And I should see "admin-systems"
+		And I should see "compute-prod"
+		And I should see "Compute"
+		And I should see "compute"
 
 	Scenario: View Farm
-		Given I am logged in as "admin"
-		When I go to the view TEST_PERSIST farm page
-		Then I should see "Test Persistent"
-		And I should see "ami-db57b6b2"
-    And I should see "admin-systems"
-    And I should see "default,sequest"
-    And I should see "admin"
-
-	Scenario: Create Farm
-		Given I am logged in as "admin"
+	  When I go to the list of farms page
+	  And I follow "Show"
+	  Then I should see "TEST_32"
+		And I should see "Test 32-bit node"
+		And I should see "ami-69987600"
+		And I should see "admin-systems"
+		And I should see "compute-prod"
+		And I should see "Compute"
+		And I should see "compute"
+		And I should see "Min: 0"
+		And I should see "Max: 2"
+		
+	Scenario: Create Farm. Also tests destroy farm link.
 		When I go to the new farm page
-		And I fill in "name" with "XYZ"
-		And I fill in "description" with "Test Farm"
-		And I fill in "ami" with "ami015db968"
-		And I fill in "min" with "1"
-		And I fill in "max" with "1"
+		And I fill in "Name" with "XYZ"
+		And I fill in "Description" with "Test Farm"
+		And I fill in "Ami" with "ami-6b987602"
+		And I fill in "Min" with "1"
+		And I fill in "Max" with "1"
 		And I fill in "Security groups" with "default,sequest"
 		And I fill in "Key pair name" with "admin-systems"
-		And I select "Compute" from "role"
+		And I fill in "Kernel" with "test kernel"
+		And I select "Compute" from "Role"
+		And I select "admin" from "Farm type"
+		And I fill in "Default user data" with "blah blah"
 		And I press "Submit"
-		Then I should be on the list of farms
+	  Then 2 farms should exist
+		And I should be on the list of farms page
 		And I should see "XYZ"
+		And I should see "Test Farm"
+		And I should see "ami-6b987602"
+		And I should see "default,sequest"
+		And I should see "admin-systems"
+		And I should see "Compute"
+		When I follow "Destroy"
+		Then 1 farms should exist
+		And I should be on the list of farms page
+		When I follow "Show"
+		And I should see "XYZ"
+		And I should see "Test Farm"
+		And I should see "ami-6b987602"
+		And I should see "default,sequest"
+		And I should see "admin-systems"
+		And I should see "Compute"
+		And I should see "Kernel: test kernel"
+		And I should see "Min: 1"
+		And I should see "Max: 1"
+		And I should see "admin"
+		And I should see "blah blah"
 		
 	Scenario: Create INVALID Farm
 		Given I am logged in as "admin"
 		When I go to the new farm page
-		And I fill in "name" with ""
-		And I fill in "description" with "Test Farm"
-		And I fill in "ami" with "ami12345678"
-		And I fill in "min" with "1"
-		And I fill in "max" with "1"
-		And I select "Compute" from "role"
-  	And I press "Submit"
-  	Then I should not be on the list of farms
+		And I fill in "Name" with ""
+		And I fill in "Description" with "Test Farm"
+		And I fill in "Ami" with ""
+		And I fill in "Min" with ""
+		And I fill in "Max" with ""
+		And I fill in "Security groups" with ""
+		And I fill in "Key pair name" with ""
+		And I press "Submit"
+  	Then I should not be on the list of farms page
   	And I should see "error"
     And I should see "Name can't be blank"
+    And I should see "Ami can't be blank"
+    And I should see "Min can't be blank"
+    And I should see "Max can't be blank"
+    And I should see "Key pair name can't be blank"
+    And I should see "Security groups can't be blank"
 	
 	Scenario: Delete Farm
-		Given I am logged in as "admin"
-		When I go to the list of farms
-		And I follow "destroy"
-		Then I should be on list of farms
-		And I should have 1 farms
+	  When I go to the list of farms page 
+		And I follow "Destroy"
+		Then I should be on the list of farms page
+		And 0 farms should exist
 		
 	Scenario: Update Farm
-		Given I am logged in as "admin"
-		When I go to the edit TEST_PERSIST farm page
-		And I should see "TEST_PERSIST"
-		And I fill in "description" with "DB v2"
-		And I fill in "ami" with "ami-12345678"
-		And I fill in "min" with "2"
-		And I fill in "max" with "2"
-		And I select "DB" from "role"
+	  When I go to the list of farms page
+	  And I follow "Edit" 
+	  And I fill in "Name" with "TEST3"
+	  And I fill in "Description" with "DB v2"
 		And I press "Submit" 
-		Then I should be on the list of farms
+		Then I should be on the list of farms page
+		And I should see "TEST3"
 		And I should see "DB v2"
 		And I should not see "Test Persistent"
+		And I should not see "TEST_32"
 		
 
 

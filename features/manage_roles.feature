@@ -3,7 +3,7 @@ Feature: Manage Roles
 	As an admin
 	I want to manage roles
 	
-	# NOTE: remove log/test/log before running tests!
+	# NOTE: remove log/test.log before running tests!
 	# This test assumes apache2 is the first selection on the recipe multi-select!
 
 	Scenario: List Roles
@@ -18,7 +18,7 @@ Feature: Manage Roles
 		And I should see "test sequest description"
 		And I should see "windows"
 				
-	@selenium			
+	@selenium	
 	Scenario: Create Role
 		When I go to the new role page
 		And I fill in "Name" with "Test"

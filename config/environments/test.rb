@@ -14,12 +14,28 @@ IPTABLES_OUTPUT_PATH  = 'iptables'
 IPTABLES_RESTART_CMD = 'echo PLACEHOLDER'
 IPTABLES_ERB = 'config/iptables.erb'
 
+#Amazon EC2 Metadata Tool Download URL
+EC2_METATOOL_URL = 'http://www.amazon.com/gp/redirect.html/ref=aws_rc_1825?location=http%3A%2F%2Fs3.amazonaws.com%2Fec2metadata%2Fec2-metadata&token=A80325AA4DAB186C80828ED5138633E3F49160D9'
 
+#Chef config locations
+GIT_COOKBOOK_URL = "git@github.com:itmat/chef-repo.git"
+GIT_REPOS = "chef-repo"
+CHEF_BUCKET = 'itmat-chef'
+CHEF_NODES_JSON_ERB = 'config/nodes.erb'
+CHEF_SOLO_URL = 'http://itmat-chef.s3.amazonaws.com/solo.rb'
+COOKBOOK_URL = 'http://itmat-chef.s3.amazonaws.com/adb_cook.tar.gz'
+
+#User Data location
+USER_DATA_ERB = 'config/user_data.erb'
+
+#AWS Credentials File
+AWS_CRED_PATH = 'config/aws.rb'
 
 
 LOG_CMD = "" #command that prints log in the site heading.  DO NOT USE FOR TESTS
 
-
+#Temporary work directory
+TEMP_DIR = "/tmp"
 
 
 # The test environment is used exclusively to run your application's
@@ -49,10 +65,6 @@ config.action_mailer.delivery_method = :test
 # like if you have constraints or database-specific column types
 # config.active_record.schema_format = :sql
 
-config.gem "thoughtbot-factory_girl", :lib => "factory_girl", :source => "http://gems.github.com"
-config.gem "erubis", :lib => false, :version => ">=2.6.2"
-config.gem "json", :lib => false, :version => ">=1.2.0"
-config.gem "amazon-ec2",  :lib => false, :version => ">=0.9.3"
 config.gem 'rspec-rails', :version => '>= 1.3.2', :lib => false unless File.directory?(File.join(Rails.root, 'vendor/plugins/rspec-rails'))
 config.gem "rspec", :lib => false, :version => ">=1.2.9"
 config.gem "cucumber", :lib => false, :version => ">=0.4.3"
@@ -61,3 +73,11 @@ config.gem 'cucumber-rails',   :lib => false, :version => '>=0.3.0' unless File.
 config.gem 'database_cleaner', :lib => false, :version => '>=0.5.0' unless File.directory?(File.join(Rails.root, 'vendor/plugins/database_cleaner'))
 config.gem 'webrat',           :lib => false, :version => '>=0.7.0' unless File.directory?(File.join(Rails.root, 'vendor/plugins/webrat'))
 config.gem "capybara", :lib => false, :version => "=0.3.8"
+config.gem "erubis", :lib => false, :version => ">=2.6.2"
+config.gem "json", :lib => false, :version => ">=1.2.0"
+config.gem "amazon-ec2",  :lib => false, :version => ">=0.9.3"
+config.gem "right_aws", :lib => false, :version => ">=1.10.0"
+config.gem "octopussy", :lib => false, :version => ">=0.2.2"
+config.gem "git", :lib => false, :version => ">=1.2.5"
+config.gem "archive-tar-minitar", :lib => false, :version => ">=0.5.2"
+config.gem "thoughtbot-factory_girl", :lib => "factory_girl", :source => "http://gems.github.com"
