@@ -12,6 +12,8 @@ class Role < ActiveRecord::Base
     validates_presence_of :name
     
     serialize :recipes
+
+    before_save :convert_recipe_to_array
     
     def self.get_avail_recipes()
       recipes = Array.new
@@ -49,4 +51,21 @@ class Role < ActiveRecord::Base
       S3Helper.upload(CHEF_BUCKET, cb_filename, File.open(TEMP_DIR + cb_path))
       File.delete(TEMP_DIR + cb_path)
     end
+    
+    def convert_recipe_to_array
+      
+      unless self.recipes.class.to_s == 'Array'
+        
+        if self.recipes.nil?
+          self.recipes = Array.new if self.recipes.nil?
+        else
+          self.recipes = [self.recipes]
+        end
+        
+      end
+      
+      
+    end
+    
+    
 end
