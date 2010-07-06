@@ -11,6 +11,17 @@ module NavigationHelpers
     when /the homepage/
           '/'
 
+    when /the new (.+) page/
+       new_polymorphic_path($1)
+    when /the list of (.+) page/
+       polymorphic_path($1)
+    when /the login page/
+       login_path
+    when /the edit page for (.+)/
+       edit_polymorphic_path(model($1))
+    when /the show page for (.+)/
+       polymorphic_path(model($1))
+
     when /list of farms/
       farms_path
 
@@ -25,30 +36,6 @@ module NavigationHelpers
 
     when /view (.+) farm page/
       farm_path(Farm.find_by_name($1))
-
-    when /list of roles/
-      roles_path
-
-    when /new role page/
-      new_role_path
-
-    when /edit (.+) role page/
-      edit_role_path(Role.find_by_name($1))
-
-    when /view (.+) role page/
-      role_path(Role.find_by_name($1))
-
-    when /list of recipes/
-      recipes_path
-
-    when /new recipe page/
-      new_recipe_path
-
-    when /edit (.+) recipe page/
-      edit_recipe_path(Recipe.find_by_name($1))
-
-    when /view (.+) recipe page/
-      recipe_path(Recipe.find_by_name($1))
 
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:
