@@ -19,7 +19,7 @@ Factory.define :farm do |f|
   f.security_groups "default,sequest"
   f.farm_type "compute"
   f.association :role
-  f.default_user_data "test url"
+  f.default_user_data ""
   
   
 end
