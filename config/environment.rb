@@ -5,8 +5,8 @@ RAILS_GEM_VERSION = '2.3.4' unless defined? RAILS_GEM_VERSION
 
 #test ami's for live tests
 
-TEST_AMI_1 = "ami-b96586d0"
-TEST_AMI_2 = "ami-c544a5ac"
+TEST_AMI_1 = "ami-69987600"
+TEST_AMI_2 = "ami-6b987602"
 
 
 # SEE OTHER ENVIRONMENT FILES FOR MORE VARS!!

@@ -41,11 +41,14 @@ Feature: Manage Instances (requires ec2)
   	When I go to the list of instances page
   	Then I should have 2 running instances with ami_id "ami-69987600"
   	When I follow "Terminate"
-  	And I wait for 10 seconds
-  	Then I should have 1 running instances with ami_id "ami-69987600"
-  	And I should be on the list of instances page
+  	Then I should be on the list of instances page
+  	When I wait for 1 seconds
+  	And I refresh the page
+  	Then I should see "shutdown"
+  	And I should have 1 running instances with ami_id "ami-69987600"
   	When I follow "Terminate"
-  	And I wait for 10 seconds
+  	And I wait for 5 seconds
+  	And I refresh the page
   	Then I should have 0 running instances with ami_id "ami-69987600"
 
 	Scenario: Test min limitation. Also confirms delete instance.  Also tests default user data
@@ -60,9 +63,9 @@ Feature: Manage Instances (requires ec2)
 		And I should see ""
 		And I should see "ami-6b987602"
 		When I follow "Terminate"
-		And I wait for 10 seconds
+		And I wait for 5 seconds
+		And I refresh the page
 		Then I should have 0 running instances with ami_id "ami-6b987602"
-    And I should see "shutdown"
   
   Scenario: Manual Override for instances
 	  When I go to the view TEST_32 farm page
@@ -77,13 +80,19 @@ Feature: Manage Instances (requires ec2)
     Then I should be on the list of instances page
     And I should see "manual"
   	When I follow "Terminate"
-  	And I wait for 10 seconds
+  	And I wait for 5 seconds
   	Then I should have 0 running instances with ami_id "ami-69987600"
+  
+  #TODO See RSPECS
   	
   Scenario: Test custom user data
   
   Scenario: Test iptables  
   	
-    
+  Scenario: Test node communication
+  
+  Scenario: Test node error restart
+  
+  Scenario: Test node timeout
 		
 		
