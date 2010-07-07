@@ -10,6 +10,7 @@ describe Instance do
     instance = Factory(:instance)
     instance.cycle_count.should == 0
     instance.recycle
+    Delayed::Worker.new.work_off
     instance.cycle_count.should == 1
     instance.terminate #cleanup
     sleep 3
@@ -32,6 +33,7 @@ describe Instance do
     instance.ruby_cycle_count = 9
 
     instance.recycle
+    Delayed::Worker.new.work_off
     
     instance.ruby_cpu_usage.should be_nil
     instance.system_cpu_usage.should be_nil
@@ -96,7 +98,7 @@ describe Instance do
   
   it "should show whether or not a node has been silent for a certain amount of time" do
     instance = Factory(:instance)
-    instance.silent_since?(5).should == false
+    instance.silent_since?(20).should == false
     instance.launch_time = (Time.now - 600)
     instance.silent_since?(5).should == true
     instance.status_updated_at = Time.now

@@ -21,6 +21,7 @@ describe Farm do
   it "should scale down instance that have been idle for a while" do
     instance = Factory(:instance)
     instance.recycle # workaround to start instance in aws
+    Delayed::Worker.new.work_off
     instance.state = "idle"
     instance.launch_time = (Time.now - 3300) # sets launch time for 54 mins ago
     instance.save
@@ -35,6 +36,7 @@ describe Farm do
   it "should NOT scale down instances that have been idle for a while and are busy" do
     instance = Factory(:instance)
     instance.recycle # workaround to start instance in aws
+    Delayed::Worker.new.work_off
     instance.state = "busy"
     instance.launch_time = (Time.now - 3300) # sets launch time for 54 mins ago
     instance.save
@@ -51,6 +53,7 @@ describe Farm do
   it "should NOT scale down instances that have NOT been idle for a while" do
     instance = Factory(:instance)
     instance.recycle # workaround to start instance in aws
+    Delayed::Worker.new.work_off
     instance.state = "idle"
     instance.launch_time = (Time.now - 300) # sets launch time for 5 mins ago
     instance.save
@@ -69,7 +72,7 @@ describe Farm do
     farm = Factory(:farm, :min => 1)
     farm.instances.size.should == 0
     farm.reconcile
-    Delayed::Job.reserve_and_run_one_job
+    Delayed::Worker.new.work_off
     sleep 5
     farm.reload
     farm.instances.size.should == 1
@@ -86,7 +89,9 @@ describe Farm do
     instance2 = Factory(:instance, :farm => farm)
     # have to recycle instances so they are real, otherwise reconcile sync will delete all of them
     instance1.recycle
+    Delayed::Worker.new.work_off
     instance2.recycle
+    Delayed::Worker.new.work_off
     farm.reload
     farm.reconcile
     sleep 5
@@ -105,7 +110,9 @@ describe Farm do
     instance2 = Factory(:instance, :farm => farm)
     # have to recycle instances so they are real, otherwise reconcile will delete all of them
     instance1.recycle
+    Delayed::Worker.new.work_off
     instance2.recycle
+    Delayed::Worker.new.work_off
     instance1.update_attribute("state", "busy")
     instance2.update_attribute("state", "busy")
     farm.reload

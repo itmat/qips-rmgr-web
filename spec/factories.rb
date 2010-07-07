@@ -4,8 +4,8 @@
 Factory.define :role do |f|
   f.name "test role"
   f.description "test description"
-  f.platform "windows"
-  
+  f.platform "aki"
+  f.recipes ['qips-node']
   
 end
 
@@ -16,7 +16,7 @@ Factory.define :farm do |f|
   f.min 0
   f.max 2
   f.key_pair_name "admin-systems"
-  f.security_groups "default,sequest"
+  f.security_groups "compute-prod"
   f.farm_type "compute"
   f.association :role
   f.default_user_data ""

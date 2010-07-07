@@ -111,7 +111,7 @@ class Farm < ActiveRecord::Base
 
             
       #start num_to_start instances via Instance. Enqueue these in delayed job because they may take a while
-      start_and_create_instances(num_to_start) unless num_to_start < 1
+      start_and_create_instances(num_to_start, user_data) unless num_to_start < 1
       
       #now also enqueue the workitem reply if needed
       WorkItemHelper.send_reply(workitem_id) unless workitem_id.nil?
@@ -276,10 +276,10 @@ class Farm < ActiveRecord::Base
   
   #start_and_create_instances: Originally in Instance class, better suited in farm.  Used to start instances of type Farm
   
-  def start_and_create_instances(num=1)
+  def start_and_create_instances(num=1, user_data=nil)
     logger.info "ENTERING DELAYED JOB"
     begin
-      new_instances = run_spot_instances(num)
+      new_instances = run_spot_instances(num, user_data)
       new_instances.each do |i|
         temp = Instance.create_from_aws_hash(i)
         temp.user_data = user_data
@@ -289,23 +289,31 @@ class Farm < ActiveRecord::Base
       logger.info "Started and saved #{num} #{ami_id} instances."
       EventLog.info "Started and saved #{num} #{ami_id} instances."
     rescue Exception => e
-      logger.error "Caught exception when trying to start #{num} #{ami_id} instances!: #{e.backtrace}"
-      EventLog.error "Caught exception when trying to start #{num} #{ami_id} instances!: #{e.backtrace}"
+      logger.error "Caught exception when trying to start #{num} #{ami_id} instances!: #{e.message} #{e.backtrace}"
+      EventLog.error "Caught exception when trying to start #{num} #{ami_id} instances!: #{e.message} #{e.backtrace}"
     end
   end
   
   #run_spot_instance: Originally in Instance, better suited in Farm.  Used for making spot requests for AWS instances.
   
-  def run_spot_instances(num=1)
+  def run_spot_instances(num=1, custom_data=nil)
   	#@amazon_ec2 = AWS::EC2::Base.new(:access_key_id => AWS_ACCESS_KEY_ID, :secret_access_key => AWS_SECRET_ACCESS_KEY)
   	ec2 = Farm.get_amazon_ec2
   	right_ec2 = Farm.get_ec2
   	right_aws_hashes = Array.new
-  	if default_user_data.blank?
+  	
+  	if custom_data
+  	  user_data = custom_data
+	  else
+	    user_data = self.default_user_data
+  	end
+  	
+  	if user_data.blank?
   	  epoch_time = Time.now.to_i
-  	  default_user_data = UserDataWriter.write_user_data(ChefConfigWriter.write_nodes_json(self.role.recipes, epoch_time), epoch_time)
+  	  user_data = UserDataWriter.write_user_data(ChefConfigWriter.write_nodes_json(self.role.recipes, epoch_time), epoch_time)
 	  end
-	  sirs = ec2.request_spot_instances(:image_id => ami_id, :security_group => security_groups, :key_name => key_pair_name, :kernel_id => kernel_id, :user_data => Base64.encode64(default_user_data), :instance_count => num, :spot_price => spot_price.to_s, :instance_type => ami_spec, :launch_group => "QIPS")
+	  
+	  sirs = ec2.request_spot_instances(:image_id => ami_id, :security_group => security_groups, :key_name => key_pair_name, :kernel_id => kernel_id, :user_data => Base64.encode64(user_data), :instance_count => num, :spot_price => spot_price.to_s, :instance_type => ami_spec, :launch_group => "QIPS")
   	sirs['spotInstanceRequestSet']['item'].each do |sir|
   	  sir_id = sir['spotInstanceRequestId']
   	  logger.info "Attempting to request a spot instance(s). Spot Instance Request ID: #{sir_id}"

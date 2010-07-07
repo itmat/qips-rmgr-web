@@ -8,7 +8,7 @@ integrate_views
     it "should call reconcile a farm" do
       farm = Factory(:farm, :min => 1, :max => 1)
       get "reconcile", :id => farm.id
-      Delayed::Job.reserve_and_run_one_job
+      Delayed::Worker.new.work_off
       sleep 10
       farm.reload
       farm.instances.size.should == 1
@@ -23,8 +23,8 @@ integrate_views
       farm1 = Factory(:farm, :min => 1, :max => 1)
       farm2 = Factory(:farm, :ami_id => TEST_AMI_2, :min => 1, :max => 1)
       get :reconcile_all
-      Delayed::Job.reserve_and_run_one_job
-      Delayed::Job.reserve_and_run_one_job
+      Delayed::Worker.new.work_off
+      Delayed::Worker.new.work_off
       sleep 10
       
       farm1.reload

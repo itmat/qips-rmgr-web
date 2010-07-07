@@ -24,7 +24,7 @@ describe InstancesController do
     it "should fill in the vars of an instance during set status message" do
       instance = Factory(:instance, :instance_id => 'i-abcd1234')
       get :set_status, :message => default_message.to_json
-       
+      # Delayed::Worker.new.work_off
       instance.reload 
       instance.state.should == 'busy'
       instance.ruby_cpu_usage.should == 12.34
@@ -47,6 +47,7 @@ describe InstancesController do
     it "should NOT send KILL response normally." do
       instance = Factory(:instance, :instance_id => 'i-abcd1234')
       get :set_status, :message => default_message.to_json
+      # Delayed::Worker.new.work_off
       response.body.should_not match /KILL/
     end
   end
@@ -57,6 +58,7 @@ describe InstancesController do
       custom_message[:timestamp] = "#{(Time.now - 4000)}"
       instance = Factory(:instance, :instance_id => 'i-abcd1234')
       get :set_status, :message => custom_message.to_json
+      # Delayed::Worker.new.work_off
       instance.reload
       instance.ruby_cycle_count.should == 1
       response.body.should match /KILL/
@@ -69,7 +71,7 @@ describe InstancesController do
       custom_message[:timestamp] = "#{Time.now - 4000}"
       instance = Factory(:instance, :instance_id => 'i-abcd1234', :ruby_cycle_count => (RUBY_CYCLE_MAX + 1))
       get :set_status, :message => custom_message.to_json
-      Delayed::Job.reserve_and_run_one_job
+      Delayed::Worker.new.work_off
       instance.reload
       instance.instance_id.should_not == 'i-abcd1234'
       instance.ruby_cycle_count.should == 0
@@ -84,7 +86,7 @@ describe InstancesController do
       custom_message[:timestamp] = "#{Time.now - 4000}"
       instance = Factory(:instance, :instance_id => 'i-abcd1234', :cycle_count => (NODE_CYCLE_MAX + 1), :ruby_cycle_count => (RUBY_CYCLE_MAX + 1))
       get :set_status, :message => custom_message.to_json
-      Delayed::Job.reserve_and_run_one_job
+      # Delayed::Worker.new.work_off
       instance.reload
       instance.state.should == 'shutdown'
 
@@ -98,13 +100,11 @@ describe InstancesController do
       custom_message[:error_message] = "test error message"
       instance = Factory(:instance)
       instance.recycle # a real instance
-      Delayed::Job.reserve_and_run_one_job
+      Delayed::Worker.new.work_off
       sleep 5
       instance.reload
       custom_message[:instance_id] = "#{instance.instance_id}"
       get :set_status, :message => custom_message.to_json
-      Delayed::Job.reserve_and_run_one_job
-      sleep 5
       instance.reload
       instance.state.should == 'shutdown'
 
@@ -119,12 +119,12 @@ describe InstancesController do
       admin_farm = Factory(:farm, :farm_type => 'admin')
       instance = Factory(:instance, :farm => admin_farm)
       instance.recycle # a real instance
-      Delayed::Job.reserve_and_run_one_job
+      Delayed::Worker.new.work_off
       sleep 5
       instance.reload
       custom_message[:instance_id] = "#{instance.instance_id}"
       get :set_status, :message => custom_message.to_json
-      Delayed::Job.reserve_and_run_one_job
+      Delayed::Worker.new.work_off
       sleep 5
       instance.reload
       instance.state.should_not == 'shutdown'
