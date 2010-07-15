@@ -51,7 +51,7 @@ Feature: Manage Roles
 	
 	@selenium
 	Scenario: Edit Role
-	  Given a role exists with name: "Compute", description: "test compute description", platform: "aki"
+	  Given a role exists with name: "Compute", description: "test compute description", platform: "aki", recipes: ""
 		When I go to the edit page for that role
 		And I fill in "Name" with "Compute test"
 		And I fill in "Description" with "test des"

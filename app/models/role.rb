@@ -56,10 +56,10 @@ class Role < ActiveRecord::Base
       
       unless self.recipes.class.to_s == 'Array'
         
-        if self.recipes.nil?
-          self.recipes = Array.new if self.recipes.nil?
+        if self.recipes.blank?
+          self.recipes = Array.new
         else
-          self.recipes = [self.recipes]
+          self.recipes = [self.recipes.to_s]
         end
         
       end
