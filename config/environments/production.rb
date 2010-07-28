@@ -29,6 +29,11 @@ CHEF_NODES_JSON_ERB = 'config/nodes.erb'
 CHEF_SOLO_URL = 'http://' + CHEF_BUCKET + '.s3.amazonaws.com/solo.rb'
 COOKBOOK_URL = 'http://' + CHEF_BUCKET + '.s3.amazonaws.com/cookbooks.tgz'
 
+# Amazon AMI IDs for farms
+WWW_AMI_ID = 'ami-69987600'
+COMPUTE32_AMI_ID = 'ami-17f51c7e'
+COMPUTE64_AMI_ID = 'ami-eff51c86'
+
 #User Data location
 USER_DATA_ERB = 'config/user_data.erb'
 

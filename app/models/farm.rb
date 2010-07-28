@@ -66,6 +66,13 @@ class Farm < ActiveRecord::Base
     key = RightAws::S3Generator::Key.new(RightAws::S3::Bucket.new(s3g, 'itmat-qips'), 'aws.rb')
     return key.get(1.hour)
   end
+  
+  def self.get_github_cred_url()
+    # Generates RESTful authenticated URL to get github.rb (Github credentials) from S3
+    s3g = RightAws::S3Generator.new(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+    key = RightAws::S3Generator::Key.new(RightAws::S3::Bucket.new(s3g, 'itmat-qips'), 'github.rb')
+    return key.get(1.hour)
+  end
 
   #### start N instances from farm. mind upper limits
   #
