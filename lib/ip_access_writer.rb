@@ -1,8 +1,13 @@
 require 'erubis'
+require 'ohai'
 
 class IpAccessWriter
   
+  if IpAccessWriter.os_type() == 'rpm'
     @iptables = IPTABLES_OUTPUT_PATH  ||= '/etc/sysconfig/iptables'
+  else
+    @iptables = '/etc/iptables-saved'
+  end
   
   def initialize(h_file=nil)
   
@@ -10,8 +15,20 @@ class IpAccessWriter
     
   end 
   
-  
-  
+  # Method will determine whether your OS is Mac-based, Debian-based, or an RPM-based distribution of Linux
+  def self.os_type()
+    sys = Ohai::System.new
+    sys.all_plugins
+    os = sys[:platform]
+    if (os =~ /debian/i || os =~ /ubuntu/i)
+      return "debian"
+    elsif (os =~ /fedora/i || os =~ /redhat/i || os =~ /centos/i)
+      return "rpm"
+    elsif (os =~ /mac_os_x/i)
+      return "mac"
+    end
+  end
+          
   def self.write_access_file(ip_array=nil)
     unless ip_array.nil?
 
