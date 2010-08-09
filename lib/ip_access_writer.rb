@@ -18,18 +18,6 @@ class IpAccessWriter
     end
   end
   
-  if IpAccessWriter.os_type() == 'rpm'
-    @iptables = IPTABLES_OUTPUT_PATH  ||= '/etc/sysconfig/iptables'
-  else
-    @iptables = '/tmp/iptables-saved'
-  end
-  
-  def initialize(h_file=nil)
-  
-    @iptables = h_file ||= IPTABLES_OUTPUT_PATH
-    
-  end 
-  
   def self.parse_ip(str)
     if str =~ /ip-(\d+)-(\d+)-(\d+)-(\d+)\..+/
       return "#{$1}.#{$2}.#{$3}.#{$4}"   
@@ -44,7 +32,14 @@ class IpAccessWriter
   end
           
   def self.write_access_file(ip_array=nil)
+    iptables = String.new
     os_type = self.os_type()
+    
+    if os_type() == 'rpm'
+      iptables = '/etc/sysconfig/iptables'
+    else
+      iptables = '/tmp/iptables-saved'
+    end
     
     f_erb = nil
 
@@ -57,13 +52,11 @@ class IpAccessWriter
     unless ip_array.nil?
     
     eruby = Erubis::Eruby.new(f_erb.read )
-    f = File.open(@iptables, "w+") 
+    f = File.open(iptables, "w+") 
     f.write(eruby.result({:ip_array => ip_array}))
     f.close
       
     end
-    
-    #system IPTABLES_RESTART_CMD
     
   end
 end
