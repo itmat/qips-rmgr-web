@@ -27,7 +27,11 @@ class IpAccessWriter
   end
   
   def self.host_lookup(str)
-    private_ip = Resolv.getaddress(str)
+    begin
+      private_ip = Resolv.getaddress(str)
+    rescue
+      private_ip = nil
+    end
     return private_ip.strip
   end
           
