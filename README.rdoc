@@ -1,0 +1,45 @@
+= QIPS RESOURCE MANAGER WEB
+
+This rails app aims to provide an interface to manage a cloud of AWS instances
+
+
+== GOALS:
+
+
+- ensures instances are started and stopped based on policy limits
+- accepts incoming start instance requests from a workflow manager 
+- terminates idle instances, intelligently
+- keeps a local list of running instances and their work "states"
+
+
+== USAGE:
+
+
+used in conjunction with qips-node-amqp.  the daemon hits certain pages on the web interface at set intervals.  
+
+download and run script/server
+
+
+== REQUIRES:
+
+
+config/aws.rb:
+
+AWS_ACCESS_KEY_ID = '11111111111111111111111' 
+AWS_SECRET_ACCESS_KEY = '22222222222222222222222222'
+
+
+config/github.rb:
+
+GITHUB_LOGIN = 'github_user'
+GITHUB_API_TOKEN = 'abcdef12345678901234567890abcdef'     # => Github API token can be found on 'Account Settings' page
+GITHUB_REPO = 'chef-repo'     # => Chef repository directory that contains 'cookbooks' folder
+GITHUB_COOKBOOK_SHA = 'abcdef1234567891234567891234567890abcdef'     # => Tree SHA corresponding to <chef-repo>/cookbooks dir
+
+
+== LIST OF SYSTEM CALLS
+
+views/shared/_heading.html.erb:8:	log_tail = `#{LOG_CMD}`
+
+
+== ITMAT @ UPENN
