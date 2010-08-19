@@ -19,7 +19,8 @@ EC2_METATOOL_URL = 'http://www.amazon.com/gp/redirect.html/ref=aws_rc_1825?locat
 #IPTABLES locations
 IPTABLES_OUTPUT_PATH  = '/etc/sysconfig/iptables' 
 IPTABLES_RESTART_CMD = '/usr/bin/sudo /sbin/service iptables restart'
-IPTABLES_ERB = 'config/iptables.erb'
+RPM_IPTABLES_ERB = 'config/rpm_iptables.erb'
+DEB_IPTABLES_ERB = 'config/deb_iptables.erb'
 
 #Chef config locations
 GIT_COOKBOOK_URL = "git@github.com:itmat/chef-repo.git"
