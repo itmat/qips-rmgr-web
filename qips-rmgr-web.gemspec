@@ -5,19 +5,19 @@
 
 Gem::Specification.new do |s|
   s.name = %q{qips-rmgr-web}
-  s.version = "0.5.2"
+  s.version = "0.5.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["David Austin", "Andrew Brader"]
-  s.date = %q{2010-07-28}
+  s.date = %q{2010-08-19}
   s.description = %q{Works with qips node to manage aws instances based on demand.}
   s.email = %q{daustin@mail.med.upenn.edu}
   s.extra_rdoc_files = [
-    "README"
+    "README.rdoc"
   ]
   s.files = [
     ".gitignore",
-     "README",
+     "README.rdoc",
      "Rakefile",
      "VERSION",
      "app/controllers/application_controller.rb",
@@ -50,6 +50,7 @@ Gem::Specification.new do |s|
      "config/boot.rb",
      "config/cucumber.yml",
      "config/database.yml",
+     "config/deb_iptables.erb",
      "config/environment.rb",
      "config/environments/cucumber.rb",
      "config/environments/development.rb",
@@ -60,10 +61,11 @@ Gem::Specification.new do |s|
      "config/initializers/mime_types.rb",
      "config/initializers/new_rails_defaults.rb",
      "config/initializers/session_store.rb",
-     "config/iptables.erb",
      "config/locales/en.yml",
      "config/nodes.erb",
      "config/routes.rb",
+     "config/rpm_iptables.erb",
+     "config/schedule.rb",
      "config/user_data.erb",
      "db/migrate/20090929180916_create_farms.rb",
      "db/migrate/20090929181104_create_roles.rb",
@@ -195,6 +197,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://github.com/abrader/qips-rmgr-web}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
+  s.rubyforge_project = %q{nowarning}
   s.rubygems_version = %q{1.3.7}
   s.summary = %q{Web-based resource manager for QIPS suite.}
   s.test_files = [
@@ -218,9 +221,66 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
+      s.add_runtime_dependency(%q<erubis>, [">= 2.6.2"])
+      s.add_runtime_dependency(%q<json>, [">= 1.2.0"])
+      s.add_runtime_dependency(%q<amazon-ec2>, ["= 0.9.3"])
+      s.add_runtime_dependency(%q<right_aws>, [">= 1.10.0"])
+      s.add_runtime_dependency(%q<octopussy>, [">= 0.2.2"])
+      s.add_runtime_dependency(%q<git>, [">= 1.2.5"])
+      s.add_runtime_dependency(%q<archive-tar-minitar>, [">= 0.5.2"])
+      s.add_runtime_dependency(%q<delayed_job>, ["= 2.0.3"])
+      s.add_runtime_dependency(%q<whenever>, [">= 0.5.0"])
+      s.add_runtime_dependency(%q<ohai>, [">= 0.5.6"])
+      s.add_development_dependency(%q<rspec-rails>, [">= 1.3.2"])
+      s.add_development_dependency(%q<rspec>, [">= 1.2.9"])
+      s.add_development_dependency(%q<cucumber>, [">= 0.4.3"])
+      s.add_development_dependency(%q<pickle>, [">= 0.1.21"])
+      s.add_development_dependency(%q<cucumber-rails>, [">= 0.3.0"])
+      s.add_development_dependency(%q<database_cleaner>, [">= 0.5.0"])
+      s.add_development_dependency(%q<webrat>, [">= 0.7.0"])
+      s.add_development_dependency(%q<capybara>, ["= 0.3.8"])
+      s.add_development_dependency(%q<thoughtbot-factory_girl>, [">= 1.2.1"])
     else
+      s.add_dependency(%q<erubis>, [">= 2.6.2"])
+      s.add_dependency(%q<json>, [">= 1.2.0"])
+      s.add_dependency(%q<amazon-ec2>, ["= 0.9.3"])
+      s.add_dependency(%q<right_aws>, [">= 1.10.0"])
+      s.add_dependency(%q<octopussy>, [">= 0.2.2"])
+      s.add_dependency(%q<git>, [">= 1.2.5"])
+      s.add_dependency(%q<archive-tar-minitar>, [">= 0.5.2"])
+      s.add_dependency(%q<delayed_job>, ["= 2.0.3"])
+      s.add_dependency(%q<whenever>, [">= 0.5.0"])
+      s.add_dependency(%q<ohai>, [">= 0.5.6"])
+      s.add_dependency(%q<rspec-rails>, [">= 1.3.2"])
+      s.add_dependency(%q<rspec>, [">= 1.2.9"])
+      s.add_dependency(%q<cucumber>, [">= 0.4.3"])
+      s.add_dependency(%q<pickle>, [">= 0.1.21"])
+      s.add_dependency(%q<cucumber-rails>, [">= 0.3.0"])
+      s.add_dependency(%q<database_cleaner>, [">= 0.5.0"])
+      s.add_dependency(%q<webrat>, [">= 0.7.0"])
+      s.add_dependency(%q<capybara>, ["= 0.3.8"])
+      s.add_dependency(%q<thoughtbot-factory_girl>, [">= 1.2.1"])
     end
   else
+    s.add_dependency(%q<erubis>, [">= 2.6.2"])
+    s.add_dependency(%q<json>, [">= 1.2.0"])
+    s.add_dependency(%q<amazon-ec2>, ["= 0.9.3"])
+    s.add_dependency(%q<right_aws>, [">= 1.10.0"])
+    s.add_dependency(%q<octopussy>, [">= 0.2.2"])
+    s.add_dependency(%q<git>, [">= 1.2.5"])
+    s.add_dependency(%q<archive-tar-minitar>, [">= 0.5.2"])
+    s.add_dependency(%q<delayed_job>, ["= 2.0.3"])
+    s.add_dependency(%q<whenever>, [">= 0.5.0"])
+    s.add_dependency(%q<ohai>, [">= 0.5.6"])
+    s.add_dependency(%q<rspec-rails>, [">= 1.3.2"])
+    s.add_dependency(%q<rspec>, [">= 1.2.9"])
+    s.add_dependency(%q<cucumber>, [">= 0.4.3"])
+    s.add_dependency(%q<pickle>, [">= 0.1.21"])
+    s.add_dependency(%q<cucumber-rails>, [">= 0.3.0"])
+    s.add_dependency(%q<database_cleaner>, [">= 0.5.0"])
+    s.add_dependency(%q<webrat>, [">= 0.7.0"])
+    s.add_dependency(%q<capybara>, ["= 0.3.8"])
+    s.add_dependency(%q<thoughtbot-factory_girl>, [">= 1.2.1"])
   end
 end
 
