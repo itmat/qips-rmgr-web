@@ -71,14 +71,7 @@ config.action_view.cache_template_loading            = true
 # config.threadsafe!
 
 
-config.gem 'rspec-rails', :version => '>= 1.3.2', :lib => false unless File.directory?(File.join(Rails.root, 'vendor/plugins/rspec-rails'))
-config.gem "rspec", :lib => false, :version => ">=1.2.9"
-config.gem "cucumber", :lib => false, :version => ">=0.4.3"
-config.gem "pickle", :lib => false, :version => ">=0.1.21"
-config.gem 'cucumber-rails',   :lib => false, :version => '>=0.3.0' unless File.directory?(File.join(Rails.root, 'vendor/plugins/cucumber-rails'))
-config.gem 'database_cleaner', :lib => false, :version => '>=0.5.0' unless File.directory?(File.join(Rails.root, 'vendor/plugins/database_cleaner'))
-config.gem 'webrat',           :lib => false, :version => '>=0.7.0' unless File.directory?(File.join(Rails.root, 'vendor/plugins/webrat'))
-config.gem "capybara", :lib => false, :version => "=0.3.8"
+
 config.gem "erubis", :lib => false, :version => ">=2.6.2"
 config.gem "json", :lib => false, :version => ">=1.2.0"
 config.gem "amazon-ec2",  :lib => false, :version => ">=0.9.3"
