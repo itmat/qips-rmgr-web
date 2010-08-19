@@ -28,11 +28,11 @@ class IpAccessWriter
   
   def self.host_lookup(str)
     begin
-      private_ip = Resolv.getaddress(str)
+      private_ip = Resolv.getaddress(str).strip
     rescue
       private_ip = nil
     end
-    return private_ip.strip
+    return private_ip
   end
           
   def self.write_access_file(ip_array=nil)

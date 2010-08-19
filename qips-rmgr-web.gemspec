@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{qips-rmgr-web}
-  s.version = "0.4.3"
+  s.version = "0.5.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["David Austin", "Andrew Brader"]
-  s.date = %q{2010-03-10}
+  s.date = %q{2010-07-28}
   s.description = %q{Works with qips node to manage aws instances based on demand.}
   s.email = %q{daustin@mail.med.upenn.edu}
   s.extra_rdoc_files = [
@@ -23,17 +23,14 @@ Gem::Specification.new do |s|
      "app/controllers/application_controller.rb",
      "app/controllers/farms_controller.rb",
      "app/controllers/instances_controller.rb",
-     "app/controllers/recipes_controller.rb",
      "app/controllers/roles_controller.rb",
      "app/helpers/application_helper.rb",
      "app/helpers/farms_helper.rb",
      "app/helpers/instances_helper.rb",
-     "app/helpers/recipes_helper.rb",
      "app/helpers/roles_helper.rb",
      "app/models/event_log.rb",
      "app/models/farm.rb",
      "app/models/instance.rb",
-     "app/models/recipe.rb",
      "app/models/role.rb",
      "app/views/farms/_form.html.erb",
      "app/views/farms/edit.html.erb",
@@ -45,16 +42,13 @@ Gem::Specification.new do |s|
      "app/views/instances/index.html.erb",
      "app/views/instances/set_status.html.erb",
      "app/views/layouts/application.html.erb",
-     "app/views/recipes/edit.html.erb",
-     "app/views/recipes/index.html.erb",
-     "app/views/recipes/new.html.erb",
-     "app/views/recipes/show.html.erb",
      "app/views/roles/_form.html.erb",
      "app/views/roles/edit.html.erb",
      "app/views/roles/index.html.erb",
      "app/views/roles/new.html.erb",
      "app/views/shared/_heading.html.erb",
      "config/boot.rb",
+     "config/cucumber.yml",
      "config/database.yml",
      "config/environment.rb",
      "config/environments/cucumber.rb",
@@ -68,7 +62,9 @@ Gem::Specification.new do |s|
      "config/initializers/session_store.rb",
      "config/iptables.erb",
      "config/locales/en.yml",
+     "config/nodes.erb",
      "config/routes.rb",
+     "config/user_data.erb",
      "db/migrate/20090929180916_create_farms.rb",
      "db/migrate/20090929181104_create_roles.rb",
      "db/migrate/20090929181338_create_instances.rb",
@@ -83,7 +79,6 @@ Gem::Specification.new do |s|
      "db/migrate/20091008183318_add_prov_buffer_launch_buffer_to_roles.rb",
      "db/migrate/20091008183453_add_prov_time_to_instances.rb",
      "db/migrate/20091008184049_remove_enabled_from_farms.rb",
-     "db/migrate/20091009190223_create_delayed_jobs.rb",
      "db/migrate/20091118204118_remove_prov_time_from_instance.rb",
      "db/migrate/20091118205845_add_state_changed_at_executable_ruby_pid_status_updated_at_to_instance.rb",
      "db/migrate/20091119201845_remove_cpu_top_from_instance.rb",
@@ -101,28 +96,47 @@ Gem::Specification.new do |s|
      "db/migrate/20100113172653_remove_user_data_from_farm.rb",
      "db/migrate/20100113172711_add_default_user_data_to_farm.rb",
      "db/migrate/20100113174830_add_user_data_to_instance.rb",
+     "db/migrate/20100428181844_add_spot_price.rb",
+     "db/migrate/20100430152128_change_farms_spot_price.rb",
+     "db/migrate/20100521220753_add_recipes_to_role.rb",
+     "db/migrate/20100527144817_drop_recipes.rb",
+     "db/migrate/20100610193354_create_delayed_jobs.rb",
+     "db/migrate/20100706192648_remove_indexes_from_recipe_roles.rb",
+     "db/migrate/20100706193330_drop_recipes_roles.rb",
      "db/seeds.rb",
      "doc/README_FOR_APP",
      "features/manage_farm.feature",
      "features/manage_instances.feature",
-     "features/manage_recipes.feature",
      "features/manage_roles.feature",
      "features/step_definitions/helper_steps.rb",
      "features/step_definitions/model_steps.rb",
+     "features/step_definitions/pickle_steps.rb",
      "features/step_definitions/user_steps.rb",
-     "features/step_definitions/webrat_steps.rb",
+     "features/step_definitions/web_steps.rb",
+     "features/step_definitions/webrat_steps.rb.old",
      "features/support/env.rb",
      "features/support/factories.rb",
      "features/support/paths.rb",
+     "features/support/pickle.rb",
+     "lib/chef_config_writer.rb",
      "lib/instance_monitor.rb",
      "lib/ip_access_writer.rb",
+     "lib/s3_helper.rb",
      "lib/tasks/cucumber.rake",
      "lib/tasks/delayed_jobs.rake",
      "lib/tasks/prep.rake",
      "lib/tasks/rspec.rake",
+     "lib/user_data_writer.rb",
      "lib/work_item_helper.rb",
      "pkg/qips-rmgr-web-0.1.0.gem",
      "pkg/qips-rmgr-web-0.2.0.gem",
+     "pkg/qips-rmgr-web-0.2.1.gem",
+     "pkg/qips-rmgr-web-0.3.0.gem",
+     "pkg/qips-rmgr-web-0.3.1.gem",
+     "pkg/qips-rmgr-web-0.4.0.gem",
+     "pkg/qips-rmgr-web-0.4.1.gem",
+     "pkg/qips-rmgr-web-0.4.2.gem",
+     "pkg/qips-rmgr-web-0.4.3.gem",
      "public/404.html",
      "public/422.html",
      "public/500.html",
@@ -134,10 +148,15 @@ Gem::Specification.new do |s|
      "public/javascripts/controls.js",
      "public/javascripts/dragdrop.js",
      "public/javascripts/effects.js",
+     "public/javascripts/jquery-1.4.2.min.js",
+     "public/javascripts/jquery-ui-1.8.1.custom.min.js",
      "public/javascripts/prototype.js",
+     "public/javascripts/ui.multiselect.js",
      "public/robots.txt",
      "public/stylesheets/application.css",
+     "public/stylesheets/common.css",
      "public/stylesheets/scaffold.css",
+     "public/stylesheets/ui.multiselect.css",
      "qips-rmgr-web.gemspec",
      "script/about",
      "script/autospec",
@@ -171,36 +190,12 @@ Gem::Specification.new do |s|
      "spec/routing/instances_routing_spec.rb",
      "spec/routing/roles_routing_spec.rb",
      "spec/spec.opts",
-     "spec/spec_helper.rb",
-     "vendor/plugins/delayed_job/MIT-LICENSE",
-     "vendor/plugins/delayed_job/README.textile",
-     "vendor/plugins/delayed_job/Rakefile",
-     "vendor/plugins/delayed_job/VERSION",
-     "vendor/plugins/delayed_job/contrib/delayed_job.monitrc",
-     "vendor/plugins/delayed_job/delayed_job.gemspec",
-     "vendor/plugins/delayed_job/generators/delayed_job/delayed_job_generator.rb",
-     "vendor/plugins/delayed_job/generators/delayed_job/templates/migration.rb",
-     "vendor/plugins/delayed_job/generators/delayed_job/templates/script",
-     "vendor/plugins/delayed_job/init.rb",
-     "vendor/plugins/delayed_job/lib/delayed/command.rb",
-     "vendor/plugins/delayed_job/lib/delayed/job.rb",
-     "vendor/plugins/delayed_job/lib/delayed/message_sending.rb",
-     "vendor/plugins/delayed_job/lib/delayed/performable_method.rb",
-     "vendor/plugins/delayed_job/lib/delayed/recipes.rb",
-     "vendor/plugins/delayed_job/lib/delayed/tasks.rb",
-     "vendor/plugins/delayed_job/lib/delayed/worker.rb",
-     "vendor/plugins/delayed_job/lib/delayed_job.rb",
-     "vendor/plugins/delayed_job/recipes/delayed_job.rb",
-     "vendor/plugins/delayed_job/spec/database.rb",
-     "vendor/plugins/delayed_job/spec/delayed_method_spec.rb",
-     "vendor/plugins/delayed_job/spec/job_spec.rb",
-     "vendor/plugins/delayed_job/spec/story_spec.rb",
-     "vendor/plugins/delayed_job/tasks/jobs.rake"
+     "spec/spec_helper.rb"
   ]
   s.homepage = %q{http://github.com/abrader/qips-rmgr-web}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.5}
+  s.rubygems_version = %q{1.3.7}
   s.summary = %q{Web-based resource manager for QIPS suite.}
   s.test_files = [
     "spec/controllers/farms_controller_spec.rb",
@@ -222,7 +217,7 @@ Gem::Specification.new do |s|
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
-    if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
+    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
     else
     end
   else
