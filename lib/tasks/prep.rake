@@ -24,7 +24,7 @@ namespace :prep do
   task :ami_ids => :environment do
     Role.destroy_all
     Role.find_or_create_by_name(:name => "general", :description => "General empty role", :platform => "aki", :recipes => "")
-    Role.find_or_create_by_name(:name => "basic", :description => "Basic role for compute nodes", :platform => "aki", :recipes => "qips-node-amqp")
+    Role.find_or_create_by_name(:name => "basic", :description => "Basic role for compute nodes", :platform => "aki", :recipes => "qips-node")
     
     Farm.destroy_all
     result_www = Farm.find_or_create_by_name(:name => 'WWW', :description => 'AWS Web Server', :ami_id => WWW_AMI_ID, :min => 0, :max => 1, :role => Role.find_by_name("general"), :key_pair_name => 'admin-systems', :security_groups => 'www-prod', :farm_type => 'admin', :ami_spec => 'c1.medium', :spot_price => 0.5.to_f)
