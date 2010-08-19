@@ -14,7 +14,7 @@ HOUR_MOD = 52 # num minutes nodes are idle before they are shut off
 TEMP_DIR = "/tmp"
 
 #Amazon EC2 Metadata Tool Download URL
-EC2_METATOOL_URL = 'http://www.amazon.com/gp/redirect.html/ref=aws_rc_1825?location=http%3A%2F%2Fs3.amazonaws.com%2Fec2metadata%2Fec2-metadata&token=A80325AA4DAB186C80828ED5138633E3F49160D9'
+EC2_METATOOL_URL = 'http://s3.amazonaws.com/ec2metadata/ec2-metadata'
 
 #IPTABLES locations
 IPTABLES_OUTPUT_PATH  = '/etc/sysconfig/iptables' 
