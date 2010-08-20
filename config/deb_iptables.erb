@@ -1,5 +1,6 @@
 #!/bin/sh
 
+/sbin/iptables -F
 /sbin/iptables -A INPUT -p icmp --icmp-type ping -j ACCEPT
 /sbin/iptables -A INPUT -i lo -j ACCEPT
 /sbin/iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
