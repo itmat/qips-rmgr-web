@@ -8,6 +8,10 @@ ActionController::Routing::Routes.draw do |map|
   
   map.start_compute_instances 'farms/start_compute_instances/:num_requested.:format', :controller => 'farms', :action => 'start_compute_instances'
   
+  map.start_id 'farms/start/:id', :controller => 'farms', :action => 'start'
+
+  map.reconcile_farm 'farms/reconcile/:id', :controller => 'farms', :action => 'reconcile'
+
   map.start_by_role 'farms/start_by_role', :controller => 'farms', :action => 'start_by_role'
 
   # reconcile_farm_path(@farm)
