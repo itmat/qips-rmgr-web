@@ -71,7 +71,6 @@ config.action_view.cache_template_loading            = true
 # config.threadsafe!
 
 
-
 config.gem "erubis", :lib => false, :version => ">=2.6.2"
 config.gem "json", :lib => false, :version => ">=1.2.0"
 config.gem "amazon-ec2",  :lib => false, :version => ">=0.9.3"

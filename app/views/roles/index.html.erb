@@ -15,7 +15,7 @@
     <td><%=h role.recipes.inspect %></td>
 	<td><%=h role.platform %></td>
     <td><%= link_to 'Edit', edit_role_path(role) %></td>
-    <td><%= link_to 'Destroy', role, :confirm => 'Are you sure?', :method => :delete %></td>
+    <td><%= link_to 'Destroy', role_path(role), :confirm => 'Are you sure?', :method => :delete %></td>
   </tr>
 <% end %>
 </table>
