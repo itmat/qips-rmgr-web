@@ -1,7 +1,7 @@
 #!/bin/sh
 
-/sbin//sbin/iptables -A INPUT -p icmp --icmp-type ping -j ACCEPT
-/sbin//sbin/iptables -A INPUT -i lo -j ACCEPT
+/sbin/iptables -A INPUT -p icmp --icmp-type ping -j ACCEPT
+/sbin/iptables -A INPUT -i lo -j ACCEPT
 /sbin/iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --src 128.91.211.0/255.255.255.0 --dport 22 -j ACCEPT
 /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --src 165.123.243.41/255.255.255.255 --dport 22 -j ACCEPT
