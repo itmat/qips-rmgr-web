@@ -33,7 +33,7 @@ Rails::Initializer.run do |config|
   # config.gem "hpricot", :version => '0.6', :source => "http://code.whytheluckystiff.net"
   # config.gem "sqlite3-ruby", :lib => "sqlite3"
   # config.gem "aws-s3", :lib => "aws/s3"
-    config.gem "delayed_job"
+    config.gem "delayed_job", :version => "=2.0.3"
     config.gem "whenever", :lib => false
     config.gem "ohai", :lib => false, :version => ">=0.5.6"
 
