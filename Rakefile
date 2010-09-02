@@ -24,6 +24,7 @@ begin
     gemspec.add_dependency "json", ">=1.2.0"
     gemspec.add_dependency "amazon-ec2", "=0.9.3"
     gemspec.add_dependency "right_aws", ">=1.10.0"
+    gemspec.add_dependency "mysql", ">=2.1.0"
     gemspec.add_dependency "octopussy", ">=0.2.2"
     gemspec.add_dependency "git", ">=1.2.5"
     gemspec.add_dependency "archive-tar-minitar", ">=0.5.2"
