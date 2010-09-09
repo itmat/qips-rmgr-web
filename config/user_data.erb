@@ -1,8 +1,6 @@
 #!/bin/sh
 
 cd /tmp;
-/usr/bin/env curl -o /usr/local/bin/ec2-metadata '<%= EC2_METATOOL_URL %>';
-chmod 0755 /usr/local/bin/ec2-metadata;
 /usr/bin/env curl -o /tmp/aws.rb '<%= aws_cred_url %>';
 /usr/bin/env curl -o /tmp/solo.rb '<%= CHEF_SOLO_URL %>';
 chef-solo -c solo.rb -j <%= chef_json_url %> -r <%= COOKBOOK_URL %>;
