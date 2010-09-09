@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{qips-rmgr-web}
-  s.version = "0.5.10"
+  s.version = "0.5.11"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["David Austin", "Andrew Brader"]
-  s.date = %q{2010-08-25}
+  s.date = %q{2010-09-02}
   s.description = %q{Works with qips node to manage aws instances based on demand.}
   s.email = %q{daustin@mail.med.upenn.edu}
   s.extra_rdoc_files = [
@@ -225,6 +225,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<json>, [">= 1.2.0"])
       s.add_runtime_dependency(%q<amazon-ec2>, ["= 0.9.3"])
       s.add_runtime_dependency(%q<right_aws>, [">= 1.10.0"])
+      s.add_runtime_dependency(%q<mysql>, [">= 2.1.0"])
       s.add_runtime_dependency(%q<octopussy>, [">= 0.2.2"])
       s.add_runtime_dependency(%q<git>, [">= 1.2.5"])
       s.add_runtime_dependency(%q<archive-tar-minitar>, [">= 0.5.2"])
@@ -245,6 +246,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<json>, [">= 1.2.0"])
       s.add_dependency(%q<amazon-ec2>, ["= 0.9.3"])
       s.add_dependency(%q<right_aws>, [">= 1.10.0"])
+      s.add_dependency(%q<mysql>, [">= 2.1.0"])
       s.add_dependency(%q<octopussy>, [">= 0.2.2"])
       s.add_dependency(%q<git>, [">= 1.2.5"])
       s.add_dependency(%q<archive-tar-minitar>, [">= 0.5.2"])
@@ -266,6 +268,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<json>, [">= 1.2.0"])
     s.add_dependency(%q<amazon-ec2>, ["= 0.9.3"])
     s.add_dependency(%q<right_aws>, [">= 1.10.0"])
+    s.add_dependency(%q<mysql>, [">= 2.1.0"])
     s.add_dependency(%q<octopussy>, [">= 0.2.2"])
     s.add_dependency(%q<git>, [">= 1.2.5"])
     s.add_dependency(%q<archive-tar-minitar>, [">= 0.5.2"])

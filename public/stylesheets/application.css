@@ -1,5 +1,5 @@
 body {
-  background: url(../images/green_atoms.jpg) repeat center center;
+  background-color: #803F42;
   font-family: Verdana, Helvetica, Arial;
   font-size: 14px;
 }
@@ -12,15 +12,10 @@ a {
   color: #0000FF;
 }
  
-body {
-  background-color: #000000;
-}
- 
 #container {
   width: 75%;
   margin: 0 auto;
-  /*background-color: #d5cfb3;*/
-  background-color: #E4E4E4;
+  background-color: #EEEEEE;
   padding: 20px 40px;
   border: solid 1px black;
   margin-top: 20px;
