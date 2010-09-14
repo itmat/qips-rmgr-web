@@ -17,14 +17,24 @@ class Role < ActiveRecord::Base
     
     def self.get_avail_recipes()
       recipes = Array.new
+      cookbooks_sha = String.new
       client = Octopussy::Client.new(:login => GITHUB_LOGIN, :token => GITHUB_API_TOKEN)
       tree = GITHUB_LOGIN + "/" + GITHUB_REPO
-      hmash = client.tree(tree, GITHUB_COOKBOOK_SHA)
+      latest_commit_sha = client.list_commits(tree).first.tree
+      hmash = client.tree(tree, latest_commit_sha)
 
       hmash.each do | mash |
-              recipes << mash.name if mash.mode == "040000"
+        if mash.name == "cookbooks"
+          cookbooks_sha = mash.sha
+        end
       end
       
+      cb_hmash = client.tree(tree, cookbooks_sha)
+          
+      cb_hmash.each do | mash |
+              recipes << mash.name if mash.mode == "040000"
+      end
+
       return recipes
     end
     
