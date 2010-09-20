@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{qips-rmgr-web}
-  s.version = "0.5.3"
+  s.version = "0.5.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["David Austin", "Andrew Brader"]
-  s.date = %q{2010-08-19}
+  s.date = %q{2010-09-09}
   s.description = %q{Works with qips node to manage aws instances based on demand.}
   s.email = %q{daustin@mail.med.upenn.edu}
   s.extra_rdoc_files = [
