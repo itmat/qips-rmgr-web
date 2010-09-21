@@ -12,7 +12,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.reconcile_farm 'farms/reconcile/:id', :controller => 'farms', :action => 'reconcile'
 
-  map.start_by_role 'farms/start_by_role', :controller => 'farms', :action => 'start_by_role'
+  map.start_by_role 'farms/start_by_role/:role_name/:num_requested.:format', :controller => 'farms', :action => 'start_by_role'
 
   # reconcile_farm_path(@farm)
   # ROOT_URL_PATH/farms/:id/reconcile :method => :post
