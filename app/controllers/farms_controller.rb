@@ -101,7 +101,7 @@ class FarmsController < ApplicationController
     @farm.send_later(:start, num_start, nil, user_data)
     flash[:notice] = "Requested to start #{num_start} instances. This may take a few minutes."
     respond_to do |format|
-      format.html { redirect_to(@farm) }
+      format.html { redirect_to(farm_path(@farm)) }
       format.xml  { head :ok }
     end
   end
@@ -122,32 +122,38 @@ class FarmsController < ApplicationController
       format.json { head :created }
     end
   end
-  
-  
-  # start by role MAY BE DEPRECATED!
+    
+  # start by role
   # looks up farm based on role, then call start!
-  # looks for :role :num_start :workflow_id
+  # looks for :role_id :num_requested
+  
   def start_by_role
 
-    unless params[:role].nil? || params[:num_start].nil? || params[:workitem_id].nil?
+    unless params[:role_id].nil?
+      error = ''
       begin
-        role = Role.find(:first, :conditions => {:name => params[:role]})
+        num_requested = (params[:num_requested].nil? || params[:num_requested].empty?) ? 1 : params[:num_requested].to_i
+        user_data = params[:user_data] ||= ''
+        role = Role.find(params[:role_id].to_i)
+        throw "Could not find role based on id #{params[:role_id]}" if role.nil?
         @farm = Farm.find(:first, :conditions => {:role_id => role})
-        
-        @farm.send_later( :start, params[:num_start], params[:workitem_id])
+        throw "Could not find a farm for role: #{role.name}"        
+        @farm.send_later( :start, params[:num_requested])
       
       rescue => e
         
         logger.error "Exception Caught while trying to start_by_role:"
         logger.error "#{e.message}"
         logger.error "#{e.backtrace}"
-      
+        error = "#{e.message}"
       
       end
       
       respond_to do |format|
-        format.html { redirect_to(@farm) }
-        format.xml  { head :ok }
+        if error.empty?
+          format.xml  { head :created }
+        else
+          format.xml  { head :bad_request}
       end
       
       
@@ -193,7 +199,7 @@ class FarmsController < ApplicationController
     end    
 
     respond_to do |format|
-      format.html { redirect_to(@farm) }
+      format.html { redirect_to(farm_path(@farm)) }
       format.xml  { head :ok }
     end
     
