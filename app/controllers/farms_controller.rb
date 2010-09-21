@@ -125,17 +125,17 @@ class FarmsController < ApplicationController
     
   # start by role
   # looks up farm based on role, then call start!
-  # looks for :role_name :num_requested
+  # looks for :role_id :num_requested
   
   def start_by_role
 
-    unless params[:role_name].nil?
+    unless params[:role_id].nil?
       error = ''
       begin
         num_requested = (params[:num_requested].nil? || params[:num_requested].empty?) ? 1 : params[:num_requested].to_i
         user_data = params[:user_data] ||= ''
-        role = Role.find(:first, :conditions => {:name => params[:role_name]})
-        throw "Could not find role based on name #{params[:role_name]}" if role.nil?
+        role = Role.find(params[:role_id].to_i)
+        throw "Could not find role based on id #{params[:role_id]}" if role.nil?
         @farm = Farm.find(:first, :conditions => {:role_id => role})
         throw "Could not find a farm for role: #{role.name}"        
         @farm.send_later( :start, params[:num_requested])
