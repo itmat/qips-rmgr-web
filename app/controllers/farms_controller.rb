@@ -101,7 +101,7 @@ class FarmsController < ApplicationController
     @farm.send_later(:start, num_start, nil, user_data)
     flash[:notice] = "Requested to start #{num_start} instances. This may take a few minutes."
     respond_to do |format|
-      format.html { redirect_to(@farm) }
+      format.html { redirect_to(farm_path(@farm)) }
       format.xml  { head :ok }
     end
   end
@@ -146,7 +146,7 @@ class FarmsController < ApplicationController
       end
       
       respond_to do |format|
-        format.html { redirect_to(@farm) }
+        format.html { redirect_to(farm_path(@farm)) }
         format.xml  { head :ok }
       end
       
@@ -193,7 +193,7 @@ class FarmsController < ApplicationController
     end    
 
     respond_to do |format|
-      format.html { redirect_to(@farm) }
+      format.html { redirect_to(farm_path(@farm)) }
       format.xml  { head :ok }
     end
     
