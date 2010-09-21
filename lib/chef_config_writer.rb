@@ -3,17 +3,10 @@ require 'erubis'
 class ChefConfigWriter
   
   def self.write_nodes_json(recipe_array, unique_id)
-    qips_node_check = 0
+    last_app = "qips-node"
     
-    recipe_array.each do | recp |
-      if recp.strip == "qips-node"
-        recp.shift
-        qips_node_check = 1
-      end
-    end
-    
-    if qips_node_check == 1
-      recipe_array.push("qips-node")
+    if recipe_array.delete(last_app).eql?(last_app)
+      recipe_array.push(last_app)
     end
     
     nodes_json_url = String.new
