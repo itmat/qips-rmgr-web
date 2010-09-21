@@ -154,6 +154,7 @@ class FarmsController < ApplicationController
           format.xml  { head :created }
         else
           format.xml  { head :bad_request}
+        end
       end
       
       
