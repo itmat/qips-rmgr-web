@@ -137,8 +137,9 @@ class FarmsController < ApplicationController
         role = Role.find(params[:role_id].to_i)
         throw "Could not find role based on id #{params[:role_id]}" if role.nil?
         @farm = Farm.find(:first, :conditions => {:role_id => role})
-        throw "Could not find a farm for role: #{role.name}" if @farm.nil?    
-        @farm.send_later( :start, params[:num_requested])
+        throw "Could not find a farm for role: #{role.name}" if @farm.nil?
+        user_data = params[:user_data] ||= ''
+        @farm.send_later( :start, params[:num_requested], nil, user_data)
       
       rescue => e
         
