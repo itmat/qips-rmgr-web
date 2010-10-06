@@ -75,7 +75,16 @@ class Instance < ActiveRecord::Base
     #
 
     def running?
-      (state == 'launched' || state == 'admin' || state == 'idle' || state == 'busy' || state == 'reserved' || state == 'manual' || state == 'provisioning')
+      (state == 'launched' || state == 'admin' || state == 'idle' || state == 'busy' || state == 'reserved' || state == 'manual' || state == 'provisioning' || state == 'error')
+    end
+    
+    ###########
+    # 
+    #   returns true if the instance has an error state
+    #
+
+    def error?
+      (state == 'error')
     end
     
 

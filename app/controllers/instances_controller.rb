@@ -79,10 +79,9 @@ class InstancesController < ApplicationController
       if @instance.state.eql?('error')
         logger.error "Instance #{@instance.instance_id} reported following error: #{h['error_message']}"
         EventLog.error "Instance #{@instance.instance_id} reported following error: #{h['error_message']}"
-        EventLog.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because of error..." unless @instance.farm.farm_type.eql?('admin')
-        @instance.terminate unless @instance.farm.farm_type.eql?('admin')
+        # EventLog.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because of error..." unless @instance.farm.farm_type.eql?('admin')
+        # @instance.terminate unless @instance.farm.farm_type.eql?('admin')
       else
-        
         
         #but now we decide if the process needs to be killed because of process timeout
         if h['timeout']
@@ -90,31 +89,39 @@ class InstancesController < ApplicationController
           t = (Time.now - (h['timeout'].to_i * 60))
           
           if ((t <=> d) > 0) && @instance.state.eql?('busy') then
+            
+            #shut her down!
+            logger.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because it was busy for too long."
+            EventLog.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because it was busy for too long."
+            @instance.terminate
+            @instance.save
+            
+            
             # first we check cycle counts.  if ruby_cycle_count < max then cycle ruby.
             
-            if @instance.ruby_cycle_count < RUBY_CYCLE_MAX
+            # if @instance.ruby_cycle_count < RUBY_CYCLE_MAX
               # cycle ruby
-              @kill = 'KILL'    
-              logger.info "Sending KILL notice for: Instance: #{h['instance_id']} PID: #{h['ruby_pid']}"
-              EventLog.info "Sending KILL notice for: Instance: #{h['instance_id']} PID: #{h['ruby_pid']}"
-              @instance.ruby_cycle_count += 1
-              @instance.save
+            #  @kill = 'KILL'    
+            #  logger.info "Sending KILL notice for: Instance: #{h['instance_id']} PID: #{h['ruby_pid']}"
+            #  EventLog.info "Sending KILL notice for: Instance: #{h['instance_id']} PID: #{h['ruby_pid']}"
+            #  @instance.ruby_cycle_count += 1
+            #  @instance.save
               
-            else
+            #else
               # recycle instance entirely, unless maxed out
-              if @instance.cycle_count < NODE_CYCLE_MAX
-                logger.info "Recycling instance #{@instance.farm.ami_id} -- #{@instance.instance_id}..."
-                EventLog.info "Recycling instance #{@instance.farm.ami_id} -- #{@instance.instance_id}..."
-                @instance.send_later( :recycle )
-              else
-                logger.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because it was unresponsive and exceeded max recycle tries."
-                EventLog.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because it was unresponsive and exceeded max recycle tries."
-                @instance.terminate
-                @instance.save
-              end
+              # if @instance.cycle_count < NODE_CYCLE_MAX
+              #  logger.info "Recycling instance #{@instance.farm.ami_id} -- #{@instance.instance_id}..."
+              #  EventLog.info "Recycling instance #{@instance.farm.ami_id} -- #{@instance.instance_id}..."
+              #  @instance.send_later( :recycle )
+              # else
+              #  logger.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because it was unresponsive and exceeded max recycle tries."
+              #  EventLog.info "Shutting down instance #{@instance.farm.ami_id} -- #{@instance.instance_id} because it was unresponsive and exceeded max recycle tries."
+              #  @instance.terminate
+              #  @instance.save
+              # end
               
               
-            end
+            # end
             
           end
           

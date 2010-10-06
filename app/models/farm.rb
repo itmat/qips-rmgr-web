@@ -163,12 +163,12 @@ class Farm < ActiveRecord::Base
       start_and_create_instances(num_start)
 
     elsif ia.size > max
-      # need to stop some of the instances, if they are either 'IDLE' or 'LAUNCHED' state
+      # need to stop some of the instances, if they are either 'IDLE' or 'LAUNCHED' state or "ERROR"
       num_stop = ia.size - max.to_i
       count = 0
       ia.each do |ri|
         break if count >= num_stop
-        if ri.available? 
+        if ri.available? || ri.error?
           #shut it down!
           logger.info "Shutting down instance #{ami_id} -- #{ri.instance_id}..."
           EventLog.info "Shutting down instance #{ami_id} -- #{ri.instance_id}..."
@@ -192,16 +192,21 @@ class Farm < ActiveRecord::Base
     
     ia.each do |ri|
       if (ri.available? || ri.state.eql?('busy')) && ri.farm.farm_type.eql?('compute') && ri.silent_since?(NODE_TIMEOUT)
+        #shut down silent nodes
+        logger.info "Shutting down instance #{ri.farm.ami_id} -- #{ri.instance_id} because it was unresponsive."
+        EventLog.info "Shutting down instance #{ri.farm.ami_id} -- #{ri.instance_id} because it was unresponsive."
+        ri.terminate
+        
         #recycle if not heard from in a while
-        if ri.cycle_count < NODE_CYCLE_MAX
-          logger.info "Recycling instance #{ri.farm.ami_id} -- #{ri.instance_id}..."
-          EventLog.info "Recycling instance #{ri.farm.ami_id} -- #{ri.instance_id}..."
-          ri.recycle
-        else
-          logger.info "Shutting down instance #{ri.farm.ami_id} -- #{ri.instance_id} because it was unresponsive and exceeded max recycle tries."
-          EventLog.info "Shutting down instance #{ri.farm.ami_id} -- #{ri.instance_id} because it was unresponsive and exceeded max recycle tries."
-          ri.terminate          
-        end
+        # if ri.cycle_count < NODE_CYCLE_MAX
+        #  logger.info "Recycling instance #{ri.farm.ami_id} -- #{ri.instance_id}..."
+        #  EventLog.info "Recycling instance #{ri.farm.ami_id} -- #{ri.instance_id}..."
+        #  ri.recycle
+        # else
+        #  logger.info "Shutting down instance #{ri.farm.ami_id} -- #{ri.instance_id} because it was unresponsive and exceeded max recycle tries."
+        #  EventLog.info "Shutting down instance #{ri.farm.ami_id} -- #{ri.instance_id} because it was unresponsive and exceeded max recycle tries."
+        #  ri.terminate          
+        # end
       end  
     end
     
@@ -245,7 +250,7 @@ class Farm < ActiveRecord::Base
 
         #first find out how many instances are running of this type
         total_running = (instances.select{ |j| j.running? }).size
-        unless ((total_running - 1) <  min ||  (! i.available?) || (farm_type.eql?('admin')))
+        unless ((total_running - 1) <  min || (! i.available? && ! i.error? ) || (farm_type.eql?('admin')))
           # for now we shutdown via aws but this will change as we figure out a better way
           logger.info "Shutting down #{i.farm.ami_id} -- #{i.instance_id} due to IDLE timeout."
           EventLog.info "Shutting down #{i.farm.ami_id} -- #{i.instance_id} due to IDLE timeout."
